@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Plus, Search, Edit, Trash2 } from 'lucide-react';
+import { Plus, Edit, Trash2, Download } from 'lucide-react';
 import { useStore, type Kategori } from '../store/useStore';
 import Modal from '../components/Modal';
+import { exportToExcel } from '../utils/excel';
 
 const PosKategori: React.FC = () => {
   const { kategori, addKategori, deleteKategori, editKategori } = useStore();
@@ -46,6 +47,14 @@ const PosKategori: React.FC = () => {
     setIsModalOpen(false);
   };
 
+  const handleExport = () => {
+    const dataToExport = kategori.map(k => ({
+      'Tipe Pos': k.tipe,
+      'Nama Kategori': k.nama
+    }));
+    exportToExcel(dataToExport, 'Data_Pos_Kategori');
+  };
+
   return (
     <div className="animate-fade-in">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
@@ -53,9 +62,14 @@ const PosKategori: React.FC = () => {
           <h2>Pos Kategori</h2>
           <p>Kategori pencatatan untuk Pemasukan dan Pengeluaran (Chart of Accounts).</p>
         </div>
-        <button className="btn btn-primary" onClick={openAddModal}>
-          <Plus size={18} /> Tambah Kategori
-        </button>
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <button className="btn btn-outline" style={{ color: 'var(--primary)', borderColor: 'var(--primary)' }} onClick={handleExport}>
+            <Download size={18} /> Simpan (Excel)
+          </button>
+          <button className="btn btn-primary" onClick={openAddModal}>
+            <Plus size={18} /> Tambah Pos
+          </button>
+        </div>
       </div>
 
       <div className="card">

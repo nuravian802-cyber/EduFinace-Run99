@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useStore } from '../store/useStore';
-import { Search, CheckCircle } from 'lucide-react';
+import { Search, CheckCircle, Download } from 'lucide-react';
+import { exportToExcel } from '../utils/excel';
 
 const TransaksiPembayaran: React.FC = () => {
   const { tagihan, siswa, akunKas, bayarMultiTagihan } = useStore();
@@ -31,6 +32,23 @@ const TransaksiPembayaran: React.FC = () => {
   const handleSiswaClick = (id: string) => {
     setSelectedSiswaId(id);
     setSelectedTagihan({}); // Reset selection when changing student
+  };
+
+  const handleExport = () => {
+    let dataToExport: any[] = [];
+    filteredSiswa.forEach(s => {
+      const studentTagihan = tagihan.filter(t => t.siswaId === s.id && (t.nominal - t.terbayar) > 0);
+      studentTagihan.forEach(t => {
+        dataToExport.push({
+          NIS: s.nis,
+          Nama: s.nama,
+          'Item Tagihan': t.namaTagihan,
+          'Nominal (Rp)': t.nominal,
+          'Sisa (Rp)': t.nominal - t.terbayar
+        });
+      });
+    });
+    exportToExcel(dataToExport, 'Tagihan_Belum_Lunas');
   };
 
   const handleCheckboxChange = (tId: string, sisa: number, checked: boolean) => {
@@ -70,9 +88,14 @@ const TransaksiPembayaran: React.FC = () => {
 
   return (
     <div className="animate-fade-in">
-      <div style={{ marginBottom: '2rem' }}>
-        <h2>Transaksi Pembayaran Siswa</h2>
-        <p>Pilih siswa lalu centang satu atau lebih tagihan yang ingin dibayar sekaligus.</p>
+      <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <h2>Transaksi Pembayaran Siswa</h2>
+          <p>Pilih siswa lalu centang satu atau lebih tagihan yang ingin dibayar sekaligus.</p>
+        </div>
+        <button className="btn btn-outline" style={{ color: 'var(--primary)', borderColor: 'var(--primary)' }} onClick={handleExport}>
+          <Download size={16} /> Simpan
+        </button>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '2rem' }}>

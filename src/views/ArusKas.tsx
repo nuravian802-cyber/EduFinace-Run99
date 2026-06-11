@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { Printer } from 'lucide-react';
+import { Printer, Download } from 'lucide-react';
 import { useStore } from '../store/useStore';
+import { exportToExcel } from '../utils/excel';
 
 const ArusKas: React.FC = () => {
   const { transaksi, kategori } = useStore();
@@ -26,14 +27,33 @@ const ArusKas: React.FC = () => {
     keluar.forEach(t => {
       const nama = t.kategoriId ? kategori.find(k => k.id === t.kategoriId)?.nama : 'Pengeluaran Lainnya';
       const key = nama || 'Lainnya';
-      groupKeluar[key] = (groupKeluar[key] || 0) + t.nominal;
+      acc.keluar[key] = (acc.keluar[key] || 0) + t.nominal;
     });
 
-    const totalMasuk = masuk.reduce((sum, t) => sum + t.nominal, 0);
-    const totalKeluar = keluar.reduce((sum, t) => sum + t.nominal, 0);
-
-    return { masuk: groupMasuk, keluar: groupKeluar, totalMasuk, totalKeluar };
+    return acc;
   }, [transaksi, kategori, periodeMulai, periodeAkhir]);
+
+  const handleExport = () => {
+    let dataToExport: any[] = [];
+    
+    dataToExport.push({ Keterangan: 'ARUS KAS MASUK', 'Nominal (Rp)': '' });
+    Object.entries(masuk).forEach(([name, amount]) => {
+      dataToExport.push({ Keterangan: name, 'Nominal (Rp)': amount });
+    });
+    dataToExport.push({ Keterangan: 'Total Penerimaan', 'Nominal (Rp)': totalMasuk });
+    dataToExport.push({ Keterangan: '', 'Nominal (Rp)': '' });
+
+    dataToExport.push({ Keterangan: 'ARUS KAS KELUAR', 'Nominal (Rp)': '' });
+    Object.entries(keluar).forEach(([name, amount]) => {
+      dataToExport.push({ Keterangan: name, 'Nominal (Rp)': amount });
+    });
+    dataToExport.push({ Keterangan: 'Total Pengeluaran', 'Nominal (Rp)': totalKeluar });
+    dataToExport.push({ Keterangan: '', 'Nominal (Rp)': '' });
+    
+    dataToExport.push({ Keterangan: 'Saldo Akhir', 'Nominal (Rp)': totalMasuk - totalKeluar });
+    
+    exportToExcel(dataToExport, 'Laporan_Arus_Kas');
+  };
 
   const kasBersih = totalMasuk - totalKeluar;
 
@@ -44,9 +64,14 @@ const ArusKas: React.FC = () => {
           <h2>Laporan Arus Kas (Cash Flow)</h2>
           <p>Laporan pergerakan kas masuk dan keluar secara keseluruhan.</p>
         </div>
-        <button className="btn btn-outline" onClick={() => window.print()}>
-          <Printer size={18} /> Cetak Laporan
-        </button>
+        <div className="no-print" style={{ display: 'flex', gap: '0.5rem' }}>
+          <button className="btn btn-outline" style={{ color: 'var(--primary)', borderColor: 'var(--primary)' }} onClick={handleExport}>
+            <Download size={18} /> Simpan (Excel)
+          </button>
+          <button className="btn btn-primary" onClick={() => window.print()}>
+            <Printer size={18} /> Cetak Laporan
+          </button>
+        </div>
       </div>
 
       <div className="paper-container print-area">

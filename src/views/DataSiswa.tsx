@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Plus, Search, Edit, Trash2, Upload } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Upload, Download } from 'lucide-react';
 import { useStore, type Siswa } from '../store/useStore';
 import Modal from '../components/Modal';
+import { importFromExcel, exportToExcel } from '../utils/excel';
 
 const DataSiswa: React.FC = () => {
   const { siswa, deleteSiswa, addSiswa, editSiswa } = useStore();
@@ -11,6 +12,7 @@ const DataSiswa: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
   const [editId, setEditId] = useState<string | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   // Form State
   const [formData, setFormData] = useState<Partial<Siswa>>({
@@ -52,6 +54,53 @@ const DataSiswa: React.FC = () => {
     setIsModalOpen(false);
   };
 
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const data = await importFromExcel(file);
+      let count = 0;
+      data.forEach(row => {
+        // Asumsi format kolom Excel: NIS, NISN, Nama, Kelas, TanggalLahir, NamaOrtu, WaOrtu
+        if (row['Nama'] || row['NAMA'] || row['nama']) {
+          const nama = row['Nama'] || row['NAMA'] || row['nama'];
+          addSiswa({
+            nis: (row['NIS'] || row['nis'] || '')?.toString(),
+            nisn: (row['NISN'] || row['nisn'] || '')?.toString(),
+            nama: nama?.toString(),
+            kelas: (row['Kelas'] || row['kelas'] || '')?.toString(),
+            tanggalLahir: (row['TanggalLahir'] || row['Tanggal Lahir'] || '')?.toString(),
+            namaOrangTua: (row['NamaOrtu'] || row['Nama Wali'] || row['Nama Orang Tua'] || '')?.toString(),
+            waOrangTua: (row['WaOrtu'] || row['No WA'] || row['No. WA'] || '')?.toString(),
+            password: ''
+          });
+          count++;
+        }
+      });
+      alert(`Berhasil mengimpor ${count} data siswa dari Excel.`);
+    } catch (err) {
+      alert('Gagal membaca file Excel.');
+    }
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleExport = () => {
+    const dataToExport = filteredSiswa.map(s => ({
+      NIS: s.nis,
+      NISN: s.nisn,
+      'Nama Siswa': s.nama,
+      Kelas: s.kelas,
+      'Tanggal Lahir': s.tanggalLahir,
+      'Nama Wali': s.namaOrangTua,
+      'No WA': s.waOrangTua
+    }));
+    exportToExcel(dataToExport, 'Data_Siswa');
+  };
+
   return (
     <div className="animate-fade-in">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
@@ -60,8 +109,18 @@ const DataSiswa: React.FC = () => {
           <p>Kelola direktori siswa aktif, NISN, dan kontak orang tua.</p>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem' }}>
-          <button className="btn btn-outline" style={{ color: 'var(--success)', borderColor: 'var(--success)' }}>
+          <input 
+            type="file" 
+            accept=".xlsx, .xls" 
+            ref={fileInputRef} 
+            style={{ display: 'none' }} 
+            onChange={handleFileChange} 
+          />
+          <button className="btn btn-outline" style={{ color: 'var(--success)', borderColor: 'var(--success)' }} onClick={handleImportClick}>
             <Upload size={18} /> Impor Excel
+          </button>
+          <button className="btn btn-outline" style={{ color: 'var(--primary)', borderColor: 'var(--primary)' }} onClick={handleExport}>
+            <Download size={18} /> Simpan (Excel)
           </button>
           <button className="btn btn-primary" onClick={openAddModal}>
             <Plus size={18} /> Tambah Data

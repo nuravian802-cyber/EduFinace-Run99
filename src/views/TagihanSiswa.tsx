@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Search, ChevronDown, ChevronRight, Edit, Trash2 } from 'lucide-react';
+import { Search, ChevronDown, ChevronRight, Edit, Trash2, Download } from 'lucide-react';
 import { useStore, type Tagihan } from '../store/useStore';
 import Modal from '../components/Modal';
+import { exportToExcel } from '../utils/excel';
 
 const TagihanSiswa: React.FC = () => {
   const { siswa, tagihan, addTagihan, editTagihan, deleteTagihan, currentUser } = useStore();
@@ -79,6 +80,28 @@ const TagihanSiswa: React.FC = () => {
     }
   };
 
+  const handleExport = () => {
+    let dataToExport: any[] = [];
+    filteredSiswa.forEach(s => {
+      const studentTagihan = tagihan.filter(t => t.siswaId === s.id);
+      if (studentTagihan.length === 0) {
+        dataToExport.push({ NIS: s.nis, Nama: s.nama, 'Nama Tagihan': '-', Nominal: 0, Terbayar: 0, Sisa: 0 });
+      } else {
+        studentTagihan.forEach(t => {
+          dataToExport.push({
+            NIS: s.nis,
+            Nama: s.nama,
+            'Nama Tagihan': t.namaTagihan,
+            Nominal: t.nominal,
+            Terbayar: t.terbayar,
+            Sisa: t.nominal - t.terbayar
+          });
+        });
+      }
+    });
+    exportToExcel(dataToExport, 'Data_Tagihan_Siswa');
+  };
+
   const formatRp = (num: number) => new Intl.NumberFormat('id-ID').format(num);
 
   return (
@@ -105,6 +128,9 @@ const TagihanSiswa: React.FC = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
+          <button className="btn btn-outline" style={{ color: 'var(--primary)', borderColor: 'var(--primary)' }} onClick={handleExport}>
+            <Download size={16} /> Simpan
+          </button>
           <button className="btn btn-primary" onClick={openGenerateModal}>
             % Generate Baru
           </button>

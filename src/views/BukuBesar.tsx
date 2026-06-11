@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Filter, Download } from 'lucide-react';
 import { useStore } from '../store/useStore';
+import { exportToExcel } from '../utils/excel';
 
 const BukuBesar: React.FC = () => {
   const { akunKas, transaksi } = useStore();
@@ -16,16 +17,22 @@ const BukuBesar: React.FC = () => {
 
   const selectedAkun = akunKas.find(a => a.id === akunId);
   
-  // Calculate saldo awal: sum of all transactions for this account BEFORE this month
-  // Note: Since we don't have historical data prior to app usage, we assume the current 'saldo' of AkunKas is its true current balance,
-  // but to do a proper ledger we need the base saldo. We'll simplify by just calculating based on transactions we see.
   const saldoAwal = useMemo(() => {
     if (!akunId) return 0;
     const pastTransactions = transaksi.filter(t => t.akunId === akunId && t.tanggal < bulan + '-01');
     const netChange = pastTransactions.reduce((sum, t) => t.tipe === 'Pemasukan' ? sum + t.nominal : sum - t.nominal, 0);
-    // As a shortcut, if there are no past transactions, the starting balance is the remaining inferred balance.
-    return netChange; // Very simplified for prototype
+    return netChange;
   }, [transaksi, akunId, bulan]);
+
+  const handleExport = () => {
+    const dataToExport = filteredTransaksi.map(t => ({
+      Tanggal: t.tanggal,
+      Keterangan: t.keterangan,
+      Debit: t.tipe === 'Pemasukan' ? t.nominal : 0,
+      Kredit: t.tipe === 'Pengeluaran' ? t.nominal : 0,
+    }));
+    exportToExcel(dataToExport, 'Laporan_Buku_Besar');
+  };
 
   let currentRunningSaldo = saldoAwal;
 
@@ -36,9 +43,6 @@ const BukuBesar: React.FC = () => {
           <h2>Laporan Buku Besar</h2>
           <p>Rincian pergerakan transaksi per akun kas.</p>
         </div>
-        <button className="btn btn-outline">
-          <Download size={18} /> Ekspor PDF
-        </button>
       </div>
 
       <div className="card">
@@ -56,8 +60,11 @@ const BukuBesar: React.FC = () => {
             <label className="form-label">Bulan</label>
             <input type="month" className="form-control" value={bulan} onChange={(e) => setBulan(e.target.value)} />
           </div>
-          <div style={{ display: 'flex', alignItems: 'flex-end' }}>
-            <button className="btn btn-primary" style={{ height: '42px' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.5rem' }}>
+            <button className="btn btn-outline" style={{ color: 'var(--primary)', borderColor: 'var(--primary)', height: '42px' }} onClick={handleExport}>
+              <Download size={16} /> Simpan
+            </button>
+            <button className="btn btn-primary" style={{ height: '42px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <Filter size={18} /> Tampilkan
             </button>
           </div>
