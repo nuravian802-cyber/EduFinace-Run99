@@ -1,0 +1,255 @@
+import React, { useState } from 'react';
+import { Search, ChevronDown, ChevronRight, Edit, Trash2 } from 'lucide-react';
+import { useStore, type Tagihan } from '../store/useStore';
+import Modal from '../components/Modal';
+
+const TagihanSiswa: React.FC = () => {
+  const { siswa, tagihan, addTagihan, editTagihan, deleteTagihan, currentUser } = useStore();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [expandedSiswa, setExpandedSiswa] = useState<string[]>([]);
+  
+  const isSiswa = currentUser?.role === 'Siswa';
+
+  React.useEffect(() => {
+    if (isSiswa && currentUser) {
+      setExpandedSiswa([currentUser.id]);
+    }
+  }, [isSiswa, currentUser]);
+
+  // Modal State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
+  const [editId, setEditId] = useState<string | null>(null);
+
+  // Form State
+  const [formData, setFormData] = useState<Partial<Tagihan>>({
+    siswaId: '',
+    namaTagihan: '',
+    nominal: 0,
+    jatuhTempo: new Date().toISOString().split('T')[0]
+  });
+
+  // Derived data
+  const filteredSiswa = siswa.filter(s => {
+    if (isSiswa) return s.id === currentUser?.id;
+    return s.nama.toLowerCase().includes(searchTerm.toLowerCase()) || 
+           s.nis.includes(searchTerm);
+  });
+
+  const toggleExpand = (siswaId: string) => {
+    setExpandedSiswa(prev => 
+      prev.includes(siswaId) 
+        ? prev.filter(id => id !== siswaId)
+        : [...prev, siswaId]
+    );
+  };
+
+  const openGenerateModal = () => {
+    setModalMode('add');
+    setFormData({ 
+      siswaId: siswa[0]?.id || '', 
+      namaTagihan: '', 
+      nominal: 0, 
+      jatuhTempo: new Date().toISOString().split('T')[0] 
+    });
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (t: Tagihan) => {
+    setModalMode('edit');
+    setEditId(t.id);
+    setFormData({ ...t });
+    setIsModalOpen(true);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (modalMode === 'add') {
+      if (!formData.siswaId) return alert('Pilih siswa terlebih dahulu');
+      addTagihan(formData as Omit<Tagihan, 'id' | 'terbayar'>);
+    } else if (modalMode === 'edit' && editId) {
+      editTagihan(editId, formData);
+    }
+    setIsModalOpen(false);
+  };
+
+  const handleDelete = (tId: string) => {
+    if (confirm("Hapus rincian tagihan ini?")) {
+      deleteTagihan(tId);
+    }
+  };
+
+  const formatRp = (num: number) => new Intl.NumberFormat('id-ID').format(num);
+
+  return (
+    <div className="animate-fade-in">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div style={{ backgroundColor: 'var(--primary)', color: 'white', padding: '0.5rem', borderRadius: 'var(--radius-sm)' }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          </div>
+          <h2 style={{ margin: 0, fontSize: '1.5rem', color: '#1e293b' }}>
+            {isSiswa ? `Laman Tagihan ${currentUser?.nama}` : 'Data Tagihan Siswa'}
+          </h2>
+        </div>
+        {!isSiswa && (
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <div style={{ position: 'relative' }}>
+            <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+            <input 
+              type="text" 
+              className="form-control" 
+              placeholder="Cari Siswa..." 
+              style={{ paddingLeft: '2.25rem', width: '250px' }}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <button className="btn btn-primary" onClick={openGenerateModal}>
+            % Generate Baru
+          </button>
+        </div>
+        )}
+      </div>
+
+      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
+          <thead style={{ backgroundColor: '#f8fafc' }}>
+            <tr style={{ borderBottom: '2px solid var(--border-color)' }}>
+              <th style={{ padding: '1rem', color: '#1e293b', width: '30%' }}>Nama Siswa</th>
+              <th style={{ padding: '1rem', color: '#1e293b', width: '25%' }}>Total Tagihan</th>
+              <th style={{ padding: '1rem', color: '#1e293b', width: '25%' }}>Total Kekurangan</th>
+              <th style={{ padding: '1rem', color: '#1e293b', textAlign: 'right', width: '20%' }}>Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredSiswa.map((s) => {
+              const studentTagihan = tagihan.filter(t => t.siswaId === s.id);
+              const totalTagihan = studentTagihan.reduce((sum, t) => sum + t.nominal, 0);
+              const totalKekurangan = studentTagihan.reduce((sum, t) => sum + (t.nominal - t.terbayar), 0);
+              const isExpanded = expandedSiswa.includes(s.id);
+
+              return (
+                <React.Fragment key={s.id}>
+                  {/* Main Row */}
+                  <tr style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'white' }}>
+                    <td style={{ padding: '1rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }} onClick={() => toggleExpand(s.id)}>
+                      {isExpanded ? <ChevronDown size={18} color="var(--primary)" /> : <ChevronRight size={18} color="var(--text-muted)" />}
+                      {s.nama}
+                    </td>
+                    <td style={{ padding: '1rem' }}>Rp {formatRp(totalTagihan)}</td>
+                    <td style={{ padding: '1rem', color: totalKekurangan > 0 ? 'var(--danger)' : 'var(--success)', fontWeight: 600 }}>
+                      Rp {formatRp(totalKekurangan)}
+                    </td>
+                    <td style={{ padding: '1rem', textAlign: 'right' }}>
+                      <button className="btn btn-outline" style={{ padding: '0.25rem 0.75rem', fontSize: '0.8rem' }} onClick={() => toggleExpand(s.id)}>
+                        Rincian
+                      </button>
+                    </td>
+                  </tr>
+
+                  {/* Expanded Nested Table */}
+                  {isExpanded && (
+                    <tr style={{ backgroundColor: '#fafafa' }}>
+                      <td colSpan={4} style={{ padding: '1rem', borderBottom: '1px solid var(--border-color)' }}>
+                        <div style={{ paddingLeft: '2rem', borderLeft: '3px solid var(--warning)' }}>
+                          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                            <thead>
+                              <tr style={{ borderBottom: '1px solid var(--border-color)' }}>
+                                <th style={{ padding: '0.75rem', color: '#1e293b' }}>Rincian Pembayaran</th>
+                                <th style={{ padding: '0.75rem', color: '#1e293b' }}>Nilai Tagihan</th>
+                                <th style={{ padding: '0.75rem', color: '#1e293b' }}>Telah Dibayar</th>
+                                <th style={{ padding: '0.75rem', color: '#1e293b' }}>Sisa Tagihan</th>
+                                {!isSiswa && <th style={{ padding: '0.75rem', color: '#1e293b', textAlign: 'right' }}>Aksi</th>}
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {studentTagihan.length > 0 ? studentTagihan.map(t => {
+                                const sisa = t.nominal - t.terbayar;
+                                return (
+                                  <tr key={t.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                                    <td style={{ padding: '0.75rem', fontWeight: 600 }}>{t.namaTagihan}</td>
+                                    <td style={{ padding: '0.75rem' }}>Rp {formatRp(t.nominal)}</td>
+                                    <td style={{ padding: '0.75rem', color: t.terbayar > 0 ? 'var(--success)' : 'inherit' }}>
+                                      Rp {formatRp(t.terbayar)}
+                                    </td>
+                                    <td style={{ padding: '0.75rem', color: sisa > 0 ? 'var(--danger)' : 'var(--text-muted)' }}>
+                                      Rp {formatRp(sisa)}
+                                    </td>
+                                    {!isSiswa && (
+                                    <td style={{ padding: '0.75rem', textAlign: 'right', display: 'flex', justifyContent: 'flex-end', gap: '0.25rem' }}>
+                                      <button className="btn btn-primary" style={{ padding: '0.3rem', borderRadius: '4px' }} onClick={() => openEditModal(t)}><Edit size={14} /></button>
+                                      <button className="btn btn-danger" style={{ padding: '0.3rem', borderRadius: '4px' }} onClick={() => handleDelete(t.id)}><Trash2 size={14} /></button>
+                                    </td>
+                                    )}
+                                  </tr>
+                                );
+                              }) : (
+                                <tr>
+                                  <td colSpan={5} style={{ padding: '1rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                                    Tidak ada tagihan untuk siswa ini.
+                                  </td>
+                                </tr>
+                              )}
+                            </tbody>
+                          </table>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
+              );
+            })}
+
+            {filteredSiswa.length === 0 && (
+              <tr>
+                <td colSpan={4} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                  Data siswa tidak ditemukan.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      <Modal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        title={modalMode === 'add' ? 'Generate Tagihan Baru' : 'Edit Tagihan'}
+      >
+        <form onSubmit={handleSubmit}>
+          {modalMode === 'add' && (
+            <div className="form-group">
+              <label className="form-label">Siswa</label>
+              <select className="form-control" value={formData.siswaId} onChange={(e) => setFormData({...formData, siswaId: e.target.value})} required>
+                <option value="">-- Pilih Siswa --</option>
+                {siswa.map(s => (
+                  <option key={s.id} value={s.id}>{s.nama} - {s.nis}</option>
+                ))}
+              </select>
+            </div>
+          )}
+          <div className="form-group">
+            <label className="form-label">Nama Tagihan</label>
+            <input type="text" className="form-control" placeholder="Contoh: SPP Agustus" value={formData.namaTagihan} onChange={(e) => setFormData({...formData, namaTagihan: e.target.value})} required />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Nominal (Rp)</label>
+            <input type="number" className="form-control" placeholder="0" value={formData.nominal} onChange={(e) => setFormData({...formData, nominal: Number(e.target.value)})} required />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Jatuh Tempo</label>
+            <input type="date" className="form-control" value={formData.jatuhTempo} onChange={(e) => setFormData({...formData, jatuhTempo: e.target.value})} required />
+          </div>
+          
+          <div className="modal-footer">
+            <button type="button" className="btn btn-outline" onClick={() => setIsModalOpen(false)}>Batal</button>
+            <button type="submit" className="btn btn-primary">{modalMode === 'add' ? 'Generate' : 'Perbarui'}</button>
+          </div>
+        </form>
+      </Modal>
+    </div>
+  );
+};
+
+export default TagihanSiswa;
