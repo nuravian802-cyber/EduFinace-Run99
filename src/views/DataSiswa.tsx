@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Plus, Search, Edit, Trash2, Upload, Download } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Upload } from 'lucide-react';
 import { useStore, type Siswa } from '../store/useStore';
 import Modal from '../components/Modal';
-import { importFromExcel, exportToExcel } from '../utils/excel';
+import { importFromExcel } from '../utils/excel';
 
 const DataSiswa: React.FC = () => {
   const { siswa, deleteSiswa, addSiswa, editSiswa } = useStore();
@@ -88,19 +88,6 @@ const DataSiswa: React.FC = () => {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const handleExport = () => {
-    const dataToExport = filteredSiswa.map(s => ({
-      NIS: s.nis,
-      NISN: s.nisn,
-      'Nama Siswa': s.nama,
-      Kelas: s.kelas,
-      'Tanggal Lahir': s.tanggalLahir,
-      'Nama Wali': s.namaOrangTua,
-      'No WA': s.waOrangTua
-    }));
-    exportToExcel(dataToExport, 'Data_Siswa');
-  };
-
   return (
     <div className="animate-fade-in">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
@@ -118,9 +105,6 @@ const DataSiswa: React.FC = () => {
           />
           <button className="btn btn-outline" style={{ color: 'var(--success)', borderColor: 'var(--success)' }} onClick={handleImportClick}>
             <Upload size={18} /> Impor Excel
-          </button>
-          <button className="btn btn-outline" style={{ color: 'var(--primary)', borderColor: 'var(--primary)' }} onClick={handleExport}>
-            <Download size={18} /> Simpan (Excel)
           </button>
           <button className="btn btn-primary" onClick={openAddModal}>
             <Plus size={18} /> Tambah Data

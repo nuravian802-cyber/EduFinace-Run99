@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { Plus, Search, Edit, Trash2, Download } from 'lucide-react';
+import { Plus, Search, Edit, Trash2 } from 'lucide-react';
 import { useStore, type AkunKas as AkunKasType } from '../store/useStore';
 import Modal from '../components/Modal';
-import { exportToExcel } from '../utils/excel';
 
 const AkunKas: React.FC = () => {
   const { akunKas, addAkunKas, deleteAkunKas, editAkunKas } = useStore();
@@ -38,15 +37,6 @@ const AkunKas: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const handleExport = () => {
-    const dataToExport = akunKas.map(a => ({
-      'Kode Akun': a.kode,
-      'Nama Akun': a.nama,
-      'Saldo (Rp)': a.saldo
-    }));
-    exportToExcel(dataToExport, 'Daftar_Akun_Kas');
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (modalMode === 'add') {
@@ -65,9 +55,6 @@ const AkunKas: React.FC = () => {
           <p>Pengelolaan sumber dana dan rekening bank.</p>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem' }}>
-          <button className="btn btn-outline" style={{ color: 'var(--primary)', borderColor: 'var(--primary)' }} onClick={handleExport}>
-            <Download size={18} /> Simpan (Excel)
-          </button>
           <button className="btn btn-primary" onClick={openAddModal}>
             <Plus size={18} /> Tambah Akun Kas
           </button>

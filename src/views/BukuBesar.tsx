@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { Filter, Download } from 'lucide-react';
+import { Filter } from 'lucide-react';
 import { useStore } from '../store/useStore';
-import { exportToExcel } from '../utils/excel';
 
 const BukuBesar: React.FC = () => {
   const { akunKas, transaksi } = useStore();
@@ -23,16 +22,6 @@ const BukuBesar: React.FC = () => {
     const netChange = pastTransactions.reduce((sum, t) => t.tipe === 'Pemasukan' ? sum + t.nominal : sum - t.nominal, 0);
     return netChange;
   }, [transaksi, akunId, bulan]);
-
-  const handleExport = () => {
-    const dataToExport = filteredTransaksi.map(t => ({
-      Tanggal: t.tanggal,
-      Keterangan: t.keterangan,
-      Debit: t.tipe === 'Pemasukan' ? t.nominal : 0,
-      Kredit: t.tipe === 'Pengeluaran' ? t.nominal : 0,
-    }));
-    exportToExcel(dataToExport, 'Laporan_Buku_Besar');
-  };
 
   let currentRunningSaldo = saldoAwal;
 
@@ -61,9 +50,7 @@ const BukuBesar: React.FC = () => {
             <input type="month" className="form-control" value={bulan} onChange={(e) => setBulan(e.target.value)} />
           </div>
           <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.5rem' }}>
-            <button className="btn btn-outline" style={{ color: 'var(--primary)', borderColor: 'var(--primary)', height: '42px' }} onClick={handleExport}>
-              <Download size={16} /> Simpan
-            </button>
+
             <button className="btn btn-primary" style={{ height: '42px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <Filter size={18} /> Tampilkan
             </button>
@@ -79,7 +66,7 @@ const BukuBesar: React.FC = () => {
               </div>
               <div style={{ textAlign: 'right' }}>
                 <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Saldo Akhir (Aktual Akun)</span>
-                <div style={{ fontWeight: 700, fontSize: '1.1rem', color: 'var(--primary)' }}>Rp {selectedAkun?.saldo.toLocaleString('id-ID')}</div>
+                <div style={{ fontWeight: 700, fontSize: '1.1rem', color: 'var(--primary)' }}>Rp {(selectedAkun?.saldo || 0).toLocaleString('id-ID')}</div>
               </div>
             </div>
 

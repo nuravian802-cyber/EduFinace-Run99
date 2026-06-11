@@ -1,61 +1,27 @@
 import React, { useState, useMemo } from 'react';
-import { Printer, Download } from 'lucide-react';
+import { Printer, ArrowRightLeft } from 'lucide-react';
 import { useStore } from '../store/useStore';
-import { exportToExcel } from '../utils/excel';
 
 const ArusKas: React.FC = () => {
   const { transaksi, kategori } = useStore();
   const [periodeMulai, setPeriodeMulai] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0]);
   const [periodeAkhir, setPeriodeAkhir] = useState(new Date().toISOString().split('T')[0]);
 
-  const { masuk, keluar, totalMasuk, totalKeluar } = useMemo(() => {
-    const validTransaksi = transaksi.filter(t => t.tanggal >= periodeMulai && t.tanggal <= periodeAkhir);
+  const { validTransaksi, totalMasuk, totalKeluar } = useMemo(() => {
+    const valid = transaksi
+      .filter(t => t.tanggal >= periodeMulai && t.tanggal <= periodeAkhir)
+      .sort((a, b) => new Date(a.tanggal).getTime() - new Date(b.tanggal).getTime());
     
-    const masuk = validTransaksi.filter(t => t.tipe === 'Pemasukan');
-    const keluar = validTransaksi.filter(t => t.tipe === 'Pengeluaran');
+    let tMasuk = 0;
+    let tKeluar = 0;
 
-    // Group by kategori
-    const groupMasuk: Record<string, number> = {};
-    const groupKeluar: Record<string, number> = {};
-
-    masuk.forEach(t => {
-      const nama = t.kategoriId ? kategori.find(k => k.id === t.kategoriId)?.nama : t.tagihanId ? 'Pembayaran Tagihan Siswa' : 'Pemasukan Lainnya';
-      const key = nama || 'Lainnya';
-      groupMasuk[key] = (groupMasuk[key] || 0) + t.nominal;
+    valid.forEach(t => {
+      if (t.tipe === 'Pemasukan') tMasuk += t.nominal;
+      else tKeluar += t.nominal;
     });
 
-    keluar.forEach(t => {
-      const nama = t.kategoriId ? kategori.find(k => k.id === t.kategoriId)?.nama : 'Pengeluaran Lainnya';
-      const key = nama || 'Lainnya';
-      acc.keluar[key] = (acc.keluar[key] || 0) + t.nominal;
-    });
-
-    return acc;
-  }, [transaksi, kategori, periodeMulai, periodeAkhir]);
-
-  const handleExport = () => {
-    let dataToExport: any[] = [];
-    
-    dataToExport.push({ Keterangan: 'ARUS KAS MASUK', 'Nominal (Rp)': '' });
-    Object.entries(masuk).forEach(([name, amount]) => {
-      dataToExport.push({ Keterangan: name, 'Nominal (Rp)': amount });
-    });
-    dataToExport.push({ Keterangan: 'Total Penerimaan', 'Nominal (Rp)': totalMasuk });
-    dataToExport.push({ Keterangan: '', 'Nominal (Rp)': '' });
-
-    dataToExport.push({ Keterangan: 'ARUS KAS KELUAR', 'Nominal (Rp)': '' });
-    Object.entries(keluar).forEach(([name, amount]) => {
-      dataToExport.push({ Keterangan: name, 'Nominal (Rp)': amount });
-    });
-    dataToExport.push({ Keterangan: 'Total Pengeluaran', 'Nominal (Rp)': totalKeluar });
-    dataToExport.push({ Keterangan: '', 'Nominal (Rp)': '' });
-    
-    dataToExport.push({ Keterangan: 'Saldo Akhir', 'Nominal (Rp)': totalMasuk - totalKeluar });
-    
-    exportToExcel(dataToExport, 'Laporan_Arus_Kas');
-  };
-
-  const kasBersih = totalMasuk - totalKeluar;
+    return { validTransaksi: valid, totalMasuk: tMasuk, totalKeluar: tKeluar };
+  }, [transaksi, periodeMulai, periodeAkhir]);
 
   return (
     <div className="animate-fade-in">
@@ -65,9 +31,6 @@ const ArusKas: React.FC = () => {
           <p>Laporan pergerakan kas masuk dan keluar secara keseluruhan.</p>
         </div>
         <div className="no-print" style={{ display: 'flex', gap: '0.5rem' }}>
-          <button className="btn btn-outline" style={{ color: 'var(--primary)', borderColor: 'var(--primary)' }} onClick={handleExport}>
-            <Download size={18} /> Simpan (Excel)
-          </button>
           <button className="btn btn-primary" onClick={() => window.print()}>
             <Printer size={18} /> Cetak Laporan
           </button>
@@ -93,74 +56,50 @@ const ArusKas: React.FC = () => {
           </div>
         </div>
 
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', border: '1px solid var(--border-color)' }}>
-            <thead>
-              <tr style={{ backgroundColor: '#f8fafc', borderBottom: '2px solid var(--border-color)' }}>
-                <th style={{ padding: '1rem', width: '70%', color: 'var(--text-main)' }}>Keterangan</th>
-                <th style={{ padding: '1rem', textAlign: 'right', width: '30%', color: 'var(--text-main)' }}>Nominal (Rp)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {/* Arus Kas Masuk */}
-              <tr>
-                <td colSpan={2} style={{ padding: '1rem', fontWeight: 700, color: 'var(--success)', backgroundColor: '#f0fdf4', borderBottom: '1px solid var(--border-color)' }}>
-                  Arus Kas Masuk (Penerimaan)
-                </td>
-              </tr>
-              {Object.entries(masuk).map(([name, amount]) => (
-                <tr key={name} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                  <td style={{ padding: '0.75rem 1rem 0.75rem 2.5rem' }}>{name}</td>
-                  <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>{amount.toLocaleString('id-ID')}</td>
-                </tr>
-              ))}
-              {Object.keys(masuk).length === 0 && (
-                <tr style={{ borderBottom: '1px solid var(--border-color)' }}>
-                  <td colSpan={2} style={{ padding: '0.75rem 1rem 0.75rem 2.5rem', fontStyle: 'italic', color: 'var(--text-muted)' }}>Tidak ada transaksi.</td>
-                </tr>
-              )}
-              <tr style={{ backgroundColor: '#f8fafc', borderBottom: '2px solid var(--border-color)' }}>
-                <td style={{ padding: '1rem', fontWeight: 700 }}>Total Arus Kas Masuk</td>
-                <td style={{ padding: '1rem', textAlign: 'right', fontWeight: 700, color: 'var(--success)' }}>
-                  {totalMasuk.toLocaleString('id-ID')}
-                </td>
-              </tr>
+        <div style={{ backgroundColor: 'white', borderRadius: 'var(--radius-lg)', padding: '1.5rem', boxShadow: 'var(--shadow-sm)', border: '1px solid var(--border-color)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
+            <ArrowRightLeft size={24} />
+            <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 700 }}>Laporan Arus Kas</h3>
+          </div>
 
-              {/* Arus Kas Keluar */}
-              <tr>
-                <td colSpan={2} style={{ padding: '1rem', fontWeight: 700, color: 'var(--danger)', backgroundColor: '#fef2f2', borderBottom: '1px solid var(--border-color)' }}>
-                  Arus Kas Keluar (Pengeluaran)
-                </td>
-              </tr>
-              {Object.entries(keluar).map(([name, amount]) => (
-                <tr key={name} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                  <td style={{ padding: '0.75rem 1rem 0.75rem 2.5rem' }}>{name}</td>
-                  <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>({amount.toLocaleString('id-ID')})</td>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+              <thead>
+                <tr style={{ backgroundColor: '#1e293b', color: 'white' }}>
+                  <th style={{ padding: '1rem', width: '20%', fontWeight: 600 }}>Tanggal</th>
+                  <th style={{ padding: '1rem', width: '40%', fontWeight: 600 }}>Keterangan</th>
+                  <th style={{ padding: '1rem', textAlign: 'center', width: '20%', fontWeight: 600 }}>Kas Masuk</th>
+                  <th style={{ padding: '1rem', textAlign: 'center', width: '20%', fontWeight: 600 }}>Kas Keluar</th>
                 </tr>
-              ))}
-              {Object.keys(keluar).length === 0 && (
-                <tr style={{ borderBottom: '1px solid var(--border-color)' }}>
-                  <td colSpan={2} style={{ padding: '0.75rem 1rem 0.75rem 2.5rem', fontStyle: 'italic', color: 'var(--text-muted)' }}>Tidak ada transaksi.</td>
+              </thead>
+              <tbody>
+                {validTransaksi.map(t => (
+                  <tr key={t.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                    <td style={{ padding: '1rem' }}>{t.tanggal}</td>
+                    <td style={{ padding: '1rem', fontWeight: 600 }}>{t.keterangan || (t.kategoriId ? kategori.find(k => k.id === t.kategoriId)?.nama : 'Lainnya')}</td>
+                    <td style={{ padding: '1rem', textAlign: 'center', color: t.tipe === 'Pemasukan' ? 'var(--success)' : 'inherit', fontWeight: t.tipe === 'Pemasukan' ? 600 : 'normal' }}>
+                      {t.tipe === 'Pemasukan' ? `Rp ${t.nominal.toLocaleString('id-ID')}` : '-'}
+                    </td>
+                    <td style={{ padding: '1rem', textAlign: 'center', color: t.tipe === 'Pengeluaran' ? 'var(--danger)' : 'inherit', fontWeight: t.tipe === 'Pengeluaran' ? 600 : 'normal' }}>
+                      {t.tipe === 'Pengeluaran' ? `Rp ${t.nominal.toLocaleString('id-ID')}` : '-'}
+                    </td>
+                  </tr>
+                ))}
+                {validTransaksi.length === 0 && (
+                  <tr>
+                    <td colSpan={4} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>Tidak ada transaksi pada periode ini.</td>
+                  </tr>
+                )}
+              </tbody>
+              <tfoot>
+                <tr style={{ backgroundColor: '#f1f5f9' }}>
+                  <td colSpan={2} style={{ padding: '1rem', textAlign: 'center', fontWeight: 800, fontSize: '1.05rem' }}>TOTAL</td>
+                  <td style={{ padding: '1rem', textAlign: 'center', color: 'var(--success)', fontWeight: 800 }}>Rp {totalMasuk.toLocaleString('id-ID')}</td>
+                  <td style={{ padding: '1rem', textAlign: 'center', color: 'var(--danger)', fontWeight: 800 }}>Rp {totalKeluar.toLocaleString('id-ID')}</td>
                 </tr>
-              )}
-              <tr style={{ backgroundColor: '#f8fafc', borderBottom: '2px solid var(--border-color)' }}>
-                <td style={{ padding: '1rem', fontWeight: 700 }}>Total Arus Kas Keluar</td>
-                <td style={{ padding: '1rem', textAlign: 'right', fontWeight: 700, color: 'var(--danger)' }}>
-                  ({totalKeluar.toLocaleString('id-ID')})
-                </td>
-              </tr>
-            </tbody>
-            <tfoot>
-              <tr style={{ backgroundColor: kasBersih >= 0 ? 'var(--primary)' : 'var(--danger)', color: 'white' }}>
-                <td style={{ padding: '1.25rem 1rem', fontWeight: 700, fontSize: '1.1rem' }}>
-                  Saldo Akhir
-                </td>
-                <td style={{ padding: '1.25rem 1rem', textAlign: 'right', fontWeight: 700, fontSize: '1.1rem' }}>
-                  {kasBersih < 0 ? `(${Math.abs(kasBersih).toLocaleString('id-ID')})` : kasBersih.toLocaleString('id-ID')}
-                </td>
-              </tr>
-            </tfoot>
-          </table>
+              </tfoot>
+            </table>
+          </div>
         </div>
       </div>
     </div>
