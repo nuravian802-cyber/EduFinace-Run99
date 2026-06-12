@@ -30,6 +30,8 @@ const TagihanSiswa: React.FC = () => {
     kelas: 'Semua'
   });
 
+  const [modalSearchSiswa, setModalSearchSiswa] = useState('');
+
   const uniqueClasses = Array.from(new Set(siswa.map(s => s.kelas))).sort();
 
   // Derived data
@@ -289,9 +291,17 @@ const TagihanSiswa: React.FC = () => {
           {modalMode === 'add_individu' && (
             <div className="form-group">
               <label className="form-label">Siswa</label>
+              <input 
+                type="text" 
+                className="form-control" 
+                placeholder="Cari nama atau NIS siswa..." 
+                value={modalSearchSiswa}
+                onChange={(e) => setModalSearchSiswa(e.target.value)}
+                style={{ marginBottom: '0.5rem' }}
+              />
               <select className="form-control" value={formData.siswaId} onChange={(e) => setFormData({...formData, siswaId: e.target.value})} required>
                 <option value="">-- Pilih Siswa --</option>
-                {siswa.map(s => (
+                {siswa.filter(s => s.nama.toLowerCase().includes(modalSearchSiswa.toLowerCase()) || s.nis.includes(modalSearchSiswa)).map(s => (
                   <option key={s.id} value={s.id}>{s.nama} - {s.nis}</option>
                 ))}
               </select>
