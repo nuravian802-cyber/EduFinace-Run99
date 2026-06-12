@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useStore } from '../store/useStore';
-import { Search, CheckCircle, Download } from 'lucide-react';
-import { exportToExcel } from '../utils/excel';
+import { Search, CheckCircle, Printer } from 'lucide-react';
 
 const TransaksiPembayaran: React.FC = () => {
   const { tagihan, siswa, akunKas, bayarMultiTagihan } = useStore();
@@ -34,22 +33,7 @@ const TransaksiPembayaran: React.FC = () => {
     setSelectedTagihan({}); // Reset selection when changing student
   };
 
-  const handleExport = () => {
-    let dataToExport: any[] = [];
-    filteredSiswa.forEach(s => {
-      const studentTagihan = tagihan.filter(t => t.siswaId === s.id && (t.nominal - t.terbayar) > 0);
-      studentTagihan.forEach(t => {
-        dataToExport.push({
-          NIS: s.nis,
-          Nama: s.nama,
-          'Item Tagihan': t.namaTagihan,
-          'Nominal (Rp)': t.nominal,
-          'Sisa (Rp)': t.nominal - t.terbayar
-        });
-      });
-    });
-    exportToExcel(dataToExport, 'Tagihan_Belum_Lunas');
-  };
+
 
   const handleCheckboxChange = (tId: string, sisa: number, checked: boolean) => {
     if (checked) {
@@ -87,18 +71,26 @@ const TransaksiPembayaran: React.FC = () => {
   };
 
   return (
-    <div className="animate-fade-in">
+    <>
+      <style>
+        {`
+          @media screen {
+            .print-receipt { display: none !important; }
+          }
+          @media print {
+            .print-receipt { display: block !important; }
+          }
+        `}
+      </style>
+      <div className="animate-fade-in no-print">
       <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h2>Transaksi Pembayaran Siswa</h2>
           <p>Pilih siswa lalu centang satu atau lebih tagihan yang ingin dibayar sekaligus.</p>
         </div>
-        <button className="btn btn-outline" style={{ color: 'var(--primary)', borderColor: 'var(--primary)' }} onClick={handleExport}>
-          <Download size={16} /> Simpan
-        </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '2rem' }}>
         <div className="card">
           <h3 style={{ marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>Pilih Siswa (Ada Tagihan)</h3>
           <div style={{ position: 'relative', marginBottom: '1.5rem' }}>
@@ -234,14 +226,72 @@ const TransaksiPembayaran: React.FC = () => {
                 </div>
               </div>
 
-              <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '1.5rem', padding: '1rem', fontSize: '1.1rem' }} disabled={Object.keys(selectedTagihan).length === 0}>
-                Proses {Object.keys(selectedTagihan).length} Pembayaran
-              </button>
+              <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+                <button type="button" className="btn btn-outline" style={{ flex: 1, padding: '1rem', fontSize: '1.1rem' }} onClick={() => window.print()} disabled={Object.keys(selectedTagihan).length === 0}>
+                  <Printer size={18} style={{ marginRight: '0.5rem' }} /> Cetak Nota
+                </button>
+                <button type="submit" className="btn btn-primary" style={{ flex: 2, padding: '1rem', fontSize: '1.1rem' }} disabled={Object.keys(selectedTagihan).length === 0}>
+                  Proses {Object.keys(selectedTagihan).length} Pembayaran
+                </button>
+              </div>
             </form>
           )}
         </div>
       </div>
-    </div>
+
+      {/* Printable Receipt */}
+      <div className="print-area print-receipt" style={{ padding: '2rem', backgroundColor: 'white', color: 'black' }}>
+        <div style={{ textAlign: 'center', marginBottom: '2rem', borderBottom: '2px solid black', paddingBottom: '1rem' }}>
+          <h2 style={{ margin: 0, textTransform: 'uppercase', color: 'black' }}>EduFinance</h2>
+          <h3 style={{ margin: '0.5rem 0 0 0', color: 'black' }}>Nota Pembayaran</h3>
+        </div>
+        
+        <div style={{ marginBottom: '2rem', color: 'black' }}>
+          <p style={{ color: 'black' }}><strong>Tanggal:</strong> {new Date().toLocaleDateString('id-ID')}</p>
+          <p style={{ color: 'black' }}><strong>Siswa:</strong> {selectedSiswa?.nama} (NIS: {selectedSiswa?.nis})</p>
+          <p style={{ color: 'black' }}><strong>Kelas:</strong> {selectedSiswa?.kelas}</p>
+        </div>
+
+        <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '2rem', color: 'black' }}>
+          <thead>
+            <tr style={{ borderBottom: '1px solid black' }}>
+              <th style={{ textAlign: 'left', padding: '0.5rem' }}>Deskripsi</th>
+              <th style={{ textAlign: 'right', padding: '0.5rem' }}>Nominal</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Object.entries(selectedTagihan).map(([tId, nominal]) => {
+              const t = pendingTagihanForSiswa.find(x => x.id === tId);
+              return (
+                <tr key={tId}>
+                  <td style={{ padding: '0.5rem' }}>Pembayaran {t?.namaTagihan}</td>
+                  <td style={{ textAlign: 'right', padding: '0.5rem' }}>Rp {nominal.toLocaleString('id-ID')}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+          <tfoot>
+            <tr style={{ borderTop: '1px solid black', fontWeight: 'bold' }}>
+              <td style={{ padding: '0.5rem' }}>TOTAL</td>
+              <td style={{ textAlign: 'right', padding: '0.5rem' }}>Rp {totalBayar.toLocaleString('id-ID')}</td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4rem', color: 'black' }}>
+          <div style={{ textAlign: 'center' }}>
+            <p style={{ color: 'black' }}>Penyetor</p>
+            <br /><br /><br />
+            <p style={{ color: 'black' }}>( ........................ )</p>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <p style={{ color: 'black' }}>Penerima / Admin</p>
+            <br /><br /><br />
+            <p style={{ color: 'black' }}>( ........................ )</p>
+          </div>
+        </div>
+      </div>
+    </>
   );
 };
 
