@@ -50,9 +50,17 @@ const AkunSiswa: React.FC = () => {
       let updateCount = 0;
       
       data.forEach(row => {
-        const nis = (row['NIS'] || row['nis'] || '')?.toString();
-        const nama = (row['Nama'] || row['NAMA'] || row['nama'])?.toString();
-        const password = (row['Password'] || row['password'] || row['Sandi'] || '')?.toString();
+        // Normalize keys to lowercase and trim spaces
+        const normalizedRow: any = {};
+        for (const key in row) {
+          if (Object.prototype.hasOwnProperty.call(row, key)) {
+            normalizedRow[key.toString().trim().toLowerCase()] = row[key];
+          }
+        }
+
+        const nis = (normalizedRow['nis'] || normalizedRow['nomor induk siswa'] || '')?.toString();
+        const nama = (normalizedRow['nama'] || normalizedRow['nama siswa'] || normalizedRow['nama lengkap'])?.toString();
+        const password = (normalizedRow['password'] || normalizedRow['sandi'] || '')?.toString();
         
         if (nis && nama) {
           const existingSiswa = siswa.find(s => s.nis === nis);
@@ -64,12 +72,11 @@ const AkunSiswa: React.FC = () => {
           } else {
             addSiswa({
               nis,
-              nisn: (row['NISN'] || row['nisn'] || '')?.toString(),
               nama,
-              kelas: (row['Kelas'] || row['kelas'] || '')?.toString(),
-              tanggalLahir: (row['TanggalLahir'] || row['Tanggal Lahir'] || '')?.toString(),
-              namaOrangTua: (row['NamaOrtu'] || row['Nama Wali'] || row['Nama Orang Tua'] || '')?.toString(),
-              waOrangTua: (row['WaOrtu'] || row['No WA'] || row['No. WA'] || '')?.toString(),
+              kelas: (normalizedRow['kelas'] || '')?.toString(),
+              tanggalLahir: (normalizedRow['tanggallahir'] || normalizedRow['tanggal lahir'] || normalizedRow['tgl lahir'] || '')?.toString(),
+              namaOrangTua: (normalizedRow['namaortu'] || normalizedRow['nama wali'] || normalizedRow['nama orang tua'] || '')?.toString(),
+              waOrangTua: (normalizedRow['waortu'] || normalizedRow['no wa'] || normalizedRow['no. wa'] || normalizedRow['no hp'] || normalizedRow['telepon'] || '')?.toString(),
               password: password || ''
             });
             newCount++;

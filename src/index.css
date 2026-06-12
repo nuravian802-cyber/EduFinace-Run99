@@ -210,3 +210,12 @@ input, select, textarea {
     width: 100%;
   }
 }
+
+/* Global Table Headers */
+th {
+  text-align: center !important;
+  font-size: 0.85rem !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  vertical-align: middle;
+}

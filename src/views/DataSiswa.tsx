@@ -65,17 +65,23 @@ const DataSiswa: React.FC = () => {
       const data = await importFromExcel(file);
       let count = 0;
       data.forEach(row => {
-        // Asumsi format kolom Excel: NIS, NISN, Nama, Kelas, TanggalLahir, NamaOrtu, WaOrtu
-        if (row['Nama'] || row['NAMA'] || row['nama']) {
-          const nama = row['Nama'] || row['NAMA'] || row['nama'];
+        // Normalize keys to lowercase and trim spaces
+        const normalizedRow: any = {};
+        for (const key in row) {
+          if (Object.prototype.hasOwnProperty.call(row, key)) {
+            normalizedRow[key.toString().trim().toLowerCase()] = row[key];
+          }
+        }
+
+        const nama = normalizedRow['nama'] || normalizedRow['nama siswa'] || normalizedRow['nama lengkap'];
+        if (nama) {
           addSiswa({
-            nis: (row['NIS'] || row['nis'] || '')?.toString(),
-            nisn: (row['NISN'] || row['nisn'] || '')?.toString(),
+            nis: (normalizedRow['nis'] || normalizedRow['nomor induk siswa'] || '')?.toString(),
             nama: nama?.toString(),
-            kelas: (row['Kelas'] || row['kelas'] || '')?.toString(),
-            tanggalLahir: (row['TanggalLahir'] || row['Tanggal Lahir'] || '')?.toString(),
-            namaOrangTua: (row['NamaOrtu'] || row['Nama Wali'] || row['Nama Orang Tua'] || '')?.toString(),
-            waOrangTua: (row['WaOrtu'] || row['No WA'] || row['No. WA'] || '')?.toString(),
+            kelas: (normalizedRow['kelas'] || '')?.toString(),
+            tanggalLahir: (normalizedRow['tanggallahir'] || normalizedRow['tanggal lahir'] || normalizedRow['tgl lahir'] || '')?.toString(),
+            namaOrangTua: (normalizedRow['namaortu'] || normalizedRow['nama wali'] || normalizedRow['nama orang tua'] || '')?.toString(),
+            waOrangTua: (normalizedRow['waortu'] || normalizedRow['no wa'] || normalizedRow['no. wa'] || normalizedRow['no hp'] || normalizedRow['telepon'] || '')?.toString(),
             password: ''
           });
           count++;
@@ -131,22 +137,20 @@ const DataSiswa: React.FC = () => {
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
               <tr style={{ borderBottom: '2px solid var(--border-color)' }}>
-                <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)' }}>NIS</th>
-                <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)' }}>NISN</th>
-                <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)' }}>Nama Siswa</th>
-                <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)' }}>Kelas</th>
-                <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)' }}>Tanggal Lahir</th>
-                <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)' }}>Nama Wali</th>
-                <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)' }}>No WA Ortu</th>
-                <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)' }}>Status</th>
-                <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)', textAlign: 'right' }}>Aksi</th>
+                <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)', textAlign: 'center', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>NIS</th>
+                <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)', textAlign: 'center', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Nama Siswa</th>
+                <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)', textAlign: 'center', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Kelas</th>
+                <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)', textAlign: 'center', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Tanggal Lahir</th>
+                <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)', textAlign: 'center', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Nama Wali</th>
+                <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)', textAlign: 'center', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>No WA Ortu</th>
+                <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)', textAlign: 'center', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Status</th>
+                <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)', textAlign: 'center', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Aksi</th>
               </tr>
             </thead>
             <tbody>
               {filteredSiswa.map((s) => (
                 <tr key={s.id} style={{ borderBottom: '1px solid var(--border-color)', opacity: s.status === 'Non-aktif' ? 0.6 : 1 }}>
                   <td style={{ padding: '1rem 0.5rem', fontWeight: 600 }}>{s.nis}</td>
-                  <td style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)' }}>{s.nisn}</td>
                   <td style={{ padding: '1rem 0.5rem', fontWeight: 600 }}>{s.nama}</td>
                   <td style={{ padding: '1rem 0.5rem' }}>{s.kelas}</td>
                   <td style={{ padding: '1rem 0.5rem' }}>{s.tanggalLahir || '-'}</td>
@@ -159,13 +163,14 @@ const DataSiswa: React.FC = () => {
                       fontSize: '0.8rem', 
                       fontWeight: 600, 
                       backgroundColor: s.status === 'Non-aktif' ? '#f1f5f9' : '#dcfce7', 
-                      color: s.status === 'Non-aktif' ? '#64748b' : '#16a34a' 
+                      color: s.status === 'Non-aktif' ? '#64748b' : '#16a34a',
+                      whiteSpace: 'nowrap'
                     }}>
-                      {s.status === 'Non-aktif' ? 'Non-aktif' : 'Aktif'}
+                      {s.status === 'Non-aktif' ? 'Lulus' : 'Aktif'}
                     </span>
                   </td>
                   <td style={{ padding: '1rem 0.5rem', textAlign: 'right', display: 'flex', justifyContent: 'flex-end', gap: '0.25rem', alignItems: 'center' }}>
-                    <label style={{ position: 'relative', display: 'inline-block', width: '36px', height: '20px', marginRight: '0.5rem', cursor: 'pointer' }} title={s.status === 'Non-aktif' ? 'Aktifkan Siswa' : 'Non-aktifkan Siswa'}>
+                    <label style={{ position: 'relative', display: 'inline-block', width: '36px', height: '20px', marginRight: '0.5rem', cursor: 'pointer', flexShrink: 0 }} title={s.status === 'Non-aktif' ? 'Aktifkan Siswa' : 'Set Lulus Siswa'}>
                       <input 
                         type="checkbox" 
                         checked={s.status !== 'Non-aktif'} 
@@ -191,7 +196,7 @@ const DataSiswa: React.FC = () => {
               ))}
               {filteredSiswa.length === 0 && (
                 <tr>
-                  <td colSpan={9} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                  <td colSpan={8} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
                     Data siswa tidak ditemukan.
                   </td>
                 </tr>
@@ -210,10 +215,6 @@ const DataSiswa: React.FC = () => {
           <div className="form-group">
             <label className="form-label">NIS</label>
             <input type="text" className="form-control" value={formData.nis} onChange={(e) => setFormData({...formData, nis: e.target.value})} required />
-          </div>
-          <div className="form-group">
-            <label className="form-label">NISN</label>
-            <input type="text" className="form-control" value={formData.nisn} onChange={(e) => setFormData({...formData, nisn: e.target.value})} />
           </div>
           <div className="form-group">
             <label className="form-label">Nama Lengkap</label>
