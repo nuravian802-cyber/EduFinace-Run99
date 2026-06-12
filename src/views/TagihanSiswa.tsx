@@ -31,6 +31,7 @@ const TagihanSiswa: React.FC = () => {
   });
 
   const [modalSearchSiswa, setModalSearchSiswa] = useState('');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const uniqueClasses = Array.from(new Set(siswa.map(s => s.kelas))).sort();
 
@@ -62,8 +63,9 @@ const TagihanSiswa: React.FC = () => {
 
   const openAddIndividuModal = () => {
     setModalMode('add_individu');
+    setModalSearchSiswa('');
     setFormData({ 
-      siswaId: siswa[0]?.id || '', 
+      siswaId: '', 
       namaTagihan: '', 
       nominal: 0, 
       jatuhTempo: new Date().toISOString().split('T')[0] 
@@ -289,22 +291,54 @@ const TagihanSiswa: React.FC = () => {
             </div>
           )}
           {modalMode === 'add_individu' && (
-            <div className="form-group">
+            <div className="form-group" style={{ position: 'relative' }}>
               <label className="form-label">Siswa</label>
               <input 
                 type="text" 
                 className="form-control" 
                 placeholder="Cari nama atau NIS siswa..." 
                 value={modalSearchSiswa}
-                onChange={(e) => setModalSearchSiswa(e.target.value)}
-                style={{ marginBottom: '0.5rem' }}
+                onChange={(e) => {
+                  setModalSearchSiswa(e.target.value);
+                  setIsDropdownOpen(true);
+                  setFormData({...formData, siswaId: ''});
+                }}
+                onFocus={() => setIsDropdownOpen(true)}
+                onBlur={() => setTimeout(() => setIsDropdownOpen(false), 200)}
+                required={!formData.siswaId}
               />
-              <select className="form-control" value={formData.siswaId} onChange={(e) => setFormData({...formData, siswaId: e.target.value})} required>
-                <option value="">-- Pilih Siswa --</option>
-                {siswa.filter(s => s.nama.toLowerCase().includes(modalSearchSiswa.toLowerCase()) || s.nis.includes(modalSearchSiswa)).map(s => (
-                  <option key={s.id} value={s.id}>{s.nama} - {s.nis}</option>
-                ))}
-              </select>
+              {isDropdownOpen && (
+                <div style={{ 
+                  position: 'absolute', 
+                  top: '100%', left: 0, right: 0, 
+                  maxHeight: '180px', 
+                  overflowY: 'auto', 
+                  backgroundColor: 'white', 
+                  border: '1px solid var(--border-color)', 
+                  borderRadius: 'var(--radius-sm)',
+                  zIndex: 50,
+                  boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                }}>
+                  {siswa.filter(s => s.nama.toLowerCase().includes(modalSearchSiswa.toLowerCase()) || s.nis.includes(modalSearchSiswa)).map(s => (
+                    <div 
+                      key={s.id} 
+                      style={{ padding: '0.6rem 1rem', cursor: 'pointer', borderBottom: '1px solid #f1f5f9', fontSize: '0.9rem' }}
+                      onClick={() => {
+                        setFormData({...formData, siswaId: s.id});
+                        setModalSearchSiswa(`${s.nama} - ${s.nis}`);
+                        setIsDropdownOpen(false);
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8fafc'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                    >
+                      {s.nama} - {s.nis}
+                    </div>
+                  ))}
+                  {siswa.filter(s => s.nama.toLowerCase().includes(modalSearchSiswa.toLowerCase()) || s.nis.includes(modalSearchSiswa)).length === 0 && (
+                    <div style={{ padding: '0.6rem 1rem', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Tidak ditemukan</div>
+                  )}
+                </div>
+              )}
             </div>
           )}
           <div className="form-group">
