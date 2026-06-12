@@ -11,7 +11,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
   const { currentUser, logout } = useStore();
 
   return (
-    <header className="header">
+    <header className="header no-print">
       <div className="header-left">
         <button className="menu-btn" onClick={toggleSidebar}>
           <Menu size={24} />
