@@ -3,7 +3,8 @@ import { Printer, ArrowRightLeft } from 'lucide-react';
 import { useStore } from '../store/useStore';
 
 const ArusKas: React.FC = () => {
-  const { transaksi, kategori } = useStore();
+  const { transaksi, kategori, currentUser } = useStore();
+  const isKepsek = currentUser?.role === 'Kepala Sekolah';
   const [periodeMulai, setPeriodeMulai] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0]);
   const [periodeAkhir, setPeriodeAkhir] = useState(new Date().toISOString().split('T')[0]);
 
@@ -30,11 +31,13 @@ const ArusKas: React.FC = () => {
           <h2>Laporan Arus Kas (Cash Flow)</h2>
           <p>Laporan pergerakan kas masuk dan keluar secara keseluruhan.</p>
         </div>
+        {!isKepsek && (
         <div className="no-print" style={{ display: 'flex', gap: '0.5rem' }}>
           <button className="btn btn-primary" onClick={() => window.print()}>
             <Printer size={18} /> Cetak Laporan
           </button>
         </div>
+        )}
       </div>
 
       <div className="paper-container print-area">

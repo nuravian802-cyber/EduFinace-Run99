@@ -167,7 +167,7 @@ const TagihanSiswa: React.FC = () => {
               <th style={{ padding: '1rem', color: '#1e293b', width: '30%' }}>Nama Siswa</th>
               <th style={{ padding: '1rem', color: '#1e293b', width: '25%' }}>Total Tagihan</th>
               <th style={{ padding: '1rem', color: '#1e293b', width: '25%' }}>Total Kekurangan</th>
-              <th style={{ padding: '1rem', color: '#1e293b', textAlign: 'right', width: '20%' }}>Aksi</th>
+              {!isSiswa && <th style={{ padding: '1rem', color: '#1e293b', textAlign: 'right', width: '20%' }}>Aksi</th>}
             </tr>
           </thead>
           <tbody>
@@ -189,6 +189,7 @@ const TagihanSiswa: React.FC = () => {
                     <td style={{ padding: '1rem', color: totalKekurangan > 0 ? 'var(--danger)' : 'var(--success)', fontWeight: 600 }}>
                       Rp {formatRp(totalKekurangan)}
                     </td>
+                    {!isSiswa && (
                     <td style={{ padding: '1rem', textAlign: 'right' }}>
                       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
                         <button className="btn btn-outline" style={{ padding: '0.4rem', color: '#16a34a', borderColor: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center' }} title="Kirim WA" onClick={() => handleKirimWA(s, studentTagihan)}>
@@ -201,12 +202,13 @@ const TagihanSiswa: React.FC = () => {
                         </button>
                       </div>
                     </td>
+                    )}
                   </tr>
 
                   {/* Expanded Nested Table */}
                   {isExpanded && (
                     <tr style={{ backgroundColor: '#fafafa' }}>
-                      <td colSpan={4} style={{ padding: '1rem', borderBottom: '1px solid var(--border-color)' }}>
+                      <td colSpan={isSiswa ? 3 : 4} style={{ padding: '1rem', borderBottom: '1px solid var(--border-color)' }}>
                         <div style={{ paddingLeft: '2rem', borderLeft: '3px solid var(--warning)' }}>
                           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
                             <thead>
@@ -258,7 +260,7 @@ const TagihanSiswa: React.FC = () => {
 
             {filteredSiswa.length === 0 && (
               <tr>
-                <td colSpan={4} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                <td colSpan={isSiswa ? 3 : 4} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
                   Data siswa tidak ditemukan.
                 </td>
               </tr>
