@@ -86,6 +86,7 @@ interface AppState {
   deleteKategori: (id: string) => void;
   
   addTagihan: (data: Omit<Tagihan, 'id' | 'terbayar'>) => void;
+  addTagihanMassal: (data: Omit<Tagihan, 'id' | 'terbayar' | 'siswaId'> & { kelas?: string }) => void;
   editTagihan: (id: string, data: Partial<Omit<Tagihan, 'id' | 'terbayar'>>) => void;
   deleteTagihan: (id: string) => void;
   
@@ -149,6 +150,20 @@ export const useStore = create<AppState>()(
       deleteKategori: (id) => set((state) => ({ kategori: state.kategori.filter(k => k.id !== id) })),
       
       addTagihan: (data) => set((state) => ({ tagihan: [...state.tagihan, { ...data, id: generateId(), terbayar: 0 }] })),
+      addTagihanMassal: (data) => set((state) => {
+        const { kelas, ...tagihanData } = data;
+        let targetSiswa = state.siswa;
+        if (kelas && kelas !== 'Semua') {
+          targetSiswa = targetSiswa.filter(s => s.kelas === kelas);
+        }
+        const newTagihans = targetSiswa.map(s => ({
+          ...tagihanData,
+          siswaId: s.id,
+          id: generateId(),
+          terbayar: 0
+        }));
+        return { tagihan: [...state.tagihan, ...newTagihans] };
+      }),
       editTagihan: (id, data) => set((state) => ({ tagihan: state.tagihan.map(t => t.id === id ? { ...t, ...data } : t) })),
       deleteTagihan: (id) => set((state) => ({ tagihan: state.tagihan.filter(t => t.id !== id) })),
 

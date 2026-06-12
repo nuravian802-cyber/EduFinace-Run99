@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import { Search, ChevronDown, ChevronRight, Edit, Trash2, Download } from 'lucide-react';
+import { Search, ChevronDown, ChevronRight, Edit, Trash2 } from 'lucide-react';
 import { useStore, type Tagihan } from '../store/useStore';
 import Modal from '../components/Modal';
-import { exportToExcel } from '../utils/excel';
 
 const TagihanSiswa: React.FC = () => {
-  const { siswa, tagihan, addTagihan, editTagihan, deleteTagihan, currentUser } = useStore();
+  const { siswa, tagihan, addTagihan, addTagihanMassal, editTagihan, deleteTagihan, currentUser } = useStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedSiswa, setExpandedSiswa] = useState<string[]>([]);
   
@@ -19,16 +18,19 @@ const TagihanSiswa: React.FC = () => {
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
+  const [modalMode, setModalMode] = useState<'add_individu' | 'add_massal' | 'edit'>('add_individu');
   const [editId, setEditId] = useState<string | null>(null);
 
   // Form State
-  const [formData, setFormData] = useState<Partial<Tagihan>>({
+  const [formData, setFormData] = useState<Partial<Tagihan> & { kelas?: string }>({
     siswaId: '',
     namaTagihan: '',
     nominal: 0,
-    jatuhTempo: new Date().toISOString().split('T')[0]
+    jatuhTempo: new Date().toISOString().split('T')[0],
+    kelas: 'Semua'
   });
+
+  const uniqueClasses = Array.from(new Set(siswa.map(s => s.kelas))).sort();
 
   // Derived data
   const filteredSiswa = siswa.filter(s => {
@@ -45,8 +47,19 @@ const TagihanSiswa: React.FC = () => {
     );
   };
 
-  const openGenerateModal = () => {
-    setModalMode('add');
+  const openGenerateMassalModal = () => {
+    setModalMode('add_massal');
+    setFormData({ 
+      namaTagihan: '', 
+      nominal: 0, 
+      jatuhTempo: new Date().toISOString().split('T')[0],
+      kelas: 'Semua'
+    });
+    setIsModalOpen(true);
+  };
+
+  const openAddIndividuModal = () => {
+    setModalMode('add_individu');
     setFormData({ 
       siswaId: siswa[0]?.id || '', 
       namaTagihan: '', 
@@ -65,9 +78,16 @@ const TagihanSiswa: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (modalMode === 'add') {
+    if (modalMode === 'add_individu') {
       if (!formData.siswaId) return alert('Pilih siswa terlebih dahulu');
       addTagihan(formData as Omit<Tagihan, 'id' | 'terbayar'>);
+    } else if (modalMode === 'add_massal') {
+      addTagihanMassal({
+        namaTagihan: formData.namaTagihan as string,
+        nominal: formData.nominal as number,
+        jatuhTempo: formData.jatuhTempo as string,
+        kelas: formData.kelas
+      });
     } else if (modalMode === 'edit' && editId) {
       editTagihan(editId, formData);
     }
@@ -80,27 +100,6 @@ const TagihanSiswa: React.FC = () => {
     }
   };
 
-  const handleExport = () => {
-    let dataToExport: any[] = [];
-    filteredSiswa.forEach(s => {
-      const studentTagihan = tagihan.filter(t => t.siswaId === s.id);
-      if (studentTagihan.length === 0) {
-        dataToExport.push({ NIS: s.nis, Nama: s.nama, 'Nama Tagihan': '-', Nominal: 0, Terbayar: 0, Sisa: 0 });
-      } else {
-        studentTagihan.forEach(t => {
-          dataToExport.push({
-            NIS: s.nis,
-            Nama: s.nama,
-            'Nama Tagihan': t.namaTagihan,
-            Nominal: t.nominal,
-            Terbayar: t.terbayar,
-            Sisa: t.nominal - t.terbayar
-          });
-        });
-      }
-    });
-    exportToExcel(dataToExport, 'Data_Tagihan_Siswa');
-  };
 
   const formatRp = (num: number) => new Intl.NumberFormat('id-ID').format(num);
 
@@ -128,11 +127,11 @@ const TagihanSiswa: React.FC = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <button className="btn btn-outline" style={{ color: 'var(--primary)', borderColor: 'var(--primary)' }} onClick={handleExport}>
-            <Download size={16} /> Simpan
+          <button className="btn btn-outline" style={{ color: 'var(--primary)', borderColor: 'var(--primary)' }} onClick={openGenerateMassalModal}>
+            % Generate Massal
           </button>
-          <button className="btn btn-primary" onClick={openGenerateModal}>
-            % Generate Baru
+          <button className="btn btn-primary" onClick={openAddIndividuModal}>
+            + Tambah Individu
           </button>
         </div>
         )}
@@ -241,10 +240,21 @@ const TagihanSiswa: React.FC = () => {
       <Modal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
-        title={modalMode === 'add' ? 'Generate Tagihan Baru' : 'Edit Tagihan'}
+        title={modalMode === 'add_massal' ? 'Generate Tagihan Massal' : modalMode === 'add_individu' ? 'Tambah Tagihan Individu' : 'Edit Tagihan'}
       >
         <form onSubmit={handleSubmit}>
-          {modalMode === 'add' && (
+          {modalMode === 'add_massal' && (
+            <div className="form-group">
+              <label className="form-label">Tujuan Kelas</label>
+              <select className="form-control" value={formData.kelas || 'Semua'} onChange={(e) => setFormData({...formData, kelas: e.target.value})} required>
+                <option value="Semua">-- Semua Kelas --</option>
+                {uniqueClasses.map(c => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+            </div>
+          )}
+          {modalMode === 'add_individu' && (
             <div className="form-group">
               <label className="form-label">Siswa</label>
               <select className="form-control" value={formData.siswaId} onChange={(e) => setFormData({...formData, siswaId: e.target.value})} required>
@@ -270,7 +280,7 @@ const TagihanSiswa: React.FC = () => {
           
           <div className="modal-footer">
             <button type="button" className="btn btn-outline" onClick={() => setIsModalOpen(false)}>Batal</button>
-            <button type="submit" className="btn btn-primary">{modalMode === 'add' ? 'Generate' : 'Perbarui'}</button>
+            <button type="submit" className="btn btn-primary">{modalMode === 'edit' ? 'Perbarui' : 'Simpan'}</button>
           </div>
         </form>
       </Modal>
