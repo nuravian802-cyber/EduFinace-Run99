@@ -90,7 +90,7 @@ const TransaksiPembayaran: React.FC = () => {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
         <div className="card">
           <h3 style={{ marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>Pilih Siswa (Ada Tagihan)</h3>
           <div style={{ position: 'relative', marginBottom: '1.5rem' }}>
