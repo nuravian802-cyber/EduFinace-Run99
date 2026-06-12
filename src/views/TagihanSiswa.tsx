@@ -128,7 +128,7 @@ const TagihanSiswa: React.FC = () => {
             />
           </div>
           <button className="btn btn-outline" style={{ color: 'var(--primary)', borderColor: 'var(--primary)' }} onClick={openGenerateMassalModal}>
-            % Generate Massal
+            Generate Massal
           </button>
           <button className="btn btn-primary" onClick={openAddIndividuModal}>
             + Tambah Individu
@@ -272,10 +272,6 @@ const TagihanSiswa: React.FC = () => {
           <div className="form-group">
             <label className="form-label">Nominal (Rp)</label>
             <input type="number" className="form-control" placeholder="0" value={formData.nominal} onChange={(e) => setFormData({...formData, nominal: Number(e.target.value)})} required />
-          </div>
-          <div className="form-group">
-            <label className="form-label">Jatuh Tempo</label>
-            <input type="date" className="form-control" value={formData.jatuhTempo} onChange={(e) => setFormData({...formData, jatuhTempo: e.target.value})} required />
           </div>
           
           <div className="modal-footer">
