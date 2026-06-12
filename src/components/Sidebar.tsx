@@ -31,9 +31,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
     <aside className={`sidebar ${isOpen ? 'open' : 'closed'}`}>
       <div className="sidebar-header" style={{ alignItems: 'center', gap: '0.75rem' }}>
         <img src="/logo.png" alt="Logo Sekolah" style={{ width: '50px', height: 'auto' }} />
-        <div style={{ display: 'inline-flex', flexDirection: 'column', justifyContent: 'center' }}>
+        <div style={{ display: 'inline-flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
           <h2 style={{ margin: 0, lineHeight: 1, fontSize: '1.85rem', fontWeight: 800, letterSpacing: '1px', color: '#1e3a8a' }}>SPADAH</h2>
-          <div style={{ margin: 0, fontWeight: 600, fontSize: '0.65rem', lineHeight: 1, marginTop: '4px', color: '#1e3a8a', textAlign: 'justify', textAlignLast: 'justify' }}>Integrated Finance</div>
+          <div style={{ margin: 0, fontWeight: 600, fontSize: '0.7rem', lineHeight: 1, marginTop: '2px', color: '#1e3a8a', letterSpacing: '0.5px', textAlign: 'center' }}>Integrated Finance</div>
         </div>
       </div>
 
