@@ -62,13 +62,12 @@ const Login: React.FC = () => {
       padding: '1rem'
     }}>
       <div className="card animate-fade-in" style={{ width: '100%', maxWidth: '400px', padding: '2.5rem 2rem' }}>
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <img src="/logo.png" alt="Logo Sekolah" style={{ width: '80px', height: 'auto', marginBottom: '1rem' }} />
-          <div style={{ display: 'inline-flex', flexDirection: 'column', textAlign: 'center', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1.25rem', marginBottom: '2rem' }}>
+          <img src="/logo.png" alt="Logo Sekolah" style={{ width: '85px', height: 'auto' }} />
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <h2 style={{ margin: '0', lineHeight: 1, fontSize: '2.5rem', fontWeight: 800, letterSpacing: '2px', color: '#1e3a8a' }}>SPADAH</h2>
-            <div style={{ margin: '4px 0 0.75rem 0', fontWeight: 600, fontSize: '0.95rem', lineHeight: 1, color: '#1e3a8a', letterSpacing: '0.5px' }}>Integrated Finance</div>
+            <div style={{ margin: '6px 0 0', fontWeight: 600, fontSize: '0.95rem', lineHeight: 1, color: '#1e3a8a', letterSpacing: '0.5px' }}>Integrated Finance</div>
           </div>
-          <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-muted)' }}>Sistem Informasi Keuangan Sekolah</p>
         </div>
 
         {error && (
