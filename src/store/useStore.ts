@@ -11,6 +11,7 @@ export interface Siswa {
   tanggalLahir?: string;
   namaOrangTua: string;
   waOrangTua: string;
+  status?: 'Aktif' | 'Non-aktif';
 }
 
 export interface Admin {
@@ -76,6 +77,7 @@ interface AppState {
   addSiswa: (data: Omit<Siswa, 'id'>) => void;
   editSiswa: (id: string, data: Partial<Omit<Siswa, 'id'>>) => void;
   deleteSiswa: (id: string) => void;
+  toggleStatusSiswa: (id: string) => void;
   
   addAkunKas: (data: Omit<AkunKas, 'id'>) => void;
   editAkunKas: (id: string, data: Partial<Omit<AkunKas, 'id'>>) => void;
@@ -137,9 +139,12 @@ export const useStore = create<AppState>()(
       login: (session) => set({ currentUser: session }),
       logout: () => set({ currentUser: null }),
 
-      addSiswa: (data) => set((state) => ({ siswa: [...state.siswa, { ...data, id: generateId() }] })),
+      addSiswa: (data) => set((state) => ({ siswa: [...state.siswa, { ...data, id: generateId(), status: 'Aktif' }] })),
       editSiswa: (id, data) => set((state) => ({ siswa: state.siswa.map(s => s.id === id ? { ...s, ...data } : s) })),
       deleteSiswa: (id) => set((state) => ({ siswa: state.siswa.filter(s => s.id !== id) })),
+      toggleStatusSiswa: (id) => set((state) => ({ 
+        siswa: state.siswa.map(s => s.id === id ? { ...s, status: s.status === 'Non-aktif' ? 'Aktif' : 'Non-aktif' } : s) 
+      })),
       
       addAkunKas: (data) => set((state) => ({ akunKas: [...state.akunKas, { ...data, id: generateId() }] })),
       editAkunKas: (id, data) => set((state) => ({ akunKas: state.akunKas.map(a => a.id === id ? { ...a, ...data } : a) })),
@@ -152,7 +157,7 @@ export const useStore = create<AppState>()(
       addTagihan: (data) => set((state) => ({ tagihan: [...state.tagihan, { ...data, id: generateId(), terbayar: 0 }] })),
       addTagihanMassal: (data) => set((state) => {
         const { kelas, ...tagihanData } = data;
-        let targetSiswa = state.siswa;
+        let targetSiswa = state.siswa.filter(s => s.status !== 'Non-aktif');
         if (kelas && kelas !== 'Semua') {
           targetSiswa = targetSiswa.filter(s => s.kelas === kelas);
         }

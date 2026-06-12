@@ -15,7 +15,9 @@ const AkunSiswa: React.FC = () => {
   const [newPassword, setNewPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  const filteredSiswa = siswa.filter(s => 
+  const activeSiswa = siswa.filter(s => s.status !== 'Non-aktif');
+  
+  const filteredSiswa = activeSiswa.filter(s => 
     s.nama.toLowerCase().includes(searchTerm.toLowerCase()) || 
     s.nis.includes(searchTerm)
   );

@@ -5,7 +5,7 @@ import Modal from '../components/Modal';
 import { importFromExcel } from '../utils/excel';
 
 const DataSiswa: React.FC = () => {
-  const { siswa, deleteSiswa, addSiswa, editSiswa } = useStore();
+  const { siswa, deleteSiswa, addSiswa, editSiswa, toggleStatusSiswa } = useStore();
   const [searchTerm, setSearchTerm] = useState('');
   
   // Modal State
@@ -135,21 +135,55 @@ const DataSiswa: React.FC = () => {
                 <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)' }}>NISN</th>
                 <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)' }}>Nama Siswa</th>
                 <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)' }}>Kelas</th>
+                <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)' }}>Tanggal Lahir</th>
                 <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)' }}>Nama Wali</th>
                 <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)' }}>No WA Ortu</th>
+                <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)' }}>Status</th>
                 <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)', textAlign: 'right' }}>Aksi</th>
               </tr>
             </thead>
             <tbody>
               {filteredSiswa.map((s) => (
-                <tr key={s.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                <tr key={s.id} style={{ borderBottom: '1px solid var(--border-color)', opacity: s.status === 'Non-aktif' ? 0.6 : 1 }}>
                   <td style={{ padding: '1rem 0.5rem', fontWeight: 600 }}>{s.nis}</td>
                   <td style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)' }}>{s.nisn}</td>
                   <td style={{ padding: '1rem 0.5rem', fontWeight: 600 }}>{s.nama}</td>
                   <td style={{ padding: '1rem 0.5rem' }}>{s.kelas}</td>
+                  <td style={{ padding: '1rem 0.5rem' }}>{s.tanggalLahir || '-'}</td>
                   <td style={{ padding: '1rem 0.5rem' }}>{s.namaOrangTua}</td>
                   <td style={{ padding: '1rem 0.5rem' }}>{s.waOrangTua}</td>
-                  <td style={{ padding: '1rem 0.5rem', textAlign: 'right' }}>
+                  <td style={{ padding: '1rem 0.5rem' }}>
+                    <span style={{ 
+                      padding: '0.2rem 0.5rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.8rem', 
+                      fontWeight: 600, 
+                      backgroundColor: s.status === 'Non-aktif' ? '#f1f5f9' : '#dcfce7', 
+                      color: s.status === 'Non-aktif' ? '#64748b' : '#16a34a' 
+                    }}>
+                      {s.status === 'Non-aktif' ? 'Non-aktif' : 'Aktif'}
+                    </span>
+                  </td>
+                  <td style={{ padding: '1rem 0.5rem', textAlign: 'right', display: 'flex', justifyContent: 'flex-end', gap: '0.25rem', alignItems: 'center' }}>
+                    <label style={{ position: 'relative', display: 'inline-block', width: '36px', height: '20px', marginRight: '0.5rem', cursor: 'pointer' }} title={s.status === 'Non-aktif' ? 'Aktifkan Siswa' : 'Non-aktifkan Siswa'}>
+                      <input 
+                        type="checkbox" 
+                        checked={s.status !== 'Non-aktif'} 
+                        onChange={() => toggleStatusSiswa(s.id)} 
+                        style={{ opacity: 0, width: 0, height: 0 }} 
+                      />
+                      <span style={{ 
+                        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, 
+                        backgroundColor: s.status === 'Non-aktif' ? '#cbd5e1' : '#10b981', 
+                        transition: '.4s', borderRadius: '34px' 
+                      }}>
+                        <span style={{ 
+                          position: 'absolute', content: '""', height: '14px', width: '14px', 
+                          left: s.status === 'Non-aktif' ? '3px' : '19px', bottom: '3px', 
+                          backgroundColor: 'white', transition: '.4s', borderRadius: '50%' 
+                        }}></span>
+                      </span>
+                    </label>
                     <button className="btn" style={{ padding: '0.4rem', color: 'var(--primary)' }} onClick={() => openEditModal(s)}><Edit size={16} /></button>
                     <button className="btn" style={{ padding: '0.4rem', color: 'var(--danger)' }} onClick={() => { if(confirm('Hapus siswa ini?')) deleteSiswa(s.id); }}><Trash2 size={16} /></button>
                   </td>
@@ -157,7 +191,7 @@ const DataSiswa: React.FC = () => {
               ))}
               {filteredSiswa.length === 0 && (
                 <tr>
-                  <td colSpan={7} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                  <td colSpan={9} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
                     Data siswa tidak ditemukan.
                   </td>
                 </tr>

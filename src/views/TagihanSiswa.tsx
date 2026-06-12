@@ -9,6 +9,7 @@ const TagihanSiswa: React.FC = () => {
   const [expandedSiswa, setExpandedSiswa] = useState<string[]>([]);
   
   const isSiswa = currentUser?.role === 'Siswa';
+  const activeSiswa = siswa.filter(s => s.status !== 'Non-aktif');
 
   React.useEffect(() => {
     if (isSiswa && currentUser) {
@@ -33,10 +34,10 @@ const TagihanSiswa: React.FC = () => {
   const [modalSearchSiswa, setModalSearchSiswa] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  const uniqueClasses = Array.from(new Set(siswa.map(s => s.kelas))).sort();
+  const uniqueClasses = Array.from(new Set(activeSiswa.map(s => s.kelas))).sort();
 
   // Derived data
-  const filteredSiswa = siswa.filter(s => {
+  const filteredSiswa = activeSiswa.filter(s => {
     if (isSiswa) return s.id === currentUser?.id;
     return s.nama.toLowerCase().includes(searchTerm.toLowerCase()) || 
            s.nis.includes(searchTerm);
@@ -319,7 +320,7 @@ const TagihanSiswa: React.FC = () => {
                   zIndex: 50,
                   boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
                 }}>
-                  {siswa.filter(s => s.nama.toLowerCase().includes(modalSearchSiswa.toLowerCase()) || s.nis.includes(modalSearchSiswa)).map(s => (
+                  {activeSiswa.filter(s => s.nama.toLowerCase().includes(modalSearchSiswa.toLowerCase()) || s.nis.includes(modalSearchSiswa)).map(s => (
                     <div 
                       key={s.id} 
                       style={{ padding: '0.6rem 1rem', cursor: 'pointer', borderBottom: '1px solid #f1f5f9', fontSize: '0.9rem' }}
@@ -334,7 +335,7 @@ const TagihanSiswa: React.FC = () => {
                       {s.nama} - {s.nis}
                     </div>
                   ))}
-                  {siswa.filter(s => s.nama.toLowerCase().includes(modalSearchSiswa.toLowerCase()) || s.nis.includes(modalSearchSiswa)).length === 0 && (
+                  {activeSiswa.filter(s => s.nama.toLowerCase().includes(modalSearchSiswa.toLowerCase()) || s.nis.includes(modalSearchSiswa)).length === 0 && (
                     <div style={{ padding: '0.6rem 1rem', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Tidak ditemukan</div>
                   )}
                 </div>
