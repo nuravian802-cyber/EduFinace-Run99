@@ -11,7 +11,8 @@ import {
   ArrowDownCircle,
   ArrowUpCircle,
   UserCog,
-  Key
+  Key,
+  History
 } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import './Sidebar.css';
@@ -90,6 +91,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
           <NavLink to="/transaksi/pengeluaran" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
             <ArrowUpCircle size={20} className="text-danger" />
             <span>Pengeluaran</span>
+          </NavLink>
+          <NavLink to="/transaksi/riwayat" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
+            <History size={20} className="text-primary" />
+            <span>Riwayat Transaksi</span>
           </NavLink>
         </div>
         )}

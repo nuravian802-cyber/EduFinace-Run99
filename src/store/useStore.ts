@@ -94,6 +94,8 @@ interface AppState {
   catatPengeluaran: (data: Omit<Transaksi, 'id' | 'tipe' | 'tagihanId'>) => void;
   bayarTagihan: (tagihanId: string, akunId: string, nominal: number, tanggal: string) => void;
   bayarMultiTagihan: (pembayaran: { tagihanId: string, nominal: number }[], akunId: string, tanggal: string) => void;
+  deleteTransaksi: (id: string) => void;
+  editTransaksi: (id: string, data: Partial<Transaksi>) => void;
 
   addAdmin: (data: Omit<Admin, 'id'>) => void;
   editAdmin: (id: string, data: Partial<Omit<Admin, 'id'>>) => void;
@@ -215,6 +217,97 @@ export const useStore = create<AppState>()(
           tagihan: updatedTagihan,
           akunKas: state.akunKas.map(a => a.id === akunId ? { ...a, saldo: a.saldo + totalNominal } : a),
           transaksi: [...state.transaksi, ...newTransaksi]
+        };
+      }),
+
+      deleteTransaksi: (id) => set((state) => {
+        const tr = state.transaksi.find(t => t.id === id);
+        if (!tr) return state;
+
+        let updatedAkunKas = [...state.akunKas];
+        let updatedTagihan = [...state.tagihan];
+
+        // Revert Kas
+        updatedAkunKas = updatedAkunKas.map(a => {
+          if (a.id === tr.akunId) {
+            return {
+              ...a,
+              saldo: tr.tipe === 'Pemasukan' ? a.saldo - tr.nominal : a.saldo + tr.nominal
+            };
+          }
+          return a;
+        });
+
+        // Revert Tagihan
+        if (tr.tagihanId) {
+          updatedTagihan = updatedTagihan.map(t => {
+            if (t.id === tr.tagihanId) {
+              return { ...t, terbayar: t.terbayar - tr.nominal };
+            }
+            return t;
+          });
+        }
+
+        return {
+          transaksi: state.transaksi.filter(t => t.id !== id),
+          akunKas: updatedAkunKas,
+          tagihan: updatedTagihan
+        };
+      }),
+
+      editTransaksi: (id, data) => set((state) => {
+        const oldTr = state.transaksi.find(t => t.id === id);
+        if (!oldTr) return state;
+
+        let updatedAkunKas = [...state.akunKas];
+        let updatedTagihan = [...state.tagihan];
+
+        // 1. Revert old transaction effects
+        updatedAkunKas = updatedAkunKas.map(a => {
+          if (a.id === oldTr.akunId) {
+            return {
+              ...a,
+              saldo: oldTr.tipe === 'Pemasukan' ? a.saldo - oldTr.nominal : a.saldo + oldTr.nominal
+            };
+          }
+          return a;
+        });
+
+        if (oldTr.tagihanId) {
+          updatedTagihan = updatedTagihan.map(t => {
+            if (t.id === oldTr.tagihanId) {
+              return { ...t, terbayar: t.terbayar - oldTr.nominal };
+            }
+            return t;
+          });
+        }
+
+        // 2. Apply new transaction effects
+        const newTr = { ...oldTr, ...data };
+        
+        updatedAkunKas = updatedAkunKas.map(a => {
+          if (a.id === newTr.akunId) {
+            return {
+              ...a,
+              saldo: newTr.tipe === 'Pemasukan' ? a.saldo + newTr.nominal : a.saldo - newTr.nominal
+            };
+          }
+          return a;
+        });
+
+        if (newTr.tagihanId) {
+          updatedTagihan = updatedTagihan.map(t => {
+            if (t.id === newTr.tagihanId) {
+              return { ...t, terbayar: t.terbayar + newTr.nominal };
+            }
+            return t;
+          });
+        }
+
+        return {
+          transaksi: state.transaksi.map(t => t.id === id ? newTr : t),
+          akunKas: updatedAkunKas,
+          tagihan: updatedTagihan
         };
       }),
 
