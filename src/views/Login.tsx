@@ -64,11 +64,11 @@ const Login: React.FC = () => {
       <div className="card animate-fade-in" style={{ width: '100%', maxWidth: '400px', padding: '2.5rem 2rem' }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '2rem' }}>
           <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '60px', height: '60px', borderRadius: '16px', background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)', color: 'white', marginBottom: '1rem', boxShadow: '0 10px 25px rgba(59, 130, 246, 0.4)' }}>
-              <School size={32} />
+            <img src="/logo.png" alt="Logo Sekolah" style={{ width: '85px', height: 'auto', marginBottom: '1rem' }} />
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <h2 style={{ margin: '0', lineHeight: 1, fontSize: '2.5rem', fontWeight: 800, letterSpacing: '2px', color: '#1e3a8a' }}>SPADAH</h2>
+              <div style={{ margin: '4px 0 0', fontWeight: 600, fontSize: '0.95rem', lineHeight: 1, color: '#1e3a8a', letterSpacing: '0.5px' }}>Integrated Finance</div>
             </div>
-            <h2 style={{ margin: '0', lineHeight: 1, fontSize: '2rem', fontWeight: 800, letterSpacing: '1px', color: '#1e3a8a' }}>{profilSekolah?.nama || 'SPADAH'}</h2>
-            <p style={{ margin: '0.5rem 0 0 0', color: 'var(--text-muted)' }}>Sistem Manajemen Keuangan Terpadu</p>
           </div>
         </div>
 

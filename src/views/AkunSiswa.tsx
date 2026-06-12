@@ -60,7 +60,8 @@ const AkunSiswa: React.FC = () => {
 
         const nis = (normalizedRow['nis'] || normalizedRow['nomorinduksiswa'] || '')?.toString();
         const nama = (normalizedRow['nama'] || normalizedRow['namasiswa'] || normalizedRow['namalengkap'])?.toString();
-        const password = (normalizedRow['password'] || normalizedRow['sandi'] || normalizedRow['katasandi'] || normalizedRow['pin'] || '')?.toString().trim();
+        // Fallback: jika tidak ada kolom sandi, gunakan NIS sebagai default password
+        const password = (normalizedRow['password'] || normalizedRow['sandi'] || normalizedRow['katasandi'] || normalizedRow['pin'] || nis)?.toString().trim();
         
         if (nis && nama) {
           const existingSiswa = siswa.find(s => s.nis === nis);
@@ -84,7 +85,12 @@ const AkunSiswa: React.FC = () => {
         }
       });
       setTimeout(() => {
-        alert(`Berhasil mengimpor: ${newCount} data siswa baru ditambahkan, ${updateCount} password akun diperbarui.`);
+        let msg = `Sukses membaca file Excel! `;
+        if (newCount > 0) msg += `\n- ${newCount} Akun Siswa Baru Berhasil Dibuat.`;
+        if (updateCount > 0) msg += `\n- ${updateCount} Sandi Akun Berhasil Diaktifkan/Diperbarui (Sandi default: NIS jika kolom sandi kosong).`;
+        if (newCount === 0 && updateCount === 0) msg += `\nTidak ada data valid yang ditemukan atau semua siswa sudah ada tanpa perubahan sandi.`;
+        
+        alert(msg);
       }, 100);
     } catch (err) {
       alert('Gagal membaca file Excel. Pastikan format sesuai.');
@@ -184,7 +190,15 @@ const AkunSiswa: React.FC = () => {
           <div style={{ backgroundColor: '#f8fafc', padding: '1rem', borderRadius: 'var(--radius-md)', marginBottom: '1.5rem' }}>
             <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)' }}>Siswa Terpilih:</p>
             <h4 style={{ margin: '0 0 0.25rem 0' }}>{editSiswaData?.nama}</h4>
-            <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)' }}>NIS: {editSiswaData?.nis}</p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)' }}>NIS: {editSiswaData?.nis}</p>
+              {editSiswaData?.password && editSiswaData.password.trim() !== '' && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#e2e8f0', padding: '0.2rem 0.6rem', borderRadius: '4px' }}>
+                  <KeyRound size={14} color="#64748b" />
+                  <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#334155' }}>Sandi Saat Ini: {editSiswaData.password}</span>
+                </div>
+              )}
+            </div>
           </div>
           
           <div className="form-group">
