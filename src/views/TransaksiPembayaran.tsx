@@ -238,6 +238,7 @@ const TransaksiPembayaran: React.FC = () => {
           )}
         </div>
       </div>
+      </div>
 
       {/* Printable Receipt */}
       <div className="print-area print-receipt" style={{ padding: '2rem', backgroundColor: 'white', color: 'black' }}>
