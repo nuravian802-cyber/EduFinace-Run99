@@ -3,7 +3,7 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { useStore } from '../store/useStore';
 
 const Dashboard: React.FC = () => {
-  const { transaksi, akunKas } = useStore();
+  const { transaksi, akunKas, profilSekolah } = useStore();
 
   const totalMasuk = useMemo(() => 
     transaksi.filter(t => t.tipe === 'Pemasukan').reduce((sum, t) => sum + t.nominal, 0)
@@ -48,7 +48,7 @@ const Dashboard: React.FC = () => {
     <div className="animate-fade-in">
       <div className="mb-4" style={{ marginBottom: '2rem' }}>
         <h2>Dashboard</h2>
-        <p>Ringkasan Keuangan EduFinance</p>
+        <p>Ringkasan Keuangan {profilSekolah?.nama || 'EduFinance'}</p>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>

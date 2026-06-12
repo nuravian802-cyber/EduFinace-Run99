@@ -3,7 +3,7 @@ import { Printer, ArrowRightLeft } from 'lucide-react';
 import { useStore } from '../store/useStore';
 
 const ArusKas: React.FC = () => {
-  const { transaksi, kategori, currentUser } = useStore();
+  const { transaksi, kategori, currentUser, profilSekolah } = useStore();
   const isKepsek = currentUser?.role === 'Kepala Sekolah';
   const [periodeMulai, setPeriodeMulai] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0]);
   const [periodeAkhir, setPeriodeAkhir] = useState(new Date().toISOString().split('T')[0]);
@@ -43,7 +43,7 @@ const ArusKas: React.FC = () => {
       <div className="paper-container print-area">
         {/* Header Kertas Laporan */}
         <div style={{ textAlign: 'center', marginBottom: '2.5rem', borderBottom: '3px solid var(--text-main)', paddingBottom: '1.5rem' }}>
-          <h1 style={{ margin: 0, textTransform: 'uppercase', letterSpacing: '2px', fontSize: '1.8rem' }}>EduFinance</h1>
+          <h1 style={{ margin: 0, textTransform: 'uppercase', letterSpacing: '2px', fontSize: '1.8rem' }}>{profilSekolah?.nama || 'EduFinance'}</h1>
           <h2 style={{ margin: '0.5rem 0', color: 'var(--text-main)', fontSize: '1.4rem' }}>Laporan Arus Kas</h2>
           <p style={{ margin: 0, fontWeight: 600 }}>Periode: {new Date(periodeMulai).toLocaleDateString('id-ID')} s.d {new Date(periodeAkhir).toLocaleDateString('id-ID')}</p>
         </div>

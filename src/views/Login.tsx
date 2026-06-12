@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store/useStore';
-import { KeyRound, User, Lock } from 'lucide-react';
+import { KeyRound, User, Lock, School } from 'lucide-react';
 
 const Login: React.FC = () => {
-  const { admin, siswa, login } = useStore();
+  const { admin, siswa, login, profilSekolah } = useStore();
   const navigate = useNavigate();
   
   const [username, setUsername] = useState('');
@@ -63,10 +63,12 @@ const Login: React.FC = () => {
     }}>
       <div className="card animate-fade-in" style={{ width: '100%', maxWidth: '400px', padding: '2.5rem 2rem' }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '2rem' }}>
-          <img src="/logo.png" alt="Logo Sekolah" style={{ width: '85px', height: 'auto', marginBottom: '1rem' }} />
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <h2 style={{ margin: '0', lineHeight: 1, fontSize: '2.5rem', fontWeight: 800, letterSpacing: '2px', color: '#1e3a8a' }}>SPADAH</h2>
-            <div style={{ margin: '4px 0 0', fontWeight: 600, fontSize: '0.95rem', lineHeight: 1, color: '#1e3a8a', letterSpacing: '0.5px' }}>Integrated Finance</div>
+          <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '60px', height: '60px', borderRadius: '16px', background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)', color: 'white', marginBottom: '1rem', boxShadow: '0 10px 25px rgba(59, 130, 246, 0.4)' }}>
+              <School size={32} />
+            </div>
+            <h2 style={{ margin: '0', lineHeight: 1, fontSize: '2rem', fontWeight: 800, letterSpacing: '1px', color: '#1e3a8a' }}>{profilSekolah?.nama || 'SPADAH'}</h2>
+            <p style={{ margin: '0.5rem 0 0 0', color: 'var(--text-muted)' }}>Sistem Manajemen Keuangan Terpadu</p>
           </div>
         </div>
 
@@ -120,8 +122,8 @@ const Login: React.FC = () => {
           </button>
         </form>
         
-        <div style={{ textAlign: 'center', marginTop: '2rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-          &copy; 2026 EduFinance. All rights reserved.
+        <div style={{ marginTop: '2rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.85rem' }}>
+          &copy; 2026 {profilSekolah?.nama || 'EduFinance'}. All rights reserved.
         </div>
       </div>
     </div>

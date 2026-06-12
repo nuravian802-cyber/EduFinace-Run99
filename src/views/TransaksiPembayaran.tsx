@@ -3,7 +3,7 @@ import { useStore } from '../store/useStore';
 import { Search, CheckCircle, Printer } from 'lucide-react';
 
 const TransaksiPembayaran: React.FC = () => {
-  const { tagihan, siswa, akunKas, bayarMultiTagihan } = useStore();
+  const { tagihan, siswa, akunKas, bayarMultiTagihan, profilSekolah } = useStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSiswaId, setSelectedSiswaId] = useState<string | null>(null);
   
@@ -242,9 +242,14 @@ const TransaksiPembayaran: React.FC = () => {
 
       {/* Printable Receipt */}
       <div className="print-area print-receipt" style={{ padding: '2rem', backgroundColor: 'white', color: 'black' }}>
-        <div style={{ textAlign: 'center', marginBottom: '2rem', borderBottom: '2px solid black', paddingBottom: '1rem' }}>
-          <h2 style={{ margin: 0, textTransform: 'uppercase', color: 'black' }}>EduFinance</h2>
-          <h3 style={{ margin: '0.5rem 0 0 0', color: 'black' }}>Nota Pembayaran</h3>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid black', paddingBottom: '1rem', marginBottom: '1.5rem' }}>
+          <div>
+            <h2 style={{ margin: 0, textTransform: 'uppercase', color: 'black' }}>{profilSekolah.nama}</h2>
+            <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.85rem' }}>{profilSekolah.alamat}</p>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <h3 style={{ margin: 0, color: '#475569' }}>BUKTI PEMBAYARAN</h3>
+          </div>
         </div>
         
         <div style={{ marginBottom: '2rem', color: 'black' }}>

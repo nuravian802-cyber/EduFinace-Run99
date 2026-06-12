@@ -62,7 +62,14 @@ export interface Transaksi {
   keterangan: string;
 }
 
+export interface ProfilSekolah {
+  nama: string;
+  alamat: string;
+  npsn: string;
+}
+
 interface AppState {
+  profilSekolah: ProfilSekolah;
   siswa: Siswa[];
   akunKas: AkunKas[];
   kategori: Kategori[];
@@ -72,6 +79,7 @@ interface AppState {
   currentUser: UserSession | null;
   
   // Actions
+  updateProfil: (data: Partial<ProfilSekolah>) => void;
   login: (session: UserSession) => void;
   logout: () => void;
   addSiswa: (data: Omit<Siswa, 'id'>) => void;
@@ -110,6 +118,11 @@ const generateId = () => Math.random().toString(36).substr(2, 9);
 export const useStore = create<AppState>()(
   persist(
     (set) => ({
+      profilSekolah: {
+        nama: 'SMA EduFinance Gemilang',
+        alamat: 'Jl. Pendidikan No. 123, Jakarta Selatan',
+        npsn: '12345678'
+      },
       siswa: [
         { id: '1', nis: '1001', nisn: '0051234567', nama: 'ARIS', kelas: '10-A', namaOrangTua: 'Bpk. Aris', waOrangTua: '081234567890' },
         { id: '2', nis: '1002', nisn: '0057654321', nama: 'ARIK', kelas: '10-B', namaOrangTua: 'Ibu Arik', waOrangTua: '081298765432' },
@@ -136,6 +149,7 @@ export const useStore = create<AppState>()(
       ],
       currentUser: null,
 
+      updateProfil: (data) => set((state) => ({ profilSekolah: { ...state.profilSekolah, ...data } })),
       login: (session) => set({ currentUser: session }),
       logout: () => set({ currentUser: null }),
 

@@ -60,7 +60,7 @@ const AkunSiswa: React.FC = () => {
 
         const nis = (normalizedRow['nis'] || normalizedRow['nomorinduksiswa'] || '')?.toString();
         const nama = (normalizedRow['nama'] || normalizedRow['namasiswa'] || normalizedRow['namalengkap'])?.toString();
-        const password = (normalizedRow['password'] || normalizedRow['sandi'] || '')?.toString();
+        const password = (normalizedRow['password'] || normalizedRow['sandi'] || normalizedRow['katasandi'] || normalizedRow['pin'] || '')?.toString().trim();
         
         if (nis && nama) {
           const existingSiswa = siswa.find(s => s.nis === nis);
@@ -83,7 +83,9 @@ const AkunSiswa: React.FC = () => {
           }
         }
       });
-      alert(`Berhasil mengimpor: ${newCount} data siswa baru ditambahkan, ${updateCount} password akun diperbarui.`);
+      setTimeout(() => {
+        alert(`Berhasil mengimpor: ${newCount} data siswa baru ditambahkan, ${updateCount} password akun diperbarui.`);
+      }, 100);
     } catch (err) {
       alert('Gagal membaca file Excel. Pastikan format sesuai.');
     }
