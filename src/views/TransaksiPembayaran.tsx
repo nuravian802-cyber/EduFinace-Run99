@@ -83,7 +83,7 @@ const TransaksiPembayaran: React.FC = () => {
         `}
       </style>
       <div className="animate-fade-in no-print">
-      <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div className="page-header">
         <div>
           <h2>Transaksi Pembayaran Siswa</h2>
           <p>Pilih siswa lalu centang satu atau lebih tagihan yang ingin dibayar sekaligus.</p>

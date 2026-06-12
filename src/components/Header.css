@@ -106,3 +106,18 @@
   color: var(--text-muted);
   font-weight: 600;
 }
+
+@media (max-width: 768px) {
+  .header {
+    padding: 0 1rem;
+  }
+  .user-info {
+    display: none;
+  }
+  .header-right {
+    gap: 0.5rem;
+  }
+  .user-profile {
+    padding: 0.5rem;
+  }
+}

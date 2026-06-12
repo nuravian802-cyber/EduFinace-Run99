@@ -26,7 +26,7 @@ const ArusKas: React.FC = () => {
 
   return (
     <div className="animate-fade-in">
-      <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+      <div className="page-header no-print">
         <div>
           <h2>Laporan Arus Kas (Cash Flow)</h2>
           <p>Laporan pergerakan kas masuk dan keluar secara keseluruhan.</p>

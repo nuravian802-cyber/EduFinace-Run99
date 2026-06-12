@@ -92,7 +92,7 @@ const AkunSiswa: React.FC = () => {
 
   return (
     <div className="animate-fade-in">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+      <div className="page-header">
         <div>
           <h2>Akun Siswa</h2>
           <p>Pantau kredensial dan reset password login siswa.</p>

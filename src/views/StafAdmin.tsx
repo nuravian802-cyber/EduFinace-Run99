@@ -54,7 +54,7 @@ const StafAdmin: React.FC = () => {
 
   return (
     <div className="animate-fade-in">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+      <div className="page-header">
         <div>
           <h2>Staf Admin</h2>
           <p>Kelola akun yang memiliki akses ke sistem ini.</p>

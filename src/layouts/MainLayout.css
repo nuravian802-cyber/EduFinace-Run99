@@ -23,8 +23,26 @@
   flex: 1;
 }
 
+.sidebar-backdrop {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .main-content {
-    margin-left: 0;
+    margin-left: 0 !important;
+  }
+  .page-content {
+    padding: 1rem;
+  }
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(15, 23, 42, 0.5); /* Gelap modern */
+    backdrop-filter: blur(2px);
+    z-index: 999; /* Dibawah sidebar (1000) */
   }
 }
