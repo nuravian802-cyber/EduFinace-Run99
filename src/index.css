@@ -219,3 +219,9 @@ th {
   letter-spacing: 0.5px;
   vertical-align: middle;
 }
+
+/* Global Table Cells */
+td {
+  font-size: 0.875rem;
+  vertical-align: middle;
+}

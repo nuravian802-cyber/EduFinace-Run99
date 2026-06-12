@@ -50,16 +50,16 @@ const AkunSiswa: React.FC = () => {
       let updateCount = 0;
       
       data.forEach(row => {
-        // Normalize keys to lowercase and trim spaces
+        // Normalize keys to lowercase and remove all spaces
         const normalizedRow: any = {};
         for (const key in row) {
           if (Object.prototype.hasOwnProperty.call(row, key)) {
-            normalizedRow[key.toString().trim().toLowerCase()] = row[key];
+            normalizedRow[key.toString().replace(/\s+/g, '').toLowerCase()] = row[key];
           }
         }
 
-        const nis = (normalizedRow['nis'] || normalizedRow['nomor induk siswa'] || '')?.toString();
-        const nama = (normalizedRow['nama'] || normalizedRow['nama siswa'] || normalizedRow['nama lengkap'])?.toString();
+        const nis = (normalizedRow['nis'] || normalizedRow['nomorinduksiswa'] || '')?.toString();
+        const nama = (normalizedRow['nama'] || normalizedRow['namasiswa'] || normalizedRow['namalengkap'])?.toString();
         const password = (normalizedRow['password'] || normalizedRow['sandi'] || '')?.toString();
         
         if (nis && nama) {
@@ -74,9 +74,9 @@ const AkunSiswa: React.FC = () => {
               nis,
               nama,
               kelas: (normalizedRow['kelas'] || '')?.toString(),
-              tanggalLahir: (normalizedRow['tanggallahir'] || normalizedRow['tanggal lahir'] || normalizedRow['tgl lahir'] || '')?.toString(),
-              namaOrangTua: (normalizedRow['namaortu'] || normalizedRow['nama wali'] || normalizedRow['nama orang tua'] || '')?.toString(),
-              waOrangTua: (normalizedRow['waortu'] || normalizedRow['no wa'] || normalizedRow['no. wa'] || normalizedRow['no hp'] || normalizedRow['telepon'] || '')?.toString(),
+              tanggalLahir: (normalizedRow['tanggallahir'] || normalizedRow['tgllahir'] || normalizedRow['lahir'] || '')?.toString(),
+              namaOrangTua: (normalizedRow['namaortu'] || normalizedRow['namawali'] || normalizedRow['namaorangtua'] || normalizedRow['ortu'] || '')?.toString(),
+              waOrangTua: (normalizedRow['nowaortu'] || normalizedRow['waortu'] || normalizedRow['nowa'] || normalizedRow['wa'] || normalizedRow['nohportu'] || normalizedRow['nohp'] || normalizedRow['hp'] || normalizedRow['telepon'] || normalizedRow['notelp'] || '')?.toString(),
               password: password || ''
             });
             newCount++;

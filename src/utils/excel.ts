@@ -30,8 +30,8 @@ export const importFromExcel = (file: File): Promise<any[]> => {
         const firstSheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[firstSheetName];
         
-        // Konversi ke format JSON
-        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+        // Konversi ke format JSON dengan raw: false agar tanggal dan angka terformat sesuai tampilan Excel
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, { raw: false });
         resolve(jsonData);
       } catch (error) {
         reject(error);
