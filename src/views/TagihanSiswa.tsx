@@ -100,8 +100,28 @@ const TagihanSiswa: React.FC = () => {
     }
   };
 
-
   const formatRp = (num: number) => new Intl.NumberFormat('id-ID').format(num);
+
+  const handleKirimWA = (siswaData: typeof siswa[0], studentTagihan: typeof tagihan) => {
+    const totalKekurangan = studentTagihan.reduce((sum, t) => sum + (t.nominal - t.terbayar), 0);
+    if (totalKekurangan <= 0) {
+      alert('Tidak ada tunggakan untuk siswa ini.');
+      return;
+    }
+    
+    let waNumber = siswaData.waOrangTua?.replace(/\D/g, '');
+    if (!waNumber) {
+      alert('Nomor WhatsApp orang tua tidak tersedia.');
+      return;
+    }
+    if (waNumber.startsWith('0')) {
+      waNumber = '62' + waNumber.substring(1);
+    }
+    
+    const text = `Halo Bapak/Ibu ${siswaData.namaOrangTua},\nBerikut adalah informasi tagihan untuk siswa:\nNama: ${siswaData.nama}\nNIS: ${siswaData.nis}\nKelas: ${siswaData.kelas}\n\nTotal Kekurangan Tagihan: Rp ${formatRp(totalKekurangan)}\n\nMohon untuk dapat segera melakukan penyelesaian administrasi pembayaran. Terima kasih.`;
+    
+    window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(text)}`, '_blank');
+  };
 
   return (
     <div className="animate-fade-in">
@@ -167,9 +187,14 @@ const TagihanSiswa: React.FC = () => {
                       Rp {formatRp(totalKekurangan)}
                     </td>
                     <td style={{ padding: '1rem', textAlign: 'right' }}>
-                      <button className="btn btn-outline" style={{ padding: '0.25rem 0.75rem', fontSize: '0.8rem' }} onClick={() => toggleExpand(s.id)}>
-                        Rincian
-                      </button>
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+                        <button className="btn btn-outline" style={{ padding: '0.25rem 0.75rem', fontSize: '0.8rem', color: '#16a34a', borderColor: '#16a34a' }} onClick={() => handleKirimWA(s, studentTagihan)}>
+                          Kirim WA
+                        </button>
+                        <button className="btn btn-outline" style={{ padding: '0.25rem 0.75rem', fontSize: '0.8rem' }} onClick={() => toggleExpand(s.id)}>
+                          Rincian
+                        </button>
+                      </div>
                     </td>
                   </tr>
 
