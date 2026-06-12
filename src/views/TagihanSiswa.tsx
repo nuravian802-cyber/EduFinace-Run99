@@ -118,9 +118,12 @@ const TagihanSiswa: React.FC = () => {
       waNumber = '62' + waNumber.substring(1);
     }
     
-    const text = `Halo Bapak/Ibu ${siswaData.namaOrangTua},\nBerikut adalah informasi tagihan untuk siswa:\nNama: ${siswaData.nama}\nNIS: ${siswaData.nis}\nKelas: ${siswaData.kelas}\n\nTotal Kekurangan Tagihan: Rp ${formatRp(totalKekurangan)}\n\nMohon untuk dapat segera melakukan penyelesaian administrasi pembayaran. Terima kasih.`;
+    const unpaidTags = studentTagihan.filter(t => (t.nominal - t.terbayar) > 0);
+    const rincianText = unpaidTags.map(t => `- ${t.namaTagihan}: Rp ${formatRp(t.nominal - t.terbayar)}`).join('\n');
     
-    window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(text)}`, '_blank');
+    const text = `Halo Bapak/Ibu ${siswaData.namaOrangTua},\nBerikut adalah informasi tagihan untuk siswa:\nNama: ${siswaData.nama}\nNIS: ${siswaData.nis}\nKelas: ${siswaData.kelas}\n\nRincian Tagihan Belum Lunas:\n${rincianText}\n\nTotal Kekurangan Tagihan: Rp ${formatRp(totalKekurangan)}\n\nMohon untuk dapat segera melakukan penyelesaian administrasi pembayaran. Terima kasih.`;
+    
+    window.open(`https://web.whatsapp.com/send?phone=${waNumber}&text=${encodeURIComponent(text)}`, '_blank');
   };
 
   return (
