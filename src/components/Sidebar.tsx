@@ -29,9 +29,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
 
   return (
     <aside className={`sidebar ${isOpen ? 'open' : 'closed'}`}>
-      <div className="sidebar-header">
-        <div className="logo-icon">EF</div>
-        <h2>EduFinance</h2>
+      <div className="sidebar-header" style={{ alignItems: 'center' }}>
+        <img src="/logo.png" alt="Logo Sekolah" style={{ width: '45px', height: 'auto', marginRight: '0.75rem' }} />
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <h2 style={{ margin: 0, lineHeight: 1, fontSize: '2rem', fontFamily: 'Impact, sans-serif', letterSpacing: '0.5px' }}>SPADAH</h2>
+          <span style={{ margin: 0, fontWeight: 800, fontSize: '0.8rem', lineHeight: 1, marginTop: '2px' }}>Integrated Finance</span>
+        </div>
       </div>
 
       <nav className="sidebar-nav">

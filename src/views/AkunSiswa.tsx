@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, KeyRound } from 'lucide-react';
+import { Search, KeyRound, Eye, EyeOff } from 'lucide-react';
 import { useStore, type Siswa } from '../store/useStore';
 import Modal from '../components/Modal';
 
@@ -11,6 +11,7 @@ const AkunSiswa: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editSiswaData, setEditSiswaData] = useState<Siswa | null>(null);
   const [newPassword, setNewPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const filteredSiswa = siswa.filter(s => 
     s.nama.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -20,6 +21,7 @@ const AkunSiswa: React.FC = () => {
   const openResetModal = (s: Siswa) => {
     setEditSiswaData(s);
     setNewPassword('');
+    setShowPassword(false);
     setIsModalOpen(true);
   };
 
@@ -116,14 +118,24 @@ const AkunSiswa: React.FC = () => {
           
           <div className="form-group">
             <label className="form-label">Password Baru</label>
-            <input 
-              type="password" 
-              className="form-control" 
-              placeholder="Masukkan password baru..." 
-              value={newPassword} 
-              onChange={(e) => setNewPassword(e.target.value)} 
-              required 
-            />
+            <div style={{ position: 'relative' }}>
+              <input 
+                type={showPassword ? "text" : "password"} 
+                className="form-control" 
+                placeholder="Masukkan password baru..." 
+                value={newPassword} 
+                onChange={(e) => setNewPassword(e.target.value)} 
+                required 
+                style={{ paddingRight: '2.5rem' }}
+              />
+              <button 
+                type="button" 
+                onClick={() => setShowPassword(!showPassword)}
+                style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 0 }}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
             <small style={{ color: 'var(--text-muted)', display: 'block', marginTop: '0.5rem' }}>
               Beri tahu siswa mengenai password barunya setelah direset.
             </small>

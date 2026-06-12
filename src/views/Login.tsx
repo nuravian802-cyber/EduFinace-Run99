@@ -63,19 +63,7 @@ const Login: React.FC = () => {
     }}>
       <div className="card animate-fade-in" style={{ width: '100%', maxWidth: '400px', padding: '2.5rem 2rem' }}>
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div style={{ 
-            display: 'inline-flex', 
-            alignItems: 'center', 
-            justifyContent: 'center',
-            backgroundColor: 'var(--primary)', 
-            color: 'white', 
-            width: '60px', 
-            height: '60px', 
-            borderRadius: '16px',
-            marginBottom: '1rem'
-          }}>
-            <h2 style={{ margin: 0, color: 'white', fontSize: '1.5rem' }}>EF</h2>
-          </div>
+          <img src="/logo.png" alt="Logo Sekolah" style={{ width: '80px', height: 'auto', marginBottom: '1rem' }} />
           <h2 style={{ margin: '0 0 0.5rem 0', color: 'var(--text-main)' }}>EduFinance</h2>
           <p style={{ margin: 0, fontSize: '0.9rem' }}>Sistem Informasi Keuangan Sekolah</p>
         </div>

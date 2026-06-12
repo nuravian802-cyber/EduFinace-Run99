@@ -131,7 +131,8 @@ const DataSiswa: React.FC = () => {
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
               <tr style={{ borderBottom: '2px solid var(--border-color)' }}>
-                <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)' }}>NIS / NISN</th>
+                <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)' }}>NIS</th>
+                <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)' }}>NISN</th>
                 <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)' }}>Nama Siswa</th>
                 <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)' }}>Kelas</th>
                 <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)' }}>Nama Wali</th>
@@ -142,10 +143,8 @@ const DataSiswa: React.FC = () => {
             <tbody>
               {filteredSiswa.map((s) => (
                 <tr key={s.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                  <td style={{ padding: '1rem 0.5rem' }}>
-                    <div style={{ fontWeight: 600 }}>{s.nis}</div>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{s.nisn}</div>
-                  </td>
+                  <td style={{ padding: '1rem 0.5rem', fontWeight: 600 }}>{s.nis}</td>
+                  <td style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)' }}>{s.nisn}</td>
                   <td style={{ padding: '1rem 0.5rem', fontWeight: 600 }}>{s.nama}</td>
                   <td style={{ padding: '1rem 0.5rem' }}>{s.kelas}</td>
                   <td style={{ padding: '1rem 0.5rem' }}>{s.namaOrangTua}</td>
@@ -158,7 +157,7 @@ const DataSiswa: React.FC = () => {
               ))}
               {filteredSiswa.length === 0 && (
                 <tr>
-                  <td colSpan={6} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                  <td colSpan={7} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
                     Data siswa tidak ditemukan.
                   </td>
                 </tr>

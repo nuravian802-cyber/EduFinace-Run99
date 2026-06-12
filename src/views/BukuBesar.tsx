@@ -59,11 +59,7 @@ const BukuBesar: React.FC = () => {
 
         {akunId ? (
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', padding: '1rem', backgroundColor: 'var(--bg-body)', borderRadius: 'var(--radius-md)' }}>
-              <div>
-                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Mulai dari (Berdasarkan Transaksi)</span>
-                <div style={{ fontWeight: 700, fontSize: '1.1rem' }}>Rp {saldoAwal.toLocaleString('id-ID')}</div>
-              </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem', padding: '1rem', backgroundColor: 'var(--bg-body)', borderRadius: 'var(--radius-md)' }}>
               <div style={{ textAlign: 'right' }}>
                 <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Saldo Akhir (Aktual Akun)</span>
                 <div style={{ fontWeight: 700, fontSize: '1.1rem', color: 'var(--primary)' }}>Rp {(selectedAkun?.saldo || 0).toLocaleString('id-ID')}</div>

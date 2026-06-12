@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Search, Edit, Trash2 } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Eye, EyeOff } from 'lucide-react';
 import { useStore, type Admin } from '../store/useStore';
 import Modal from '../components/Modal';
 
@@ -11,6 +11,8 @@ const StafAdmin: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
   const [editId, setEditId] = useState<string | null>(null);
+
+  const [showPassword, setShowPassword] = useState(false);
 
   // Form State
   const [formData, setFormData] = useState<Partial<Admin>>({
@@ -28,6 +30,7 @@ const StafAdmin: React.FC = () => {
   const openAddModal = () => {
     setModalMode('add');
     setFormData({ username: '', password: '', nama: '', role: 'Super Admin' });
+    setShowPassword(false);
     setIsModalOpen(true);
   };
 
@@ -35,6 +38,7 @@ const StafAdmin: React.FC = () => {
     setModalMode('edit');
     setEditId(adm.id);
     setFormData({ ...adm });
+    setShowPassword(false);
     setIsModalOpen(true);
   };
 
@@ -132,7 +136,16 @@ const StafAdmin: React.FC = () => {
           </div>
           <div className="form-group">
             <label className="form-label">Password</label>
-            <input type="password" className="form-control" placeholder={modalMode === 'edit' ? '(Kosongkan jika tidak ingin mengubah)' : ''} value={formData.password || ''} onChange={(e) => setFormData({...formData, password: e.target.value})} required={modalMode === 'add'} />
+            <div style={{ position: 'relative' }}>
+              <input type={showPassword ? "text" : "password"} className="form-control" placeholder={modalMode === 'edit' ? '(Kosongkan jika tidak ingin mengubah)' : ''} value={formData.password || ''} onChange={(e) => setFormData({...formData, password: e.target.value})} required={modalMode === 'add'} style={{ paddingRight: '2.5rem' }} />
+              <button 
+                type="button" 
+                onClick={() => setShowPassword(!showPassword)}
+                style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 0 }}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </div>
           <div className="form-group">
             <label className="form-label">Nama Lengkap</label>
