@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { Search, KeyRound, Eye, EyeOff } from 'lucide-react';
+import { Search, KeyRound, Eye, EyeOff, Upload } from 'lucide-react';
 import { useStore, type Siswa } from '../store/useStore';
 import Modal from '../components/Modal';
+import { importFromExcel } from '../utils/excel';
 
 const AkunSiswa: React.FC = () => {
-  const { siswa, editSiswa } = useStore();
+  const { siswa, editSiswa, addSiswa } = useStore();
   const [searchTerm, setSearchTerm] = useState('');
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -33,12 +35,70 @@ const AkunSiswa: React.FC = () => {
     setIsModalOpen(false);
   };
 
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const data = await importFromExcel(file);
+      let newCount = 0;
+      let updateCount = 0;
+      
+      data.forEach(row => {
+        const nis = (row['NIS'] || row['nis'] || '')?.toString();
+        const nama = (row['Nama'] || row['NAMA'] || row['nama'])?.toString();
+        const password = (row['Password'] || row['password'] || row['Sandi'] || '')?.toString();
+        
+        if (nis && nama) {
+          const existingSiswa = siswa.find(s => s.nis === nis);
+          if (existingSiswa) {
+            if (password) {
+              editSiswa(existingSiswa.id, { password });
+              updateCount++;
+            }
+          } else {
+            addSiswa({
+              nis,
+              nisn: (row['NISN'] || row['nisn'] || '')?.toString(),
+              nama,
+              kelas: (row['Kelas'] || row['kelas'] || '')?.toString(),
+              tanggalLahir: (row['TanggalLahir'] || row['Tanggal Lahir'] || '')?.toString(),
+              namaOrangTua: (row['NamaOrtu'] || row['Nama Wali'] || row['Nama Orang Tua'] || '')?.toString(),
+              waOrangTua: (row['WaOrtu'] || row['No WA'] || row['No. WA'] || '')?.toString(),
+              password: password || ''
+            });
+            newCount++;
+          }
+        }
+      });
+      alert(`Berhasil mengimpor: ${newCount} data siswa baru ditambahkan, ${updateCount} password akun diperbarui.`);
+    } catch (err) {
+      alert('Gagal membaca file Excel. Pastikan format sesuai.');
+    }
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
   return (
     <div className="animate-fade-in">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <div>
           <h2>Akun Siswa</h2>
           <p>Pantau kredensial dan reset password login siswa.</p>
+        </div>
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <input 
+            type="file" 
+            accept=".xlsx, .xls" 
+            ref={fileInputRef} 
+            style={{ display: 'none' }} 
+            onChange={handleFileChange} 
+          />
+          <button className="btn btn-outline" style={{ color: 'var(--success)', borderColor: 'var(--success)' }} onClick={handleImportClick}>
+            <Upload size={18} /> Impor Data & Sandi
+          </button>
         </div>
       </div>
 

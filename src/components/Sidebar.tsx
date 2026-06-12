@@ -29,11 +29,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
 
   return (
     <aside className={`sidebar ${isOpen ? 'open' : 'closed'}`}>
-      <div className="sidebar-header" style={{ alignItems: 'center' }}>
-        <img src="/logo.png" alt="Logo Sekolah" style={{ width: '45px', height: 'auto', marginRight: '0.75rem' }} />
+      <div className="sidebar-header" style={{ alignItems: 'center', gap: '0.75rem' }}>
+        <img src="/logo.png" alt="Logo Sekolah" style={{ width: '50px', height: 'auto' }} />
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          <h2 style={{ margin: 0, lineHeight: 1, fontSize: '2rem', fontFamily: 'Impact, sans-serif', letterSpacing: '0.5px' }}>SPADAH</h2>
-          <span style={{ margin: 0, fontWeight: 800, fontSize: '0.8rem', lineHeight: 1, marginTop: '2px' }}>Integrated Finance</span>
+          <h2 style={{ margin: 0, lineHeight: 1, fontSize: '1.75rem', fontWeight: 800, letterSpacing: '0.5px', color: '#1e3a8a' }}>SPADAH</h2>
+          <span style={{ margin: 0, fontWeight: 500, fontSize: '0.85rem', lineHeight: 1, marginTop: '4px', color: '#1e3a8a' }}>Integrated Finance</span>
         </div>
       </div>
 
