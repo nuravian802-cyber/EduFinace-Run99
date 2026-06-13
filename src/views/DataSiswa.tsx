@@ -16,9 +16,13 @@ const DataSiswa: React.FC = () => {
 
   // Bulk update state
   const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
-  const [bulkKelasAsal, setBulkKelasAsal] = useState('');
-  const [bulkKelasTujuan, setBulkKelasTujuan] = useState('');
-
+  const [bulkTingkatAsal, setBulkTingkatAsal] = useState('7');
+  const [bulkRombelAsal, setBulkRombelAsal] = useState('A');
+  const [bulkTingkatTujuan, setBulkTingkatTujuan] = useState('8');
+  
+  const kelasAsalStr = `${bulkTingkatAsal}${bulkRombelAsal}`;
+  const kelasTujuanStr = `${bulkTingkatTujuan}${bulkRombelAsal}`;
+  const studentsToPromote = siswa.filter(s => s.kelas === kelasAsalStr && s.status !== 'Non-aktif');
   // Form State
   const [formData, setFormData] = useState<Partial<Siswa>>({
     nis: '',
@@ -61,12 +65,11 @@ const DataSiswa: React.FC = () => {
 
   const handleBulkSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!bulkKelasAsal || !bulkKelasTujuan) return;
-    if (confirm(`Apakah Anda yakin ingin memindahkan SEMUA siswa dari kelas ${bulkKelasAsal} ke kelas ${bulkKelasTujuan}?`)) {
-      await naikKelasMassal(bulkKelasAsal, bulkKelasTujuan);
+    if (studentsToPromote.length === 0 || bulkTingkatAsal === bulkTingkatTujuan) return;
+    
+    if (confirm(`Apakah Anda yakin ingin memindahkan ${studentsToPromote.length} siswa dari kelas ${kelasAsalStr} ke kelas ${kelasTujuanStr}?`)) {
+      await naikKelasMassal(kelasAsalStr, kelasTujuanStr);
       setIsBulkModalOpen(false);
-      setBulkKelasAsal('');
-      setBulkKelasTujuan('');
       alert('Kenaikan kelas berhasil diproses!');
     }
   };
@@ -276,15 +279,62 @@ const DataSiswa: React.FC = () => {
           </div>
           <div className="form-group">
             <label className="form-label">Kelas Asal (yang akan dipindah)</label>
-            <input type="text" className="form-control" placeholder="Contoh: 7" value={bulkKelasAsal} onChange={(e) => setBulkKelasAsal(e.target.value)} required />
+            <div style={{ display: 'flex', gap: '1rem' }}>
+              <select className="form-control" value={bulkTingkatAsal} onChange={(e) => setBulkTingkatAsal(e.target.value)}>
+                <option value="7">Tingkat 7</option>
+                <option value="8">Tingkat 8</option>
+                <option value="9">Tingkat 9</option>
+              </select>
+              <select className="form-control" value={bulkRombelAsal} onChange={(e) => setBulkRombelAsal(e.target.value)}>
+                <option value="A">Rombel A</option>
+                <option value="B">Rombel B</option>
+                <option value="C">Rombel C</option>
+                <option value="D">Rombel D</option>
+              </select>
+            </div>
           </div>
           <div className="form-group">
             <label className="form-label">Kelas Tujuan (kelas baru)</label>
-            <input type="text" className="form-control" placeholder="Contoh: 8" value={bulkKelasTujuan} onChange={(e) => setBulkKelasTujuan(e.target.value)} required />
+            <div style={{ display: 'flex', gap: '1rem' }}>
+              <select className="form-control" value={bulkTingkatTujuan} onChange={(e) => setBulkTingkatTujuan(e.target.value)}>
+                <option value="7">Tingkat 7</option>
+                <option value="8">Tingkat 8</option>
+                <option value="9">Tingkat 9</option>
+              </select>
+              <select className="form-control" value={bulkRombelAsal} disabled style={{ backgroundColor: '#f1f5f9', cursor: 'not-allowed' }}>
+                <option value="A">Rombel A</option>
+                <option value="B">Rombel B</option>
+                <option value="C">Rombel C</option>
+                <option value="D">Rombel D</option>
+              </select>
+            </div>
+            <small style={{ color: 'var(--text-muted)', display: 'block', marginTop: '0.5rem' }}>Rombel otomatis disamakan dengan rombel asal.</small>
           </div>
+
+          {studentsToPromote.length > 0 ? (
+            <div style={{ marginTop: '1.5rem', marginBottom: '1.5rem', border: '1px solid var(--border-color)', borderRadius: '8px', overflow: 'hidden' }}>
+              <div style={{ padding: '0.75rem 1rem', backgroundColor: '#f8fafc', fontWeight: 600, borderBottom: '1px solid var(--border-color)', fontSize: '0.9rem' }}>
+                Preview: {studentsToPromote.length} Siswa akan dipindahkan
+              </div>
+              <div style={{ maxHeight: '150px', overflowY: 'auto', padding: '0.5rem 0' }}>
+                <ul style={{ listStyle: 'none', margin: 0, padding: '0 1rem', fontSize: '0.85rem' }}>
+                  {studentsToPromote.map((s, i) => (
+                    <li key={s.id} style={{ padding: '0.35rem 0', borderBottom: i < studentsToPromote.length - 1 ? '1px dashed #e2e8f0' : 'none' }}>
+                      <span style={{ fontWeight: 600, marginRight: '0.5rem' }}>{s.nis}</span> {s.nama}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          ) : (
+            <div style={{ marginTop: '1.5rem', marginBottom: '1.5rem', padding: '1rem', backgroundColor: '#fef2f2', color: '#b91c1c', borderRadius: '8px', fontSize: '0.9rem', textAlign: 'center' }}>
+              Tidak ada siswa aktif di kelas {kelasAsalStr}.
+            </div>
+          )}
+
           <div className="modal-footer">
             <button type="button" className="btn btn-outline" onClick={() => setIsBulkModalOpen(false)}>Batal</button>
-            <button type="submit" className="btn btn-primary">Proses Kenaikan Kelas</button>
+            <button type="submit" className="btn btn-primary" disabled={studentsToPromote.length === 0 || bulkTingkatAsal === bulkTingkatTujuan}>Proses Kenaikan Kelas</button>
           </div>
         </form>
       </Modal>
