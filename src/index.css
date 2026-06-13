@@ -39,15 +39,13 @@ img, picture, video, canvas, svg {
   height: auto;
 }
 
-p, h1, h2, h3, h4, h5, h6, td, th, div, span, label {
+p, h1, h2, h3, h4, h5, h6, label {
   overflow-wrap: break-word;
   word-wrap: break-word;
-  word-break: break-word;
 }
 
 table {
   width: 100%;
-  max-width: 100%;
 }
 
 body {
@@ -268,10 +266,12 @@ th {
   text-transform: uppercase;
   letter-spacing: 0.5px;
   vertical-align: middle;
+  white-space: nowrap;
 }
 
 /* Global Table Cells */
 td {
   font-size: 0.875rem;
   vertical-align: middle;
+  white-space: nowrap;
 }
