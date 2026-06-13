@@ -189,7 +189,6 @@ const TransaksiPembayaran: React.FC = () => {
                           </td>
                           <td style={{ padding: '0.75rem 0.5rem' }}>
                             <div style={{ fontWeight: 600 }}>{t.namaTagihan}</div>
-                            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Jatuh Tempo: {t.jatuhTempo}</div>
                           </td>
                           <td style={{ padding: '0.75rem 0.5rem', color: 'var(--danger)', fontWeight: 600 }}>
                             {sisa.toLocaleString('id-ID')}
