@@ -48,12 +48,12 @@ const ArusKas: React.FC = () => {
           <p style={{ margin: 0, fontWeight: 600 }}>Periode: {new Date(periodeMulai).toLocaleDateString('id-ID')} s.d {new Date(periodeAkhir).toLocaleDateString('id-ID')}</p>
         </div>
 
-        <div className="no-print" style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '1.5rem' }}>
-          <div style={{ flex: 1 }}>
+        <div className="no-print" style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '1.5rem', flexWrap: 'wrap' }}>
+          <div style={{ flex: '1 1 200px' }}>
             <label className="form-label">Periode Mulai</label>
             <input type="date" className="form-control" value={periodeMulai} onChange={(e) => setPeriodeMulai(e.target.value)} />
           </div>
-          <div style={{ flex: 1 }}>
+          <div style={{ flex: '1 1 200px' }}>
             <label className="form-label">Periode Akhir</label>
             <input type="date" className="form-control" value={periodeAkhir} onChange={(e) => setPeriodeAkhir(e.target.value)} />
           </div>

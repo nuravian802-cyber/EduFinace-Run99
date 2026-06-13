@@ -35,8 +35,8 @@ const BukuBesar: React.FC = () => {
       </div>
 
       <div className="card">
-        <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
-          <div style={{ flex: 1 }}>
+        <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+          <div style={{ flex: '1 1 200px' }}>
             <label className="form-label">Pilih Akun Kas</label>
             <select className="form-control" value={akunId} onChange={(e) => setAkunId(e.target.value)}>
               <option value="">-- Pilih Akun --</option>
@@ -45,13 +45,12 @@ const BukuBesar: React.FC = () => {
               ))}
             </select>
           </div>
-          <div style={{ flex: 1 }}>
+          <div style={{ flex: '1 1 200px' }}>
             <label className="form-label">Bulan</label>
             <input type="month" className="form-control" value={bulan} onChange={(e) => setBulan(e.target.value)} />
           </div>
-          <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.5rem' }}>
-
-            <button className="btn btn-primary" style={{ height: '42px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div style={{ flex: '0 0 auto' }}>
+            <button className="btn btn-primary" style={{ height: '42px', display: 'flex', alignItems: 'center', gap: '0.5rem', width: '100%' }}>
               <Filter size={18} /> Tampilkan
             </button>
           </div>
