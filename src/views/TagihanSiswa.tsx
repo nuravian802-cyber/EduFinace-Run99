@@ -2,16 +2,10 @@ import React, { useState } from 'react';
 import { Search, ChevronDown, ChevronRight, Edit, Trash2 } from 'lucide-react';
 import { useStore, type Tagihan } from '../store/useStore';
 import Modal from '../components/Modal';
-import Pagination from '../components/Pagination';
 
 const TagihanSiswa: React.FC = () => {
   const { siswa, tagihan, addTagihan, addTagihanMassal, editTagihan, deleteTagihan, currentUser } = useStore();
   const [searchTerm, setSearchTerm] = useState('');
-  
-  // Pagination State
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
-  
   const [expandedSiswa, setExpandedSiswa] = useState<string[]>([]);
   
   const isSiswa = currentUser?.role === 'Siswa';
@@ -48,14 +42,6 @@ const TagihanSiswa: React.FC = () => {
     return s.nama.toLowerCase().includes(searchTerm.toLowerCase()) || 
            s.nis.includes(searchTerm);
   });
-
-  React.useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm]);
-
-  const totalItems = filteredSiswa.length;
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedSiswa = filteredSiswa.slice(startIndex, startIndex + itemsPerPage);
 
   const toggleExpand = (siswaId: string) => {
     setExpandedSiswa(prev => 
@@ -190,7 +176,7 @@ const TagihanSiswa: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {paginatedSiswa.map((s) => {
+            {filteredSiswa.map((s) => {
               const studentTagihan = tagihan.filter(t => t.siswaId === s.id);
               const totalTagihan = studentTagihan.reduce((sum, t) => sum + t.nominal, 0);
               const totalKekurangan = studentTagihan.reduce((sum, t) => sum + (t.nominal - t.terbayar), 0);
@@ -277,7 +263,7 @@ const TagihanSiswa: React.FC = () => {
               );
             })}
 
-            {paginatedSiswa.length === 0 && (
+            {filteredSiswa.length === 0 && (
               <tr>
                 <td colSpan={isSiswa ? 3 : 4} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
                   Data siswa tidak ditemukan.
@@ -287,16 +273,6 @@ const TagihanSiswa: React.FC = () => {
           </tbody>
         </table>
       </div>
-
-      {totalItems > 10 && (
-        <Pagination 
-          currentPage={currentPage}
-          totalItems={totalItems}
-          itemsPerPage={itemsPerPage}
-          onPageChange={setCurrentPage}
-          onItemsPerPageChange={setItemsPerPage}
-        />
-      )}
 
       <Modal 
         isOpen={isModalOpen} 
