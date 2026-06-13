@@ -17,9 +17,9 @@
   
   --border-color: #E2E8F0;
   
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 20px;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1.25rem;
   
   --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
   --shadow-md: 0 4px 12px rgba(0,0,0,0.05);
@@ -32,6 +32,22 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+img, picture, video, canvas, svg {
+  max-width: 100%;
+  height: auto;
+}
+
+p, h1, h2, h3, h4, h5, h6, td, th, div, span, label {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+table {
+  width: 100%;
+  max-width: 100%;
 }
 
 body {
@@ -165,8 +181,11 @@ input, select, textarea {
 .main-content {
   flex: 1;
   padding: 2rem;
-  margin-left: 260px; /* Sidebar width */
+  margin-left: 16.25rem; /* Sidebar width */
   transition: all 0.3s ease;
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .page-header {
@@ -177,6 +196,11 @@ input, select, textarea {
 }
 
 @media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+    padding: 1rem;
+    width: 100vw;
+  }
   .page-header {
     flex-direction: column;
     align-items: stretch;
@@ -190,6 +214,8 @@ input, select, textarea {
   .card {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    width: 100%;
+    padding: 1rem;
   }
 }
 

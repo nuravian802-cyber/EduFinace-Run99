@@ -2,11 +2,16 @@ import React, { useState } from 'react';
 import { Plus, Search, Edit, Trash2, Upload, TrendingUp } from 'lucide-react';
 import { useStore, type Siswa } from '../store/useStore';
 import Modal from '../components/Modal';
+import Pagination from '../components/Pagination';
 import { importFromExcel } from '../utils/excel';
 
 const DataSiswa: React.FC = () => {
   const { siswa, deleteSiswa, addSiswa, editSiswa, toggleStatusSiswa, naikKelasMassal } = useStore();
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -39,6 +44,14 @@ const DataSiswa: React.FC = () => {
     s.nama.toLowerCase().includes(searchTerm.toLowerCase()) || 
     s.nis.includes(searchTerm)
   );
+
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  const totalItems = filteredSiswa.length;
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedSiswa = filteredSiswa.slice(startIndex, startIndex + itemsPerPage);
 
   const openAddModal = () => {
     setModalMode('add');
@@ -172,7 +185,7 @@ const DataSiswa: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredSiswa.map((s) => (
+              {paginatedSiswa.map((s) => (
                 <tr key={s.id} style={{ borderBottom: '1px solid var(--border-color)', opacity: s.status === 'Non-aktif' ? 0.6 : 1 }}>
                   <td style={{ padding: '1rem 0.5rem', fontWeight: 600 }}>{s.nis}</td>
                   <td style={{ padding: '1rem 0.5rem', fontWeight: 600 }}>{s.nama}</td>
@@ -218,7 +231,7 @@ const DataSiswa: React.FC = () => {
                   </td>
                 </tr>
               ))}
-              {filteredSiswa.length === 0 && (
+              {paginatedSiswa.length === 0 && (
                 <tr>
                   <td colSpan={8} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
                     Data siswa tidak ditemukan.
@@ -228,6 +241,16 @@ const DataSiswa: React.FC = () => {
             </tbody>
           </table>
         </div>
+        
+        {totalItems > 10 && (
+          <Pagination 
+            currentPage={currentPage}
+            totalItems={totalItems}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+            onItemsPerPageChange={setItemsPerPage}
+          />
+        )}
       </div>
 
       <Modal 
