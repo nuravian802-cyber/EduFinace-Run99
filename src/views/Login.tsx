@@ -61,13 +61,13 @@ const Login: React.FC = () => {
       backgroundColor: 'var(--bg-body)',
       padding: '1rem'
     }}>
-      <div className="card animate-fade-in" style={{ width: '100%', maxWidth: '400px', padding: '2.5rem 2rem' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '2rem' }}>
-          <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
-            <img src="/logo.png" alt="Logo Sekolah" style={{ width: '85px', height: 'auto', marginBottom: '1rem' }} />
+      <div className="card animate-fade-in" style={{ width: '100%', maxWidth: '340px', padding: '2rem 1.5rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '1.5rem' }}>
+          <div style={{ marginBottom: '1.5rem', textAlign: 'center' }}>
+            <img src="/logo.png" alt="Logo Sekolah" style={{ width: '70px', height: 'auto', marginBottom: '0.75rem' }} />
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <h2 style={{ margin: '0', lineHeight: 1, fontSize: '2.5rem', fontWeight: 800, letterSpacing: '2px', color: '#1e3a8a' }}>SPADAH</h2>
-              <div style={{ margin: '4px 0 0', fontWeight: 600, fontSize: '0.95rem', lineHeight: 1, color: '#1e3a8a', letterSpacing: '0.5px' }}>Integrated Finance</div>
+              <h2 style={{ margin: '0', lineHeight: 1, fontSize: '2rem', fontWeight: 800, letterSpacing: '2px', color: '#1e3a8a' }}>SPADAH</h2>
+              <div style={{ margin: '4px 0 0', fontWeight: 600, fontSize: '0.85rem', lineHeight: 1, color: '#1e3a8a', letterSpacing: '0.5px' }}>Integrated Finance</div>
             </div>
           </div>
         </div>
@@ -76,10 +76,10 @@ const Login: React.FC = () => {
           <div style={{ 
             backgroundColor: '#fee2e2', 
             color: 'var(--danger)', 
-            padding: '0.75rem 1rem', 
+            padding: '0.5rem 0.75rem', 
             borderRadius: '8px', 
-            fontSize: '0.85rem',
-            marginBottom: '1.5rem',
+            fontSize: '0.8rem',
+            marginBottom: '1rem',
             fontWeight: 500
           }}>
             {error}
@@ -87,24 +87,24 @@ const Login: React.FC = () => {
         )}
 
         <form onSubmit={handleLogin}>
-          <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-            <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <User size={16} /> Username / NIS
+          <div className="form-group" style={{ marginBottom: '1rem' }}>
+            <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem' }}>
+              <User size={14} /> Username / NIS
             </label>
             <input 
               type="text" 
               className="form-control" 
-              placeholder="Masukkan username admin atau NIS siswa"
+              placeholder="Masukkan username admin atau NIS"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
-              style={{ padding: '0.8rem 1rem' }}
+              style={{ padding: '0.6rem 0.8rem', fontSize: '0.9rem' }}
             />
           </div>
 
-          <div className="form-group" style={{ marginBottom: '2rem' }}>
-            <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Lock size={16} /> Password
+          <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+            <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem' }}>
+              <Lock size={14} /> Password
             </label>
             <input 
               type="password" 
@@ -113,17 +113,17 @@ const Login: React.FC = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              style={{ padding: '0.8rem 1rem' }}
+              style={{ padding: '0.6rem 0.8rem', fontSize: '0.9rem' }}
             />
           </div>
 
-          <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '0.8rem', fontSize: '1rem' }}>
-            <KeyRound size={18} /> Masuk ke Sistem
+          <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '0.6rem', fontSize: '0.95rem' }}>
+            <KeyRound size={16} /> Masuk ke Sistem
           </button>
         </form>
         
-        <div style={{ marginTop: '2rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.85rem' }}>
-          &copy; 2026 {profilSekolah?.nama || 'EduFinance'}. All rights reserved.
+        <div style={{ marginTop: '1.5rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.75rem' }}>
+          &copy; 2026 SMP Assa'adah Bungah. All rights reserved.
         </div>
       </div>
     </div>

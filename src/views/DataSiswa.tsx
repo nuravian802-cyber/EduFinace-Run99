@@ -77,6 +77,7 @@ const DataSiswa: React.FC = () => {
         if (nama) {
           addSiswa({
             nis: (normalizedRow['nis'] || normalizedRow['nomorinduksiswa'] || '')?.toString(),
+            nisn: (normalizedRow['nisn'] || normalizedRow['nomorinduksiswanasional'] || '')?.toString(),
             nama: nama?.toString(),
             kelas: (normalizedRow['kelas'] || '')?.toString(),
             tanggalLahir: (normalizedRow['tanggallahir'] || normalizedRow['tgllahir'] || normalizedRow['lahir'] || '')?.toString(),

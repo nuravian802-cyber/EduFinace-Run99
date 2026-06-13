@@ -51,7 +51,7 @@ const Dashboard: React.FC = () => {
     <div className="animate-fade-in">
       <div className="mb-4" style={{ marginBottom: '2rem' }}>
         <h2>Dashboard</h2>
-        <p>Ringkasan Keuangan {profilSekolah?.nama || 'EduFinance'}</p>
+        <p>Ringkasan Keuangan SMP Assa'adah</p>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
@@ -108,76 +108,6 @@ const Dashboard: React.FC = () => {
             </AreaChart>
           </ResponsiveContainer>
         </div>
-      </div>
-
-      <div className="card" style={{ marginTop: '2rem' }}>
-        <h3 style={{ marginBottom: '1.5rem' }}>Data Akun Kas (Supabase)</h3>
-        {isLoadingDb ? (
-          <p>Memuat data...</p>
-        ) : dbData.kas.length > 0 ? (
-          <div style={{ overflowX: 'auto' }}>
-            <table className="table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
-              <thead>
-                <tr style={{ borderBottom: '2px solid var(--border-color)' }}>
-                  {Object.keys(dbData.kas[0]).slice(0, 6).map((key) => (
-                    <th key={key} style={{ padding: '0.75rem 0.5rem', textTransform: 'capitalize' }}>
-                      {key.replace(/_/g, ' ')}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {dbData.kas.slice(0, 5).map((row, idx) => (
-                  <tr key={idx} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                    {Object.keys(dbData.kas[0]).slice(0, 6).map((key) => (
-                      <td key={key} style={{ padding: '0.75rem 0.5rem' }}>
-                        {String(row[key])}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {dbData.kas.length > 5 && <p style={{ marginTop: '1rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>Menampilkan 5 data pertama.</p>}
-          </div>
-        ) : (
-          <p>Tidak ada data Akun Kas di database.</p>
-        )}
-      </div>
-
-      <div className="card" style={{ marginTop: '2rem' }}>
-        <h3 style={{ marginBottom: '1.5rem' }}>Data Siswa (Supabase)</h3>
-        {isLoadingDb ? (
-          <p>Memuat data...</p>
-        ) : dbData.siswa.length > 0 ? (
-          <div style={{ overflowX: 'auto' }}>
-            <table className="table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
-              <thead>
-                <tr style={{ borderBottom: '2px solid var(--border-color)' }}>
-                  {Object.keys(dbData.siswa[0]).slice(0, 6).map((key) => (
-                    <th key={key} style={{ padding: '0.75rem 0.5rem', textTransform: 'capitalize' }}>
-                      {key.replace(/_/g, ' ')}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {dbData.siswa.slice(0, 5).map((row, idx) => (
-                  <tr key={idx} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                    {Object.keys(dbData.siswa[0]).slice(0, 6).map((key) => (
-                      <td key={key} style={{ padding: '0.75rem 0.5rem' }}>
-                        {String(row[key])}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {dbData.siswa.length > 5 && <p style={{ marginTop: '1rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>Menampilkan 5 data pertama.</p>}
-          </div>
-        ) : (
-          <p>Tidak ada data Siswa di database.</p>
-        )}
       </div>
 
     </div>
