@@ -1,23 +1,12 @@
-import React, { useMemo, useEffect, useState } from 'react';
+import React, { useMemo } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useStore } from '../store/useStore';
-import { getAkunKas, getDataSiswaLengkap } from '../services/supabaseApi';
 
 const Dashboard: React.FC = () => {
-  const { transaksi, akunKas, profilSekolah } = useStore();
-  const [dbData, setDbData] = useState<{ kas: any[], siswa: any[] }>({ kas: [], siswa: [] });
-  const [isLoadingDb, setIsLoadingDb] = useState(true);
+  const { transaksi, akunKas, siswa, profilSekolah } = useStore();
 
-  useEffect(() => {
-    const fetchDb = async () => {
-      setIsLoadingDb(true);
-      const kas = await getAkunKas();
-      const siswa = await getDataSiswaLengkap();
-      setDbData({ kas: kas || [], siswa: siswa || [] });
-      setIsLoadingDb(false);
-    };
-    fetchDb();
-  }, []);
+  const dbData = { kas: akunKas, siswa: siswa };
+  const isLoadingDb = false;
 
   const totalMasuk = useMemo(() => 
     transaksi.filter(t => t.tipe === 'Pemasukan').reduce((sum, t) => sum + t.nominal, 0)

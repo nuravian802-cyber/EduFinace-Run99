@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import MainLayout from './layouts/MainLayout';
 import Dashboard from './views/Dashboard';
@@ -20,7 +20,15 @@ import { useStore } from './store/useStore';
 import './App.css';
 
 const App: React.FC = () => {
-  const { currentUser } = useStore();
+  const { currentUser, fetchDataAwal, isInitialized } = useStore();
+
+  useEffect(() => {
+    fetchDataAwal();
+  }, [fetchDataAwal]);
+
+  if (!isInitialized) {
+    return <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center' }}>Memuat data...</div>;
+  }
 
   if (!currentUser) {
     return (
