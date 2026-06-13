@@ -7,6 +7,7 @@ import Pagination from '../components/Pagination';
 const TagihanSiswa: React.FC = () => {
   const { siswa, tagihan, addTagihan, addTagihanMassal, editTagihan, deleteTagihan, currentUser } = useStore();
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedKelasFilter, setSelectedKelasFilter] = useState('Semua');
   const [expandedSiswa, setExpandedSiswa] = useState<string[]>([]);
   
   // Pagination State
@@ -51,8 +52,12 @@ const TagihanSiswa: React.FC = () => {
   // Derived data
   const filteredSiswa = activeSiswa.filter(s => {
     if (isSiswa) return s.id === currentUser?.id;
-    return s.nama.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    
+    const matchSearch = s.nama.toLowerCase().includes(searchTerm.toLowerCase()) || 
            s.nis.includes(searchTerm);
+    const matchKelas = selectedKelasFilter === 'Semua' || s.kelas === selectedKelasFilter;
+    
+    return matchSearch && matchKelas;
   });
 
   React.useEffect(() => {
@@ -175,6 +180,17 @@ const TagihanSiswa: React.FC = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
+          <select 
+            className="form-control" 
+            style={{ width: '150px' }}
+            value={selectedKelasFilter}
+            onChange={(e) => setSelectedKelasFilter(e.target.value)}
+          >
+            <option value="Semua">Semua Kelas</option>
+            {uniqueClasses.map(c => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
           <button className="btn btn-outline" style={{ color: 'var(--primary)', borderColor: 'var(--primary)' }} onClick={openGenerateMassalModal}>
             Generate Massal
           </button>
@@ -189,10 +205,11 @@ const TagihanSiswa: React.FC = () => {
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
           <thead style={{ backgroundColor: '#f8fafc' }}>
             <tr style={{ borderBottom: '2px solid var(--border-color)' }}>
-              <th style={{ padding: '1rem', color: '#1e293b', width: '30%' }}>Nama Siswa</th>
+              <th style={{ padding: '1rem', color: '#1e293b', width: '25%' }}>Nama Siswa</th>
+              <th style={{ padding: '1rem', color: '#1e293b', width: '10%' }}>Kelas</th>
               <th style={{ padding: '1rem', color: '#1e293b', width: '25%' }}>Total Tagihan</th>
               <th style={{ padding: '1rem', color: '#1e293b', width: '25%' }}>Total Kekurangan</th>
-              {!isSiswa && <th style={{ padding: '1rem', color: '#1e293b', textAlign: 'right', width: '20%' }}>Aksi</th>}
+              {!isSiswa && <th style={{ padding: '1rem', color: '#1e293b', textAlign: 'right', width: '15%' }}>Aksi</th>}
             </tr>
           </thead>
           <tbody>
@@ -210,6 +227,7 @@ const TagihanSiswa: React.FC = () => {
                       {isExpanded ? <ChevronDown size={18} color="var(--primary)" /> : <ChevronRight size={18} color="var(--text-muted)" />}
                       {s.nama}
                     </td>
+                    <td style={{ padding: '1rem' }}>{s.kelas}</td>
                     <td style={{ padding: '1rem' }}>Rp {formatRp(totalTagihan)}</td>
                     <td style={{ padding: '1rem', color: totalKekurangan > 0 ? 'var(--danger)' : 'var(--success)', fontWeight: 600 }}>
                       Rp {formatRp(totalKekurangan)}
@@ -233,7 +251,7 @@ const TagihanSiswa: React.FC = () => {
                   {/* Expanded Nested Table */}
                   {isExpanded && (
                     <tr style={{ backgroundColor: '#fafafa' }}>
-                      <td colSpan={isSiswa ? 3 : 4} style={{ padding: '1rem', borderBottom: '1px solid var(--border-color)' }}>
+                      <td colSpan={isSiswa ? 4 : 5} style={{ padding: '1rem', borderBottom: '1px solid var(--border-color)' }}>
                         <div style={{ paddingLeft: '2rem', borderLeft: '3px solid var(--warning)' }}>
                           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
                             <thead>
@@ -285,7 +303,7 @@ const TagihanSiswa: React.FC = () => {
 
             {displayedSiswa.length === 0 && (
               <tr>
-                <td colSpan={isSiswa ? 3 : 4} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                <td colSpan={isSiswa ? 4 : 5} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
                   Data siswa tidak ditemukan.
                 </td>
               </tr>
