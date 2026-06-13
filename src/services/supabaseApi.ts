@@ -9,12 +9,40 @@ const handleResponse = (data: any, error: any, context: string) => {
   return data;
 };
 
+// Helper to fetch all rows using pagination (bypass 1000 limit)
+const fetchAllRows = async (tableName: string) => {
+  let allData: any[] = [];
+  let from = 0;
+  const step = 1000;
+  let hasMore = true;
+
+  while (hasMore) {
+    const { data, error } = await supabase
+      .from(tableName)
+      .select('*')
+      .range(from, from + step - 1);
+    
+    if (error) {
+      console.error(`Error fetching ${tableName}:`, error);
+      return null;
+    }
+    
+    if (data) {
+      allData = [...allData, ...data];
+      from += step;
+      if (data.length < step) hasMore = false;
+    } else {
+      hasMore = false;
+    }
+  }
+  return allData;
+};
+
 // ==========================================
 // Akun_Kas
 // ==========================================
 export const getAkunKas = async () => {
-  const { data, error } = await supabase.from('Akun_Kas').select('*');
-  return handleResponse(data, error, 'getAkunKas');
+  return await fetchAllRows('Akun_Kas');
 };
 
 export const addAkunKas = async (insertData: any) => {
@@ -36,8 +64,7 @@ export const deleteAkunKas = async (id: string) => {
 // data_siswa_lengkap
 // ==========================================
 export const getDataSiswaLengkap = async () => {
-  const { data, error } = await supabase.from('data_siswa_lengkap').select('*');
-  return handleResponse(data, error, 'getDataSiswaLengkap');
+  return await fetchAllRows('data_siswa_lengkap');
 };
 
 export const addDataSiswaLengkap = async (insertData: any) => {
@@ -68,8 +95,7 @@ export const updateKelasMassalSiswa = async (kelasAsal: string, kelasTujuan: str
 // pengguna_stafadmin
 // ==========================================
 export const getPenggunaStafAdmin = async () => {
-  const { data, error } = await supabase.from('pengguna_stafadmin').select('*');
-  return handleResponse(data, error, 'getPenggunaStafAdmin');
+  return await fetchAllRows('pengguna_stafadmin');
 };
 
 export const addPenggunaStafAdmin = async (insertData: any) => {
@@ -91,8 +117,7 @@ export const deletePenggunaStafAdmin = async (id: string) => {
 // pos_kategori
 // ==========================================
 export const getPosKategori = async () => {
-  const { data, error } = await supabase.from('pos_kategori').select('*');
-  return handleResponse(data, error, 'getPosKategori');
+  return await fetchAllRows('pos_kategori');
 };
 
 export const addPosKategori = async (insertData: any) => {
@@ -114,8 +139,7 @@ export const deletePosKategori = async (id: string) => {
 // riwayat_transaksi
 // ==========================================
 export const getRiwayatTransaksi = async () => {
-  const { data, error } = await supabase.from('riwayat_transaksi').select('*');
-  return handleResponse(data, error, 'getRiwayatTransaksi');
+  return await fetchAllRows('riwayat_transaksi');
 };
 
 export const addRiwayatTransaksi = async (insertData: any) => {
@@ -137,8 +161,7 @@ export const deleteRiwayatTransaksi = async (id: string) => {
 // tagihan_siswa
 // ==========================================
 export const getTagihanSiswa = async () => {
-  const { data, error } = await supabase.from('tagihan_siswa').select('*');
-  return handleResponse(data, error, 'getTagihanSiswa');
+  return await fetchAllRows('tagihan_siswa');
 };
 
 export const addTagihanSiswa = async (insertData: any) => {
