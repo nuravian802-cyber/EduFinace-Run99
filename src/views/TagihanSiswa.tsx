@@ -185,7 +185,7 @@ const TagihanSiswa: React.FC = () => {
         )}
       </div>
 
-      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+      <div className="card" style={{ padding: 0, overflowX: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
           <thead style={{ backgroundColor: '#f8fafc' }}>
             <tr style={{ borderBottom: '2px solid var(--border-color)' }}>
@@ -378,7 +378,7 @@ const TagihanSiswa: React.FC = () => {
           </div>
           <div className="form-group">
             <label className="form-label">Nominal (Rp)</label>
-            <input type="number" className="form-control" placeholder="0" value={formData.nominal} onChange={(e) => setFormData({...formData, nominal: Number(e.target.value)})} required />
+            <input type="text" inputMode="numeric" className="form-control" placeholder="0" value={formData.nominal ? Number(formData.nominal).toLocaleString('id-ID') : ''} onChange={(e) => { const val = e.target.value.replace(/\D/g, ''); setFormData({...formData, nominal: val ? Number(val) : 0}) }} required />
           </div>
           
           <div className="modal-footer">

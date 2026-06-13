@@ -68,7 +68,7 @@ const PendapatanLain: React.FC = () => {
 
           <div className="form-group">
             <label className="form-label">Nominal (Rp)</label>
-            <input type="number" className="form-control" placeholder="0" value={formData.nominal} onChange={(e) => setFormData({...formData, nominal: e.target.value})} required />
+            <input type="text" inputMode="numeric" className="form-control" placeholder="0" value={formData.nominal ? Number(formData.nominal).toLocaleString('id-ID') : ''} onChange={(e) => { const val = e.target.value.replace(/\D/g, ''); setFormData({...formData, nominal: val ? Number(val) : ''}) }} required />
           </div>
 
           <div className="form-group">

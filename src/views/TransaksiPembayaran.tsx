@@ -46,7 +46,7 @@ const TransaksiPembayaran: React.FC = () => {
   };
 
   const handleNominalChange = (tId: string, value: string, max: number) => {
-    let num = Number(value);
+    let num = Number(value.replace(/\D/g, ''));
     if (num > max) num = max;
     if (num < 0) num = 0;
     setSelectedTagihan(prev => ({ ...prev, [tId]: num }));
@@ -195,10 +195,11 @@ const TransaksiPembayaran: React.FC = () => {
                           </td>
                           <td style={{ padding: '0.75rem 0.5rem' }}>
                             <input 
-                              type="number" 
+                              type="text" 
+                              inputMode="numeric"
                               className="form-control" 
                               style={{ padding: '0.4rem' }}
-                              value={selectedTagihan[t.id] || ''} 
+                              value={selectedTagihan[t.id] ? Number(selectedTagihan[t.id]).toLocaleString('id-ID') : ''} 
                               disabled={!isSelected}
                               onChange={(e) => handleNominalChange(t.id, e.target.value, sisa)} 
                             />

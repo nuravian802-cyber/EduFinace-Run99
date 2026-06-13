@@ -164,7 +164,7 @@ const RiwayatTransaksi: React.FC = () => {
 
           <div className="form-group">
             <label className="form-label">Nominal (Rp)</label>
-            <input type="number" className="form-control" value={formData.nominal || 0} onChange={(e) => setFormData({...formData, nominal: Number(e.target.value)})} required min="1" />
+            <input type="text" inputMode="numeric" className="form-control" value={formData.nominal ? Number(formData.nominal).toLocaleString('id-ID') : ''} onChange={(e) => { const val = e.target.value.replace(/\D/g, ''); setFormData({...formData, nominal: val ? Number(val) : 0}) }} required />
           </div>
           
           <div className="modal-footer" style={{ marginTop: '1.5rem' }}>
