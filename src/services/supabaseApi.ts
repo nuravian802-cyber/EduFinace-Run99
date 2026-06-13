@@ -55,6 +55,15 @@ export const deleteDataSiswaLengkap = async (id: string) => {
   return handleResponse(data, error, 'deleteDataSiswaLengkap');
 };
 
+export const updateKelasMassalSiswa = async (kelasAsal: string, kelasTujuan: string) => {
+  const { data, error } = await supabase
+    .from('data_siswa_lengkap')
+    .update({ kelas: kelasTujuan })
+    .eq('kelas', kelasAsal)
+    .select();
+  return handleResponse(data, error, 'updateKelasMassalSiswa');
+};
+
 // ==========================================
 // pengguna_stafadmin
 // ==========================================

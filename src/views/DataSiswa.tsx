@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Plus, Search, Edit, Trash2, Upload } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Upload, TrendingUp } from 'lucide-react';
 import { useStore, type Siswa } from '../store/useStore';
 import Modal from '../components/Modal';
 import { importFromExcel } from '../utils/excel';
 
 const DataSiswa: React.FC = () => {
-  const { siswa, deleteSiswa, addSiswa, editSiswa, toggleStatusSiswa } = useStore();
+  const { siswa, deleteSiswa, addSiswa, editSiswa, toggleStatusSiswa, naikKelasMassal } = useStore();
   const [searchTerm, setSearchTerm] = useState('');
   
   // Modal State
@@ -13,6 +13,11 @@ const DataSiswa: React.FC = () => {
   const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
   const [editId, setEditId] = useState<string | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  // Bulk update state
+  const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
+  const [bulkKelasAsal, setBulkKelasAsal] = useState('');
+  const [bulkKelasTujuan, setBulkKelasTujuan] = useState('');
 
   // Form State
   const [formData, setFormData] = useState<Partial<Siswa>>({
@@ -52,6 +57,18 @@ const DataSiswa: React.FC = () => {
       editSiswa(editId, formData);
     }
     setIsModalOpen(false);
+  };
+
+  const handleBulkSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!bulkKelasAsal || !bulkKelasTujuan) return;
+    if (confirm(`Apakah Anda yakin ingin memindahkan SEMUA siswa dari kelas ${bulkKelasAsal} ke kelas ${bulkKelasTujuan}?`)) {
+      await naikKelasMassal(bulkKelasAsal, bulkKelasTujuan);
+      setIsBulkModalOpen(false);
+      setBulkKelasAsal('');
+      setBulkKelasTujuan('');
+      alert('Kenaikan kelas berhasil diproses!');
+    }
   };
 
   const handleImportClick = () => {
@@ -110,6 +127,9 @@ const DataSiswa: React.FC = () => {
             style={{ display: 'none' }} 
             onChange={handleFileChange} 
           />
+          <button className="btn btn-outline" style={{ color: 'var(--primary)', borderColor: 'var(--primary)' }} onClick={() => setIsBulkModalOpen(true)}>
+            <TrendingUp size={18} /> Kenaikan Kelas
+          </button>
           <button className="btn btn-outline" style={{ color: 'var(--success)', borderColor: 'var(--success)' }} onClick={handleImportClick}>
             <Upload size={18} /> Impor Excel
           </button>
@@ -241,6 +261,30 @@ const DataSiswa: React.FC = () => {
           <div className="modal-footer">
             <button type="button" className="btn btn-outline" onClick={() => setIsModalOpen(false)}>Batal</button>
             <button type="submit" className="btn btn-primary">{modalMode === 'add' ? 'Simpan' : 'Perbarui'}</button>
+          </div>
+        </form>
+      </Modal>
+
+      <Modal 
+        isOpen={isBulkModalOpen} 
+        onClose={() => setIsBulkModalOpen(false)} 
+        title="Kenaikan Kelas Massal"
+      >
+        <form onSubmit={handleBulkSubmit}>
+          <div style={{ marginBottom: '1rem', padding: '1rem', backgroundColor: '#eff6ff', color: '#1e40af', borderRadius: '8px', fontSize: '0.9rem' }}>
+            Fitur ini akan memindahkan <strong>semua</strong> siswa dari Kelas Asal ke Kelas Tujuan secara otomatis.
+          </div>
+          <div className="form-group">
+            <label className="form-label">Kelas Asal (yang akan dipindah)</label>
+            <input type="text" className="form-control" placeholder="Contoh: 7" value={bulkKelasAsal} onChange={(e) => setBulkKelasAsal(e.target.value)} required />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Kelas Tujuan (kelas baru)</label>
+            <input type="text" className="form-control" placeholder="Contoh: 8" value={bulkKelasTujuan} onChange={(e) => setBulkKelasTujuan(e.target.value)} required />
+          </div>
+          <div className="modal-footer">
+            <button type="button" className="btn btn-outline" onClick={() => setIsBulkModalOpen(false)}>Batal</button>
+            <button type="submit" className="btn btn-primary">Proses Kenaikan Kelas</button>
           </div>
         </form>
       </Modal>

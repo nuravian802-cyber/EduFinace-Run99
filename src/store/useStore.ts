@@ -89,6 +89,7 @@ interface AppState {
   editSiswa: (id: string, data: Partial<Omit<Siswa, 'id'>>) => Promise<void>;
   deleteSiswa: (id: string) => Promise<void>;
   toggleStatusSiswa: (id: string) => Promise<void>;
+  naikKelasMassal: (kelasAsal: string, kelasTujuan: string) => Promise<void>;
   
   addAkunKas: (data: Omit<AkunKas, 'id'>) => Promise<void>;
   editAkunKas: (id: string, data: Partial<Omit<AkunKas, 'id'>>) => Promise<void>;
@@ -201,6 +202,14 @@ export const useStore = create<AppState>()((set, get) => ({
     if (res) set((state) => ({ 
       siswa: state.siswa.map(s => s.id === id ? { ...s, status: newStatus } : s) 
     }));
+  },
+  naikKelasMassal: async (kelasAsal, kelasTujuan) => {
+    const res = await api.updateKelasMassalSiswa(kelasAsal, kelasTujuan);
+    if (res) {
+      set((state) => ({
+        siswa: state.siswa.map(s => s.kelas === kelasAsal ? { ...s, kelas: kelasTujuan } : s)
+      }));
+    }
   },
   
   addAkunKas: async (data) => {
