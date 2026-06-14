@@ -204,10 +204,11 @@ export const useStore = create<AppState>()((set, get) => ({
     }));
   },
   naikKelasMassal: async (kelasAsal, kelasTujuan) => {
+    const isLulus = kelasTujuan.toLowerCase() === 'lulus';
     const res = await api.updateKelasMassalSiswa(kelasAsal, kelasTujuan);
     if (res) {
       set((state) => ({
-        siswa: state.siswa.map(s => s.kelas === kelasAsal ? { ...s, kelas: kelasTujuan } : s)
+        siswa: state.siswa.map(s => s.kelas === kelasAsal ? { ...s, kelas: kelasTujuan, ...(isLulus ? { status: 'Non-aktif' } : {}) } : s)
       }));
     }
   },

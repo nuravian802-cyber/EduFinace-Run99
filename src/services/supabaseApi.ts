@@ -83,9 +83,15 @@ export const deleteDataSiswaLengkap = async (id: string) => {
 };
 
 export const updateKelasMassalSiswa = async (kelasAsal: string, kelasTujuan: string) => {
+  const isLulus = kelasTujuan.toLowerCase() === 'lulus';
+  const updateData: any = { kelas: kelasTujuan };
+  if (isLulus) {
+    updateData.status = 'Non-aktif';
+  }
+
   const { data, error } = await supabase
     .from('data_siswa_lengkap')
-    .update({ kelas: kelasTujuan })
+    .update(updateData)
     .eq('kelas', kelasAsal)
     .select();
   return handleResponse(data, error, 'updateKelasMassalSiswa');

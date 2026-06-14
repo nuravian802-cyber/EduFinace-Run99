@@ -252,6 +252,15 @@ const DataSiswa: React.FC = () => {
             <label className="form-label">Kelas</label>
             <input type="text" className="form-control" value={formData.kelas} onChange={(e) => setFormData({...formData, kelas: e.target.value})} required />
           </div>
+          {modalMode === 'edit' && (
+            <div className="form-group">
+              <label className="form-label">Status Siswa</label>
+              <select className="form-control" value={formData.status || 'Aktif'} onChange={(e) => setFormData({...formData, status: e.target.value as 'Aktif' | 'Non-aktif'})}>
+                <option value="Aktif">Aktif</option>
+                <option value="Non-aktif">Non-aktif</option>
+              </select>
+            </div>
+          )}
           <div className="form-group">
             <label className="form-label">Tanggal Lahir</label>
             <input type="date" className="form-control" value={formData.tanggalLahir || ''} onChange={(e) => setFormData({...formData, tanggalLahir: e.target.value})} />
