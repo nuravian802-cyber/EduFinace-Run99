@@ -26,7 +26,7 @@ const DataSiswa: React.FC = () => {
   const [bulkTingkatTujuan, setBulkTingkatTujuan] = useState('8');
   
   const kelasAsalStr = `${bulkTingkatAsal}${bulkRombelAsal}`;
-  const kelasTujuanStr = `${bulkTingkatTujuan}${bulkRombelAsal}`;
+  const kelasTujuanStr = bulkTingkatTujuan === 'Lulus' ? 'Lulus' : `${bulkTingkatTujuan}${bulkRombelAsal}`;
   const studentsToPromote = siswa.filter(s => s.kelas === kelasAsalStr && s.status !== 'Non-aktif');
   // Form State
   const [formData, setFormData] = useState<Partial<Siswa>>({
@@ -313,15 +313,18 @@ const DataSiswa: React.FC = () => {
                 <option value="7">Tingkat 7</option>
                 <option value="8">Tingkat 8</option>
                 <option value="9">Tingkat 9</option>
+                <option value="Lulus">Lulus</option>
               </select>
-              <select className="form-control" value={bulkRombelAsal} disabled style={{ backgroundColor: '#f1f5f9', cursor: 'not-allowed' }}>
+              <select className="form-control" value={bulkRombelAsal} disabled={bulkTingkatTujuan !== 'Lulus'} style={{ backgroundColor: '#f1f5f9', cursor: 'not-allowed', opacity: bulkTingkatTujuan === 'Lulus' ? 0 : 1 }}>
                 <option value="A">Rombel A</option>
                 <option value="B">Rombel B</option>
                 <option value="C">Rombel C</option>
                 <option value="D">Rombel D</option>
               </select>
             </div>
-            <small style={{ color: 'var(--text-muted)', display: 'block', marginTop: '0.5rem' }}>Rombel otomatis disamakan dengan rombel asal.</small>
+            <small style={{ color: 'var(--text-muted)', display: 'block', marginTop: '0.5rem' }}>
+              {bulkTingkatTujuan === 'Lulus' ? 'Siswa akan diluluskan dan statusnya di-non-aktifkan.' : 'Rombel otomatis disamakan dengan rombel asal.'}
+            </small>
           </div>
 
           {studentsToPromote.length > 0 ? (
