@@ -238,8 +238,16 @@ input, select, textarea {
 }
 
 @media print {
-  body {
+  body, html {
     background-color: white;
+    height: auto !important;
+    overflow: visible !important;
+  }
+  #root, .app-layout, .main-content, .page-content {
+    display: block !important;
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
   }
   .sidebar,
   .no-print {
