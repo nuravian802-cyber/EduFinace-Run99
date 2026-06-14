@@ -128,7 +128,20 @@ const AkunKas: React.FC = () => {
           </div>
           <div className="form-group">
             <label className="form-label">Saldo Awal</label>
-            <input type="number" className="form-control" placeholder="0" value={formData.saldo} onChange={(e) => setFormData({...formData, saldo: Number(e.target.value)})} required />
+            <input 
+              type="text" 
+              className="form-control" 
+              placeholder="0" 
+              value={formData.saldo === undefined ? '' : formData.saldo.toLocaleString('id-ID')} 
+              onChange={(e) => {
+                const val = e.target.value.replace(/\./g, '');
+                if (/^\d*$/.test(val)) {
+                  setFormData({...formData, saldo: val === '' ? 0 : Number(val)});
+                }
+              }} 
+              onFocus={(e) => e.target.select()}
+              required 
+            />
           </div>
           
           <div className="modal-footer">

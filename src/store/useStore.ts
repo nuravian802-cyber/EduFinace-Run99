@@ -60,6 +60,7 @@ export interface Transaksi {
   tagihanId: string | null;
   nominal: number;
   keterangan: string;
+  buktiTransaksi?: string;
 }
 
 export interface ProfilSekolah {

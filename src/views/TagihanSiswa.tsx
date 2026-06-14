@@ -236,8 +236,26 @@ const TagihanSiswa: React.FC = () => {
                     <td style={{ padding: '1rem', textAlign: 'right' }}>
                       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
                         <button style={{ background: 'transparent', border: 'none', padding: 0, color: '#25D366', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} title="Kirim WA" onClick={() => handleKirimWA(s, studentTagihan)}>
-                          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM11.476 9.639c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"/>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 90 90">
+                            <defs>
+                              <linearGradient id="waGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stopColor="#70e577" />
+                                <stop offset="50%" stopColor="#34c840" />
+                                <stop offset="100%" stopColor="#169c20" />
+                              </linearGradient>
+                              <linearGradient id="glossGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stopColor="#ffffff" stopOpacity="0.9" />
+                                <stop offset="40%" stopColor="#ffffff" stopOpacity="0.2" />
+                                <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+                              </linearGradient>
+                              <filter id="shadow">
+                                <feDropShadow dx="0" dy="2" stdDeviation="2" floodColor="#000000" floodOpacity="0.3" />
+                              </filter>
+                            </defs>
+                            <path fill="url(#waGrad)" filter="url(#shadow)" d="M45,8 C24.6,8 8,24.6 8,45 C8,53 10.6,60.5 15,66.6 L9,83 L25.8,77.2 C31.6,81 38.1,83 45,83 C65.4,83 82,66.4 82,46 C82,25.6 65.4,8 45,8 Z" />
+                            <path fill="none" stroke="#ffffff" strokeWidth="4.5" d="M45,13.5 C27.6,13.5 13.5,27.6 13.5,45 C13.5,51.8 15.7,58.1 19.5,63.2 L15,75.5 L27.7,71.2 C32.6,74.5 38.3,76.5 45,76.5 C62.4,76.5 76.5,62.4 76.5,45 C76.5,27.6 62.4,13.5 45,13.5 Z" />
+                            <path fill="url(#glossGrad)" d="M45,8 C24.6,8 8,24.6 8,45 C8,45.5 8.1,46 8.1,46.5 C12.5,28 27.2,14 45,14 C62.8,14 77.5,28 81.9,46.5 C81.9,46 82,45.5 82,45 C82,24.6 65.4,8 45,8 Z" />
+                            <path fill="#ffffff" d="M33,29 C31.5,29 29.5,30 29,32 C28,35.5 29.5,41 33.5,47.5 C37.5,54 43.5,58 48.5,59 C51,59.5 53.5,58 54.5,56 C55.5,54.5 56.5,51.5 56.5,50 C56.5,49.5 53.5,48 51.5,47.5 C49.5,47 48,47 47.5,48 C47,49 45,51 44.5,51 C44,51 42,50.5 39.5,48 C37,45.5 36.5,44 36.5,43.5 C36.5,43 37,42.5 38,41.5 C39,40.5 40,38.5 40,37.5 C40,36.5 39.5,35.5 39,34 C38,32 37,29 35,29 Z" />
                           </svg>
                         </button>
                         <button className="btn btn-outline" style={{ padding: '0.25rem 0.75rem', fontSize: '0.8rem' }} onClick={() => toggleExpand(s.id)}>

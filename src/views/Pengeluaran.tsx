@@ -9,7 +9,8 @@ const Pengeluaran: React.FC = () => {
     akunId: '',
     kategoriId: '',
     nominal: '',
-    keterangan: ''
+    keterangan: '',
+    buktiTransaksi: ''
   });
 
   const pengeluaranKategori = kategori.filter(k => k.tipe === 'Pengeluaran');
@@ -21,10 +22,11 @@ const Pengeluaran: React.FC = () => {
       akunId: formData.akunId,
       kategoriId: formData.kategoriId,
       nominal: Number(formData.nominal),
-      keterangan: formData.keterangan
+      keterangan: formData.keterangan,
+      buktiTransaksi: formData.buktiTransaksi || undefined
     });
     alert('Pengeluaran berhasil dicatat!');
-    setFormData({ ...formData, nominal: '', keterangan: '' });
+    setFormData({ ...formData, nominal: '', keterangan: '', buktiTransaksi: '' });
   };
 
   return (
@@ -74,6 +76,27 @@ const Pengeluaran: React.FC = () => {
           <div className="form-group">
             <label className="form-label">Keterangan / Tujuan</label>
             <textarea className="form-control" rows={3} placeholder="Contoh: Pembelian alat tulis kantor..." value={formData.keterangan} onChange={(e) => setFormData({...formData, keterangan: e.target.value})}></textarea>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Bukti Transaksi (Opsional, format JPG)</label>
+            <input type="file" accept=".jpg,.jpeg" className="form-control" onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                  setFormData({ ...formData, buktiTransaksi: reader.result as string });
+                };
+                reader.readAsDataURL(file);
+              } else {
+                setFormData({ ...formData, buktiTransaksi: '' });
+              }
+            }} />
+            {formData.buktiTransaksi && (
+              <div style={{ marginTop: '0.5rem' }}>
+                <img src={formData.buktiTransaksi} alt="Preview Bukti" style={{ maxWidth: '100%', maxHeight: '150px', borderRadius: '4px' }} />
+              </div>
+            )}
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '2rem' }}>
