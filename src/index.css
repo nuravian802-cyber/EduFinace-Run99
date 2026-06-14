@@ -243,6 +243,13 @@ input, select, textarea {
     height: auto !important;
     overflow: visible !important;
   }
+  
+  .animate-fade-in {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
   #root, .app-layout, .main-content, .page-content {
     display: block !important;
     height: auto !important;
