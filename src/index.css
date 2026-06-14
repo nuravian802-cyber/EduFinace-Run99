@@ -271,14 +271,11 @@ input, select, textarea {
     max-width: 100%;
   }
   .print-area {
-    width: 100%;
-  }
-  .print-receipt {
+    width: 100% !important;
     display: block !important;
     position: absolute !important;
     top: 0 !important;
     left: 0 !important;
-    width: 100% !important;
     background: white !important;
     z-index: 9999 !important;
   }

@@ -3,12 +3,12 @@ import { Printer, ArrowRightLeft } from 'lucide-react';
 import { useStore } from '../store/useStore';
 
 const ArusKas: React.FC = () => {
-  const { transaksi, kategori, currentUser, profilSekolah } = useStore();
+  const { transaksi, kategori, currentUser, profilSekolah, akunKas } = useStore();
   const isKepsek = currentUser?.role === 'Kepala Sekolah';
   const [periodeMulai, setPeriodeMulai] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0]);
   const [periodeAkhir, setPeriodeAkhir] = useState(new Date().toISOString().split('T')[0]);
 
-  const { validTransaksi, totalMasuk, totalKeluar } = useMemo(() => {
+  const { validTransaksi, totalMasuk, totalKeluar, kasAwalPeriode, kasAkhirPeriode, kenaikanPenurunan } = useMemo(() => {
     const valid = transaksi
       .filter(t => t.tanggal >= periodeMulai && t.tanggal <= periodeAkhir)
       .sort((a, b) => new Date(a.tanggal).getTime() - new Date(b.tanggal).getTime());
@@ -21,8 +21,30 @@ const ArusKas: React.FC = () => {
       else tKeluar += t.nominal;
     });
 
-    return { validTransaksi: valid, totalMasuk: tMasuk, totalKeluar: tKeluar };
-  }, [transaksi, periodeMulai, periodeAkhir]);
+    // Menghitung Kas Awal Periode berdasarkan total saldo saat ini dikurangi net flow sejak periodeMulai
+    const currentTotalSaldo = akunKas.reduce((sum, a) => sum + a.saldo, 0);
+    
+    let netFlowAfterStart = 0;
+    transaksi.forEach(t => {
+      if (t.tanggal >= periodeMulai) {
+        if (t.tipe === 'Pemasukan') netFlowAfterStart += t.nominal;
+        else netFlowAfterStart -= t.nominal;
+      }
+    });
+
+    const kasAwal = currentTotalSaldo - netFlowAfterStart;
+    const netFlow = tMasuk - tKeluar;
+    const kasAkhir = kasAwal + netFlow;
+
+    return { 
+      validTransaksi: valid, 
+      totalMasuk: tMasuk, 
+      totalKeluar: tKeluar,
+      kasAwalPeriode: kasAwal,
+      kasAkhirPeriode: kasAkhir,
+      kenaikanPenurunan: netFlow
+    };
+  }, [transaksi, akunKas, periodeMulai, periodeAkhir]);
 
   return (
     <div className="animate-fade-in">
@@ -79,7 +101,7 @@ const ArusKas: React.FC = () => {
                 {validTransaksi.map(t => (
                   <tr key={t.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
                     <td style={{ padding: '1rem' }}>{t.tanggal}</td>
-                    <td style={{ padding: '1rem', fontWeight: 600 }}>{t.keterangan || (t.kategoriId ? kategori.find(k => k.id === t.kategoriId)?.nama : 'Lainnya')}</td>
+                    <td style={{ padding: '1rem', fontWeight: 600 }}>{t.keterangan || (t.kategoriId ? kategori.find(k => k.id?.toString() === t.kategoriId?.toString())?.nama : 'Lainnya')}</td>
                     <td style={{ padding: '1rem', textAlign: 'center', color: t.tipe === 'Pemasukan' ? 'var(--success)' : 'inherit', fontWeight: t.tipe === 'Pemasukan' ? 600 : 'normal' }}>
                       {t.tipe === 'Pemasukan' ? `Rp ${t.nominal.toLocaleString('id-ID')}` : '-'}
                     </td>
@@ -102,6 +124,24 @@ const ArusKas: React.FC = () => {
                 </tr>
               </tfoot>
             </table>
+
+            {/* Ringkasan Arus Kas (Akuntansi) */}
+            <div style={{ marginTop: '2rem', padding: '1rem', width: '100%', maxWidth: '600px', marginLeft: 'auto', fontSize: '1.05rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 1rem', marginBottom: '0.5rem' }}>
+                <span>Kenaikan (Penurunan) kas</span>
+                <span style={{ color: kenaikanPenurunan < 0 ? 'var(--danger)' : 'var(--success)', fontWeight: 600 }}>
+                  {kenaikanPenurunan < 0 ? `(${Math.abs(kenaikanPenurunan).toLocaleString('id-ID')})` : kenaikanPenurunan.toLocaleString('id-ID')}
+                </span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 1rem', marginBottom: '0.5rem' }}>
+                <span>Kas pada awal periode</span>
+                <span style={{ fontWeight: 600 }}>{kasAwalPeriode.toLocaleString('id-ID')}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 1rem', borderTop: '2px solid var(--border-color)', paddingTop: '0.75rem' }}>
+                <span style={{ fontWeight: 700 }}>Kas pada akhir periode</span>
+                <span style={{ fontWeight: 700 }}>{kasAkhirPeriode.toLocaleString('id-ID')}</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
