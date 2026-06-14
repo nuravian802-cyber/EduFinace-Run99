@@ -267,7 +267,7 @@ const TransaksiPembayaran: React.FC = () => {
           </thead>
           <tbody>
             {Object.entries(selectedTagihan).map(([tId, nominal]) => {
-              const t = pendingTagihanForSiswa.find(x => x.id === tId);
+              const t = pendingTagihanForSiswa.find(x => x.id?.toString() === tId);
               return (
                 <tr key={tId}>
                   <td style={{ padding: '0.5rem' }}>Pembayaran {t?.namaTagihan}</td>
