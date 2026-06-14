@@ -72,16 +72,6 @@ const TransaksiPembayaran: React.FC = () => {
 
   return (
     <>
-      <style>
-        {`
-          @media screen {
-            .print-receipt { display: none !important; }
-          }
-          @media print {
-            .print-receipt { display: block !important; }
-          }
-        `}
-      </style>
       <div className="animate-fade-in no-print">
       <div className="page-header">
         <div>
