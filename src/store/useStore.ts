@@ -19,14 +19,14 @@ export interface Admin {
   username: string;
   password?: string;
   nama: string;
-  role: 'Super Admin' | 'Kepala Sekolah';
+  role: 'Super Admin' | 'Kepala Sekolah' | 'Bendahara';
 }
 
 export interface UserSession {
   id: string;
   username: string;
   nama: string;
-  role: 'Super Admin' | 'Kepala Sekolah' | 'Siswa';
+  role: 'Super Admin' | 'Kepala Sekolah' | 'Siswa' | 'Bendahara';
 }
 
 export interface AkunKas {

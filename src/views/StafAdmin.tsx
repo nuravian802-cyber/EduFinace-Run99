@@ -100,8 +100,8 @@ const StafAdmin: React.FC = () => {
                       borderRadius: '50px', 
                       fontSize: '0.8rem',
                       fontWeight: 600,
-                      backgroundColor: adm.role === 'Super Admin' ? '#d1fae5' : '#e0e7ff',
-                      color: adm.role === 'Super Admin' ? 'var(--success)' : 'var(--primary)'
+                      backgroundColor: adm.role === 'Super Admin' ? '#d1fae5' : adm.role === 'Kepala Sekolah' ? '#e0e7ff' : '#fef3c7',
+                      color: adm.role === 'Super Admin' ? 'var(--success)' : adm.role === 'Kepala Sekolah' ? 'var(--primary)' : '#d97706'
                     }}>
                       {adm.role}
                     </span>
@@ -153,9 +153,10 @@ const StafAdmin: React.FC = () => {
           </div>
           <div className="form-group">
             <label className="form-label">Role</label>
-            <select className="form-control" value={formData.role} onChange={(e) => setFormData({...formData, role: e.target.value as 'Super Admin' | 'Kepala Sekolah'})} required>
+            <select className="form-control" value={formData.role} onChange={(e) => setFormData({...formData, role: e.target.value as 'Super Admin' | 'Kepala Sekolah' | 'Bendahara'})} required>
               <option value="Super Admin">Super Admin</option>
               <option value="Kepala Sekolah">Kepala Sekolah</option>
+              <option value="Bendahara">Bendahara</option>
             </select>
           </div>
           

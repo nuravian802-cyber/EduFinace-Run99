@@ -26,6 +26,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
   const isKepsek = currentUser?.role === 'Kepala Sekolah';
   const isSiswa = currentUser?.role === 'Siswa';
   const isAdmin = currentUser?.role === 'Super Admin';
+  const isBendahara = currentUser?.role === 'Bendahara';
 
   return (
     <aside className={`sidebar ${isOpen ? 'open' : 'closed'}`}>
@@ -116,7 +117,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
         </div>
         )}
 
-        {!isKepsek && !isSiswa && (
+        {!isKepsek && !isSiswa && !isBendahara && (
         <div className="nav-section">
           <span className="nav-section-title">SYSTEM</span>
           <NavLink to="/sistem/staf-admin" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
