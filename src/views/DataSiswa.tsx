@@ -6,7 +6,7 @@ import Pagination from '../components/Pagination';
 import { importFromExcel } from '../utils/excel';
 
 const DataSiswa: React.FC = () => {
-  const { siswa, deleteSiswa, addSiswa, editSiswa, toggleStatusSiswa, naikKelasMassal } = useStore();
+  const { siswa, deleteSiswa, addSiswa, editSiswa, naikKelasMassal } = useStore();
   const [searchTerm, setSearchTerm] = useState('');
   
   // Pagination State
@@ -206,26 +206,7 @@ const DataSiswa: React.FC = () => {
                       {s.status === 'Non-aktif' ? 'Lulus' : 'Aktif'}
                     </span>
                   </td>
-                  <td style={{ padding: '1rem 0.5rem', textAlign: 'right', display: 'flex', justifyContent: 'flex-end', gap: '0.25rem', alignItems: 'center' }}>
-                    <label style={{ position: 'relative', display: 'inline-block', width: '36px', height: '20px', marginRight: '0.5rem', cursor: 'pointer', flexShrink: 0 }} title={s.status === 'Non-aktif' ? 'Aktifkan Siswa' : 'Set Lulus Siswa'}>
-                      <input 
-                        type="checkbox" 
-                        checked={s.status !== 'Non-aktif'} 
-                        onChange={() => toggleStatusSiswa(s.id)} 
-                        style={{ opacity: 0, width: 0, height: 0 }} 
-                      />
-                      <span style={{ 
-                        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, 
-                        backgroundColor: s.status === 'Non-aktif' ? '#cbd5e1' : '#10b981', 
-                        transition: '.4s', borderRadius: '34px' 
-                      }}>
-                        <span style={{ 
-                          position: 'absolute', content: '""', height: '14px', width: '14px', 
-                          left: s.status === 'Non-aktif' ? '3px' : '19px', bottom: '3px', 
-                          backgroundColor: 'white', transition: '.4s', borderRadius: '50%' 
-                        }}></span>
-                      </span>
-                    </label>
+                  <td style={{ padding: '1rem 0.5rem', textAlign: 'right' }}>
                     <button className="btn" style={{ padding: '0.4rem', color: 'var(--primary)' }} onClick={() => openEditModal(s)}><Edit size={16} /></button>
                     <button className="btn" style={{ padding: '0.4rem', color: 'var(--danger)' }} onClick={() => { if(confirm('Hapus siswa ini?')) deleteSiswa(s.id); }}><Trash2 size={16} /></button>
                   </td>

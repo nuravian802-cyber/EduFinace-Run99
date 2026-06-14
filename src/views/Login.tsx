@@ -123,7 +123,7 @@ const Login: React.FC = () => {
         </form>
         
         <div style={{ marginTop: '1.5rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.75rem' }}>
-          &copy; 2026 SMP Assa'adah Bungah. All rights reserved.
+          Copyright &copy; 2026 Vian.Hsy. All rights reserved.
         </div>
       </div>
     </div>
