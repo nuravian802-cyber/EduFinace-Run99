@@ -66,8 +66,19 @@ const AkunSiswa: React.FC = () => {
         if (nis && nama) {
           const existingSiswa = siswa.find(s => s.nis === nis);
           if (existingSiswa) {
+            let updated = false;
+            const updates: Partial<Siswa> = {};
             if (password) {
-              editSiswa(existingSiswa.id, { password });
+              updates.password = password;
+              updated = true;
+            }
+            const kelasStr = (normalizedRow['kelas'] || '')?.toString();
+            if (!existingSiswa.kelas && kelasStr) {
+              updates.kelas = kelasStr;
+              updated = true;
+            }
+            if (updated) {
+              editSiswa(existingSiswa.id, updates);
               updateCount++;
             }
           } else {
@@ -87,8 +98,8 @@ const AkunSiswa: React.FC = () => {
       setTimeout(() => {
         let msg = `Sukses membaca file Excel! `;
         if (newCount > 0) msg += `\n- ${newCount} Akun Siswa Baru Berhasil Dibuat.`;
-        if (updateCount > 0) msg += `\n- ${updateCount} Sandi Akun Berhasil Diaktifkan/Diperbarui (Sandi default: NIS jika kolom sandi kosong).`;
-        if (newCount === 0 && updateCount === 0) msg += `\nTidak ada data valid yang ditemukan atau semua siswa sudah ada tanpa perubahan sandi.`;
+        if (updateCount > 0) msg += `\n- ${updateCount} Sandi Akun atau Kelas Kosong Berhasil Diperbarui (Sandi default: NIS jika kolom sandi kosong).`;
+        if (newCount === 0 && updateCount === 0) msg += `\nTidak ada data valid yang ditemukan atau semua siswa sudah ada tanpa perubahan.`;
         
         alert(msg);
       }, 100);

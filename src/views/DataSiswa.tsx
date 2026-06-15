@@ -69,8 +69,16 @@ const DataSiswa: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (modalMode === 'add') {
+      if (siswa.some(s => s.nis === formData.nis)) {
+        alert('Data siswa dengan NIS ini sudah ada!');
+        return;
+      }
       addSiswa(formData as Omit<Siswa, 'id'>);
     } else if (modalMode === 'edit' && editId) {
+      if (siswa.some(s => s.nis === formData.nis && s.id !== editId)) {
+        alert('Data siswa dengan NIS ini sudah ada!');
+        return;
+      }
       editSiswa(editId, formData);
     }
     setIsModalOpen(false);
@@ -97,6 +105,7 @@ const DataSiswa: React.FC = () => {
     try {
       const data = await importFromExcel(file);
       let count = 0;
+      let countUpdated = 0;
       data.forEach(row => {
         // Normalize keys to lowercase and remove all spaces
         const normalizedRow: any = {};
@@ -107,21 +116,33 @@ const DataSiswa: React.FC = () => {
         }
 
         const nama = normalizedRow['nama'] || normalizedRow['namasiswa'] || normalizedRow['namalengkap'];
-        if (nama) {
-          addSiswa({
-            nis: (normalizedRow['nis'] || normalizedRow['nomorinduksiswa'] || '')?.toString(),
-            nisn: (normalizedRow['nisn'] || normalizedRow['nomorinduksiswanasional'] || '')?.toString(),
-            nama: nama?.toString(),
-            kelas: (normalizedRow['kelas'] || '')?.toString(),
-            tanggalLahir: (normalizedRow['tanggallahir'] || normalizedRow['tgllahir'] || normalizedRow['lahir'] || '')?.toString(),
-            namaOrangTua: (normalizedRow['namaortu'] || normalizedRow['namawali'] || normalizedRow['namaorangtua'] || normalizedRow['ortu'] || '')?.toString(),
-            waOrangTua: (normalizedRow['nowaortu'] || normalizedRow['waortu'] || normalizedRow['nowa'] || normalizedRow['wa'] || normalizedRow['nohportu'] || normalizedRow['nohp'] || normalizedRow['hp'] || normalizedRow['telepon'] || normalizedRow['notelp'] || '')?.toString(),
-            password: ''
-          });
-          count++;
+        const nisStr = (normalizedRow['nis'] || normalizedRow['nomorinduksiswa'] || '')?.toString();
+        const kelasStr = (normalizedRow['kelas'] || '')?.toString();
+
+        if (nama || nisStr) {
+          const existingSiswa = siswa.find(s => s.nis === nisStr);
+          if (existingSiswa) {
+            // Update kelas jika masih kosong
+            if (!existingSiswa.kelas && kelasStr) {
+              editSiswa(existingSiswa.id, { kelas: kelasStr });
+              countUpdated++;
+            }
+          } else {
+            addSiswa({
+              nis: nisStr,
+              nisn: (normalizedRow['nisn'] || normalizedRow['nomorinduksiswanasional'] || '')?.toString(),
+              nama: nama?.toString(),
+              kelas: kelasStr,
+              tanggalLahir: (normalizedRow['tanggallahir'] || normalizedRow['tgllahir'] || normalizedRow['lahir'] || '')?.toString(),
+              namaOrangTua: (normalizedRow['namaortu'] || normalizedRow['namawali'] || normalizedRow['namaorangtua'] || normalizedRow['ortu'] || '')?.toString(),
+              waOrangTua: (normalizedRow['nowaortu'] || normalizedRow['waortu'] || normalizedRow['nowa'] || normalizedRow['wa'] || normalizedRow['nohportu'] || normalizedRow['nohp'] || normalizedRow['hp'] || normalizedRow['telepon'] || normalizedRow['notelp'] || '')?.toString(),
+              password: ''
+            });
+            count++;
+          }
         }
       });
-      alert(`Berhasil mengimpor ${count} data siswa dari Excel.`);
+      alert(`Berhasil mengimpor ${count} data siswa baru dan memperbarui ${countUpdated} data kelas yang kosong dari Excel.`);
     } catch (err) {
       alert('Gagal membaca file Excel.');
     }
