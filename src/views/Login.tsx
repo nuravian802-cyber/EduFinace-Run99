@@ -64,7 +64,7 @@ const Login: React.FC = () => {
       <div className="card animate-fade-in" style={{ width: '100%', maxWidth: '340px', padding: '2rem 1.5rem' }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '1.5rem' }}>
           <div style={{ marginBottom: '1.5rem', textAlign: 'center' }}>
-            <img src="/logo.png" alt="Logo Sekolah" style={{ width: '70px', height: 'auto', marginBottom: '0.75rem' }} />
+            <img src="/logo.png?v=2" alt="Logo Sekolah" style={{ width: '70px', height: 'auto', marginBottom: '0.75rem' }} />
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <h2 style={{ margin: '0', lineHeight: 1, fontSize: '2rem', fontWeight: 800, letterSpacing: '2px', color: '#1e3a8a' }}>SPADAH</h2>
               <div style={{ margin: '4px 0 0', fontWeight: 600, fontSize: '0.85rem', lineHeight: 1, color: '#1e3a8a', letterSpacing: '0.5px' }}>Integrated Finance</div>
