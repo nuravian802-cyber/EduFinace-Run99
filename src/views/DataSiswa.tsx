@@ -69,13 +69,13 @@ const DataSiswa: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (modalMode === 'add') {
-      if (siswa.some(s => s.nis === formData.nis)) {
+      if (siswa.some(s => s.nis.toString() === formData.nis?.toString())) {
         alert('Data siswa dengan NIS ini sudah ada!');
         return;
       }
       addSiswa(formData as Omit<Siswa, 'id'>);
     } else if (modalMode === 'edit' && editId) {
-      if (siswa.some(s => s.nis === formData.nis && s.id !== editId)) {
+      if (siswa.some(s => s.nis.toString() === formData.nis?.toString() && s.id !== editId)) {
         alert('Data siswa dengan NIS ini sudah ada!');
         return;
       }
@@ -120,7 +120,7 @@ const DataSiswa: React.FC = () => {
         const kelasStr = (normalizedRow['kelas'] || '')?.toString();
 
         if (nama || nisStr) {
-          const existingSiswa = siswa.find(s => s.nis === nisStr);
+          const existingSiswa = siswa.find(s => s.nis.toString() === nisStr);
           if (existingSiswa) {
             // Update kelas jika masih kosong
             if (!existingSiswa.kelas && kelasStr) {

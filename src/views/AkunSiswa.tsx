@@ -64,7 +64,7 @@ const AkunSiswa: React.FC = () => {
         const password = (normalizedRow['password'] || normalizedRow['sandi'] || normalizedRow['katasandi'] || normalizedRow['pin'] || nis)?.toString().trim();
         
         if (nis && nama) {
-          const existingSiswa = siswa.find(s => s.nis === nis);
+          const existingSiswa = siswa.find(s => s.nis.toString() === nis);
           if (existingSiswa) {
             let updated = false;
             const updates: Partial<Siswa> = {};
