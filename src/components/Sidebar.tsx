@@ -90,7 +90,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
           </NavLink>
           <NavLink to="/transaksi/pendapatan" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
             <ArrowDownCircle size={20} className="text-success" />
-            <span>Pendapatan Lain</span>
+            <span>Pemasukan</span>
           </NavLink>
           <NavLink to="/transaksi/pengeluaran" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
             <ArrowUpCircle size={20} className="text-danger" />

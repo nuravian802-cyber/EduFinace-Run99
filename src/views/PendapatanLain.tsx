@@ -23,15 +23,15 @@ const PendapatanLain: React.FC = () => {
       nominal: Number(formData.nominal),
       keterangan: formData.keterangan
     });
-    alert('Pendapatan berhasil dicatat!');
+    alert('Pemasukan berhasil dicatat!');
     setFormData({ ...formData, nominal: '', keterangan: '' });
   };
 
   return (
     <div className="animate-fade-in">
       <div style={{ marginBottom: '2rem' }}>
-        <h2>Penerimaan Pendapatan Lain</h2>
-        <p>Catat pendapatan selain dari tagihan siswa (Donasi, Hibah, dll).</p>
+        <h2>Pemasukan</h2>
+        <p>Catat pemasukan selain dari tagihan siswa (Donasi, Hibah, Mutasi Kas, dll).</p>
       </div>
 
       <div className="card" style={{ maxWidth: '600px' }}>
@@ -57,7 +57,7 @@ const PendapatanLain: React.FC = () => {
           </div>
 
           <div className="form-group">
-            <label className="form-label">Pos Pendapatan</label>
+            <label className="form-label">Pos Pemasukan</label>
             <select className="form-control" value={formData.kategoriId} onChange={(e) => setFormData({...formData, kategoriId: e.target.value})} required>
               <option value="">-- Pilih Pos Kategori --</option>
               {pemasukanKategori.map(k => (
@@ -78,7 +78,7 @@ const PendapatanLain: React.FC = () => {
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '2rem' }}>
             <button type="submit" className="btn btn-primary">
-              <Plus size={18} /> Simpan Pendapatan
+              <Plus size={18} /> Simpan Pemasukan
             </button>
           </div>
         </form>

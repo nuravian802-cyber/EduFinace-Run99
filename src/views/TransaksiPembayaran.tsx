@@ -231,7 +231,29 @@ const TransaksiPembayaran: React.FC = () => {
       </div>
 
       {/* Printable Receipt */}
-      <div className="print-area print-receipt" style={{ padding: '2rem', backgroundColor: 'white', color: 'black' }}>
+      <style>
+        {`
+          @media print {
+            @page {
+              size: 16.5cm 21cm;
+              margin: 0.5cm;
+            }
+            .print-receipt {
+              font-size: 0.85rem !important;
+            }
+            .print-receipt h2 {
+              font-size: 1.25rem !important;
+            }
+            .print-receipt h3 {
+              font-size: 1rem !important;
+            }
+            .print-receipt p, .print-receipt td, .print-receipt th {
+              font-size: 0.85rem !important;
+            }
+          }
+        `}
+      </style>
+      <div className="print-area print-receipt" style={{ padding: '1rem', backgroundColor: 'white', color: 'black' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid black', paddingBottom: '1rem', marginBottom: '1.5rem' }}>
           <div>
             <h2 style={{ margin: 0, textTransform: 'uppercase', color: 'black' }}>{profilSekolah.nama}</h2>
@@ -274,17 +296,16 @@ const TransaksiPembayaran: React.FC = () => {
           </tfoot>
         </table>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4rem', color: 'black' }}>
-          <div style={{ textAlign: 'center' }}>
-            <p style={{ color: 'black' }}>Penyetor</p>
-            <br /><br /><br />
-            <p style={{ color: 'black' }}>( ........................ )</p>
-          </div>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4rem', color: 'black' }}>
           <div style={{ textAlign: 'center' }}>
             <p style={{ color: 'black' }}>Penerima / Admin</p>
             <br /><br /><br />
             <p style={{ color: 'black' }}>( ........................ )</p>
           </div>
+        </div>
+
+        <div style={{ marginTop: '2rem', fontStyle: 'italic', fontSize: '0.85rem', color: 'black' }}>
+          * Bukti Pembayaran ini jangan sampai hilang
         </div>
       </div>
     </>
