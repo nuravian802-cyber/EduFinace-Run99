@@ -1,10 +1,10 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Edit, Trash2, History } from 'lucide-react';
+import { Search, Edit, Trash2, History, Printer } from 'lucide-react';
 import { useStore, type Transaksi } from '../store/useStore';
 import Modal from '../components/Modal';
 
 const RiwayatTransaksi: React.FC = () => {
-  const { transaksi, akunKas, kategori, deleteTransaksi, editTransaksi } = useStore();
+  const { transaksi, akunKas, kategori, deleteTransaksi, editTransaksi, profilSekolah } = useStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [bulan, setBulan] = useState(new Date().toISOString().substring(0, 7)); // YYYY-MM
 
@@ -39,6 +39,41 @@ const RiwayatTransaksi: React.FC = () => {
     if (window.confirm(`Yakin ingin menghapus transaksi "${t.keterangan}" sejumlah Rp ${t.nominal.toLocaleString('id-ID')}?\n\nSaldo kas akan disesuaikan kembali.`)) {
       deleteTransaksi(t.id);
     }
+  };
+
+  const handlePrint = (t: Transaksi) => {
+    if (!t.buktiTransaksi) {
+      alert('Tidak ada file bukti transaksi yang terlampir pada transaksi ini.');
+      return;
+    }
+
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      alert('Tolong izinkan pop-ups untuk mencetak bukti transaksi.');
+      return;
+    }
+
+    const html = `
+      <html>
+        <head>
+          <title>Bukti Transaksi Terlampir</title>
+          <style>
+            body { margin: 0; padding: 20px; display: flex; justify-content: center; align-items: flex-start; background-color: #fff; }
+            img { max-width: 100%; max-height: 95vh; object-fit: contain; }
+            @media print {
+              body { padding: 0; }
+              @page { margin: 0; }
+            }
+          </style>
+        </head>
+        <body>
+          <img src="${t.buktiTransaksi}" onload="setTimeout(function(){ window.print(); window.close(); }, 250);" onerror="alert('Gagal memuat gambar bukti transaksi'); window.close();" />
+        </body>
+      </html>
+    `;
+
+    printWindow.document.write(html);
+    printWindow.document.close();
   };
 
   return (
@@ -104,6 +139,11 @@ const RiwayatTransaksi: React.FC = () => {
                       {t.nominal.toLocaleString('id-ID')}
                     </td>
                     <td style={{ padding: '1rem 0.5rem', textAlign: 'right' }}>
+                      {t.tipe === 'Pengeluaran' && t.buktiTransaksi && (
+                        <button className="btn" style={{ padding: '0.4rem', color: 'var(--text-muted)' }} onClick={() => handlePrint(t)} title="Cetak Bukti Transaksi (Terlampir)">
+                          <Printer size={16} />
+                        </button>
+                      )}
                       <button className="btn" style={{ padding: '0.4rem', color: 'var(--primary)' }} onClick={() => openEditModal(t)} title="Edit">
                         <Edit size={16} />
                       </button>
