@@ -59,8 +59,8 @@ const BukuBesar: React.FC = () => {
                   <tr style={{ borderBottom: '2px solid var(--border-color)' }}>
                     <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)' }}>Tanggal</th>
                     <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)' }}>Keterangan</th>
-                    <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)', textAlign: 'right' }}>Debit (Masuk)</th>
-                    <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)', textAlign: 'right' }}>Kredit (Keluar)</th>
+                    <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)', textAlign: 'right' }}>Debit</th>
+                    <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)', textAlign: 'right' }}>Kredit</th>
                     <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)', textAlign: 'right' }}>Saldo Kumulatif</th>
                   </tr>
                 </thead>
