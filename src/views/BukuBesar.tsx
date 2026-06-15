@@ -49,22 +49,10 @@ const BukuBesar: React.FC = () => {
             <label className="form-label">Bulan</label>
             <input type="month" className="form-control" value={bulan} onChange={(e) => setBulan(e.target.value)} />
           </div>
-          <div style={{ flex: '0 0 auto' }}>
-            <button className="btn btn-primary" style={{ height: '42px', display: 'flex', alignItems: 'center', gap: '0.5rem', width: '100%' }}>
-              <Filter size={18} /> Tampilkan
-            </button>
-          </div>
         </div>
 
         {akunId ? (
           <div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem', padding: '1rem', backgroundColor: 'var(--bg-body)', borderRadius: 'var(--radius-md)' }}>
-              <div style={{ textAlign: 'right' }}>
-                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Saldo Akhir (Aktual Akun)</span>
-                <div style={{ fontWeight: 700, fontSize: '1.1rem', color: 'var(--primary)' }}>Rp {(selectedAkun?.saldo || 0).toLocaleString('id-ID')}</div>
-              </div>
-            </div>
-
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                 <thead>
@@ -103,6 +91,14 @@ const BukuBesar: React.FC = () => {
                     </tr>
                   )}
                 </tbody>
+                <tfoot>
+                  <tr style={{ backgroundColor: 'var(--bg-body)', borderTop: '2px solid var(--border-color)', borderBottom: '2px solid var(--border-color)' }}>
+                    <td colSpan={4} style={{ padding: '1rem', fontWeight: 800, color: 'var(--primary)', letterSpacing: '1px', textAlign: 'right' }}>SALDO AKHIR (AKTUAL)</td>
+                    <td style={{ padding: '1rem 0.5rem', fontWeight: 800, color: 'var(--primary)', textAlign: 'right', fontSize: '1.1rem' }}>
+                      Rp {(selectedAkun?.saldo || 0).toLocaleString('id-ID')}
+                    </td>
+                  </tr>
+                </tfoot>
               </table>
             </div>
           </div>
