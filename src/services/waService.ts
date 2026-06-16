@@ -7,9 +7,9 @@ export const sendPaymentNotification = async (
   date: string,
   schoolName: string
 ) => {
-  const token = import.meta.env.VITE_WA_TOKEN;
+  const token = import.meta.env.PUBLIC_WA_TOKEN;
   if (!token) {
-    console.warn('VITE_WA_TOKEN is not defined in .env');
+    console.warn('PUBLIC_WA_TOKEN is not defined in .env');
     return false;
   }
 
