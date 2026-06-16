@@ -33,7 +33,7 @@ Salam,
 ${schoolName}`;
 
   try {
-    const response = await fetch('https://api.fonnte.com/send', {
+    const response = await fetch('/api/fonnte/send', {
       method: 'POST',
       headers: {
         'Authorization': token,
