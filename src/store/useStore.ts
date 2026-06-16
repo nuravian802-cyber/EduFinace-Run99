@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import * as api from '../services/supabaseApi';
+import { sendPaymentNotification } from '../services/waService';
 
 export interface Siswa {
   id: string;
@@ -346,6 +347,19 @@ export const useStore = create<AppState>()((set, get) => ({
       api.addRiwayatTransaksi(newTransaksi)
     ]);
 
+    const siswa = state.siswa.find(s => s.id === tagihan.siswaId);
+    if (siswa && siswa.waOrangTua) {
+      sendPaymentNotification(
+        siswa.waOrangTua,
+        siswa.nama,
+        siswa.kelas,
+        tagihan.namaTagihan,
+        numNominal,
+        tanggal,
+        state.profilSekolah.nama
+      );
+    }
+
     set((state) => ({
       tagihan: state.tagihan.map(t => t.id === tagihanId ? { ...t, terbayar: newTerbayar } : t),
       akunKas: state.akunKas.map(a => a.id === akunId ? { ...a, saldo: newSaldo } : a),
@@ -396,6 +410,23 @@ export const useStore = create<AppState>()((set, get) => ({
     }
 
     await Promise.all(updatePromises);
+
+    pembayaran.forEach(p => {
+      const tagihan = state.tagihan.find(t => t.id === p.tagihanId);
+      if (!tagihan) return;
+      const siswa = state.siswa.find(s => s.id === tagihan.siswaId);
+      if (siswa && siswa.waOrangTua) {
+        sendPaymentNotification(
+          siswa.waOrangTua,
+          siswa.nama,
+          siswa.kelas,
+          tagihan.namaTagihan,
+          Number(p.nominal),
+          tanggal,
+          state.profilSekolah.nama
+        );
+      }
+    });
 
     set((state) => ({
       tagihan: updatedTagihanLocal,
