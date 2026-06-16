@@ -44,16 +44,24 @@ ${schoolName}`;
       }),
     });
 
-    const result = await response.json();
-    if (result.status) {
-      console.log('WhatsApp notification sent successfully');
-      return true;
-    } else {
-      console.error('Failed to send WhatsApp notification:', result.reason);
+    const text = await response.text();
+    let result;
+    try {
+      result = JSON.parse(text);
+    } catch (e) {
+      alert("Error parsing Fonnte response: " + text.substring(0, 100));
       return false;
     }
-  } catch (error) {
-    console.error('Error sending WhatsApp notification:', error);
+
+    if (result.status) {
+      alert('Pesan WA Berhasil Dikirim ke ' + waNumber);
+      return true;
+    } else {
+      alert('Gagal mengirim WA. Fonnte: ' + result.reason);
+      return false;
+    }
+  } catch (error: any) {
+    alert('Gagal memanggil API Fonnte (Mungkin Server Lokal belum direstart): ' + error.message);
     return false;
   }
 };
