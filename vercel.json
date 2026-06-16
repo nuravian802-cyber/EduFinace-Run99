@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/api/fonnte/:match*",
+      "destination": "https://api.fonnte.com/:match*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
