@@ -88,7 +88,7 @@ const BukuBesar: React.FC = () => {
             <select className="form-control" value={kodeTransaksi} onChange={(e) => setKodeTransaksi(e.target.value)}>
               <option value="">Semua Transaksi</option>
               <option value="YS">Transaksi YS (Yayasan)</option>
-              <option value="SA">Transaksi SA (Asrama)</option>
+              <option value="SA">Transaksi SA (SMP Assa'adah)</option>
             </select>
           </div>
         </div>
