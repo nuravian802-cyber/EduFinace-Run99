@@ -37,6 +37,9 @@ const BukuBesar: React.FC = () => {
             .print-only {
               display: block !important;
             }
+            .table-responsive-print {
+              overflow-x: visible !important;
+            }
           }
         `}
       </style>
@@ -51,7 +54,7 @@ const BukuBesar: React.FC = () => {
         </button>
       </div>
 
-      <div className="card">
+      <div className="card print-area">
         <div className="no-print" style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap', alignItems: 'flex-end' }}>
           <div style={{ flex: '1 1 200px' }}>
             <label className="form-label">Pilih Akun Kas</label>
@@ -74,7 +77,7 @@ const BukuBesar: React.FC = () => {
               <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 700 }}>Buku Besar - {selectedAkun?.nama} ({selectedAkun?.kode})</h3>
               <p style={{ margin: '0.5rem 0 0 0', color: 'var(--text-muted)' }}>Periode: {bulan}</p>
             </div>
-            <div style={{ overflowX: 'auto' }}>
+            <div className="table-responsive-print" style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                 <thead>
                   <tr style={{ borderBottom: '2px solid var(--border-color)' }}>
