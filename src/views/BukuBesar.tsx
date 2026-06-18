@@ -6,22 +6,36 @@ const BukuBesar: React.FC = () => {
   const { akunKas, transaksi, kategori } = useStore();
   const [akunId, setAkunId] = useState('');
   const [bulan, setBulan] = useState(new Date().toISOString().substring(0, 7)); // YYYY-MM
+  const [kodeTransaksi, setKodeTransaksi] = useState(''); // '' untuk semua, 'YS' atau 'SA'
 
   const filteredTransaksi = useMemo(() => {
     if (!akunId) return [];
-    return transaksi
-      .filter(t => t.akunId === akunId && t.tanggal.startsWith(bulan))
-      .sort((a, b) => new Date(a.tanggal).getTime() - new Date(b.tanggal).getTime());
-  }, [transaksi, akunId, bulan]);
+    let filtered = transaksi.filter(t => t.akunId === akunId && t.tanggal.startsWith(bulan));
+    
+    if (kodeTransaksi === 'YS') {
+      filtered = filtered.filter(t => t.keterangan.includes('YS'));
+    } else if (kodeTransaksi === 'SA') {
+      filtered = filtered.filter(t => t.keterangan.includes('SA'));
+    }
+
+    return filtered.sort((a, b) => new Date(a.tanggal).getTime() - new Date(b.tanggal).getTime());
+  }, [transaksi, akunId, bulan, kodeTransaksi]);
 
   const selectedAkun = akunKas.find(a => a.id === akunId);
   
   const saldoAwal = useMemo(() => {
     if (!akunId) return 0;
-    const pastTransactions = transaksi.filter(t => t.akunId === akunId && t.tanggal < bulan + '-01');
+    let pastTransactions = transaksi.filter(t => t.akunId === akunId && t.tanggal < bulan + '-01');
+    
+    if (kodeTransaksi === 'YS') {
+      pastTransactions = pastTransactions.filter(t => t.keterangan.includes('YS'));
+    } else if (kodeTransaksi === 'SA') {
+      pastTransactions = pastTransactions.filter(t => t.keterangan.includes('SA'));
+    }
+
     const netChange = pastTransactions.reduce((sum, t) => t.tipe === 'Pemasukan' ? sum + t.nominal : sum - t.nominal, 0);
     return netChange;
-  }, [transaksi, akunId, bulan]);
+  }, [transaksi, akunId, bulan, kodeTransaksi]);
 
   let currentRunningSaldo = saldoAwal;
 
@@ -69,6 +83,14 @@ const BukuBesar: React.FC = () => {
             <label className="form-label">Bulan</label>
             <input type="month" className="form-control" value={bulan} onChange={(e) => setBulan(e.target.value)} />
           </div>
+          <div style={{ flex: '1 1 200px' }}>
+            <label className="form-label">Kode Transaksi</label>
+            <select className="form-control" value={kodeTransaksi} onChange={(e) => setKodeTransaksi(e.target.value)}>
+              <option value="">Semua Transaksi</option>
+              <option value="YS">Transaksi YS (Yayasan)</option>
+              <option value="SA">Transaksi SA (Asrama)</option>
+            </select>
+          </div>
         </div>
 
         {akunId ? (
@@ -76,6 +98,9 @@ const BukuBesar: React.FC = () => {
             <div className="print-only" style={{ display: 'none', marginBottom: '1.5rem' }}>
               <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 700 }}>Buku Besar - {selectedAkun?.nama} ({selectedAkun?.kode})</h3>
               <p style={{ margin: '0.5rem 0 0 0', color: 'var(--text-muted)' }}>Periode: {bulan}</p>
+              {kodeTransaksi && (
+                <p style={{ margin: '0.2rem 0 0 0', color: 'var(--text-muted)' }}>Filter Kode: {kodeTransaksi}</p>
+              )}
             </div>
             <div className="table-responsive-print" style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
