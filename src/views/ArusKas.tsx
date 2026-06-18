@@ -92,7 +92,7 @@ const ArusKas: React.FC = () => {
               <thead>
                 <tr style={{ backgroundColor: '#1e293b', color: 'white' }}>
                   <th style={{ padding: '1rem', width: '20%', fontWeight: 600 }}>Tanggal</th>
-                  <th style={{ padding: '1rem', width: '40%', fontWeight: 600 }}>Keterangan</th>
+                  <th style={{ padding: '1rem', width: '40%', fontWeight: 600 }}>Uraian</th>
                   <th style={{ padding: '1rem', textAlign: 'center', width: '20%', fontWeight: 600 }}>Kas Masuk</th>
                   <th style={{ padding: '1rem', textAlign: 'center', width: '20%', fontWeight: 600 }}>Kas Keluar</th>
                 </tr>

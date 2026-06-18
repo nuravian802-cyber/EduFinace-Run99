@@ -1,9 +1,9 @@
 import React, { useState, useMemo } from 'react';
-import { Filter } from 'lucide-react';
+import { Filter, Printer } from 'lucide-react';
 import { useStore } from '../store/useStore';
 
 const BukuBesar: React.FC = () => {
-  const { akunKas, transaksi } = useStore();
+  const { akunKas, transaksi, kategori } = useStore();
   const [akunId, setAkunId] = useState('');
   const [bulan, setBulan] = useState(new Date().toISOString().substring(0, 7)); // YYYY-MM
 
@@ -27,15 +27,32 @@ const BukuBesar: React.FC = () => {
 
   return (
     <div className="animate-fade-in">
+      <style>
+        {`
+          @media print {
+            @page {
+              size: 215mm 330mm; /* F4 */
+              margin: 15mm;
+            }
+            .print-only {
+              display: block !important;
+            }
+          }
+        `}
+      </style>
       <div className="page-header">
         <div>
           <h2>Laporan Buku Besar</h2>
           <p>Rincian pergerakan transaksi per akun kas.</p>
         </div>
+        <button className="btn btn-primary no-print" onClick={() => window.print()} disabled={!akunId}>
+          <Printer size={18} style={{ marginRight: '0.5rem' }} />
+          Cetak F4
+        </button>
       </div>
 
       <div className="card">
-        <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+        <div className="no-print" style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap', alignItems: 'flex-end' }}>
           <div style={{ flex: '1 1 200px' }}>
             <label className="form-label">Pilih Akun Kas</label>
             <select className="form-control" value={akunId} onChange={(e) => setAkunId(e.target.value)}>
@@ -53,12 +70,17 @@ const BukuBesar: React.FC = () => {
 
         {akunId ? (
           <div>
+            <div className="print-only" style={{ display: 'none', marginBottom: '1.5rem' }}>
+              <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 700 }}>Buku Besar - {selectedAkun?.nama} ({selectedAkun?.kode})</h3>
+              <p style={{ margin: '0.5rem 0 0 0', color: 'var(--text-muted)' }}>Periode: {bulan}</p>
+            </div>
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                 <thead>
                   <tr style={{ borderBottom: '2px solid var(--border-color)' }}>
                     <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)' }}>Tanggal</th>
-                    <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)' }}>Keterangan</th>
+                    <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)' }}>Uraian</th>
+                    <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)' }}>Pos Kategori</th>
                     <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)', textAlign: 'right' }}>Debit</th>
                     <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)', textAlign: 'right' }}>Kredit</th>
                     <th style={{ padding: '1rem 0.5rem', color: 'var(--text-muted)', textAlign: 'right' }}>Saldo Kumulatif</th>
@@ -73,6 +95,7 @@ const BukuBesar: React.FC = () => {
                       <tr key={t.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
                         <td style={{ padding: '1rem 0.5rem' }}>{t.tanggal}</td>
                         <td style={{ padding: '1rem 0.5rem' }}>{t.keterangan}</td>
+                        <td style={{ padding: '1rem 0.5rem' }}>{t.kategoriId ? kategori.find(k => k.id?.toString() === t.kategoriId?.toString())?.nama || '-' : '-'}</td>
                         <td style={{ padding: '1rem 0.5rem', textAlign: 'right', color: t.tipe === 'Pemasukan' ? 'var(--success)' : 'inherit', fontWeight: t.tipe === 'Pemasukan' ? 600 : 'normal' }}>
                           {t.tipe === 'Pemasukan' ? t.nominal.toLocaleString('id-ID') : '-'}
                         </td>
@@ -85,7 +108,7 @@ const BukuBesar: React.FC = () => {
                   })}
                   {filteredTransaksi.length === 0 && (
                     <tr>
-                      <td colSpan={5} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                      <td colSpan={6} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
                         Tidak ada transaksi pada bulan ini untuk akun tersebut.
                       </td>
                     </tr>
@@ -93,7 +116,7 @@ const BukuBesar: React.FC = () => {
                 </tbody>
                 <tfoot>
                   <tr style={{ backgroundColor: 'var(--bg-body)', borderTop: '2px solid var(--border-color)', borderBottom: '2px solid var(--border-color)' }}>
-                    <td colSpan={4} style={{ padding: '1rem', fontWeight: 800, color: 'var(--primary)', letterSpacing: '1px', textAlign: 'right' }}>SALDO AKHIR (AKTUAL)</td>
+                    <td colSpan={5} style={{ padding: '1rem', fontWeight: 800, color: 'var(--primary)', letterSpacing: '1px', textAlign: 'right' }}>SALDO AKHIR (AKTUAL)</td>
                     <td style={{ padding: '1rem 0.5rem', fontWeight: 800, color: 'var(--primary)', textAlign: 'right', fontSize: '1.1rem' }}>
                       Rp {(selectedAkun?.saldo || 0).toLocaleString('id-ID')}
                     </td>
