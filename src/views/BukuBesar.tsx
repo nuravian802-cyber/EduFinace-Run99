@@ -48,14 +48,19 @@ const BukuBesar: React.FC = () => {
               size: 215mm 330mm; /* F4 */
               margin: 15mm;
             }
+            body, html, .app-layout, .main-content, .card, .table-responsive-print {
+              overflow-x: hidden !important;
+            }
             .print-only {
               display: block !important;
             }
             .table-responsive-print {
-              overflow: visible !important;
+              overflow-y: visible !important;
             }
-            .table-responsive-print::-webkit-scrollbar {
+            ::-webkit-scrollbar {
               display: none !important;
+              width: 0 !important;
+              height: 0 !important;
             }
           }
         `}

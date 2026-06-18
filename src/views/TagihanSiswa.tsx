@@ -7,7 +7,7 @@ import Pagination from '../components/Pagination';
 const TagihanSiswa: React.FC = () => {
   const { siswa, tagihan, addTagihan, addTagihanMassal, editTagihan, deleteTagihan, currentUser } = useStore();
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedKelasFilter, setSelectedKelasFilter] = useState('Semua');
+  const [selectedFilter, setSelectedFilter] = useState('Semua');
   const [expandedSiswa, setExpandedSiswa] = useState<string[]>([]);
   
   // Pagination State
@@ -55,9 +55,25 @@ const TagihanSiswa: React.FC = () => {
     
     const matchSearch = s.nama.toLowerCase().includes(searchTerm.toLowerCase()) || 
            s.nis.includes(searchTerm);
-    const matchKelas = selectedKelasFilter === 'Semua' || s.kelas === selectedKelasFilter;
+           
+    let matchKelas = true;
+    let matchStatus = true;
     
-    return matchSearch && matchKelas;
+    if (selectedFilter !== 'Semua') {
+      if (selectedFilter === 'STATUS_ADA_TAGIHAN' || selectedFilter === 'STATUS_LUNAS') {
+        const studentTagihan = tagihan.filter(t => t.siswaId === s.id);
+        const totalKekurangan = studentTagihan.reduce((sum, t) => sum + (t.nominal - (t.terbayar || 0)), 0);
+        if (selectedFilter === 'STATUS_ADA_TAGIHAN') {
+          matchStatus = totalKekurangan > 0;
+        } else if (selectedFilter === 'STATUS_LUNAS') {
+          matchStatus = totalKekurangan <= 0 && studentTagihan.length > 0;
+        }
+      } else {
+        matchKelas = s.kelas === selectedFilter;
+      }
+    }
+    
+    return matchSearch && matchKelas && matchStatus;
   });
 
   React.useEffect(() => {
@@ -182,14 +198,20 @@ const TagihanSiswa: React.FC = () => {
           </div>
           <select 
             className="form-control" 
-            style={{ width: '150px' }}
-            value={selectedKelasFilter}
-            onChange={(e) => setSelectedKelasFilter(e.target.value)}
+            style={{ width: '180px' }}
+            value={selectedFilter}
+            onChange={(e) => setSelectedFilter(e.target.value)}
           >
-            <option value="Semua">Semua Kelas</option>
-            {uniqueClasses.map(c => (
-              <option key={c} value={c}>{c}</option>
-            ))}
+            <option value="Semua">Semua Data</option>
+            <optgroup label="Berdasarkan Kelas">
+              {uniqueClasses.map(c => (
+                <option key={c} value={c}>Kelas {c}</option>
+              ))}
+            </optgroup>
+            <optgroup label="Berdasarkan Status">
+              <option value="STATUS_ADA_TAGIHAN">Ada Tagihan</option>
+              <option value="STATUS_LUNAS">Lunas</option>
+            </optgroup>
           </select>
           <button className="btn btn-outline" style={{ color: 'var(--primary)', borderColor: 'var(--primary)' }} onClick={openGenerateMassalModal}>
             Generate Massal
