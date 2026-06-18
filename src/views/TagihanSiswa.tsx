@@ -264,6 +264,9 @@ const TagihanSiswa: React.FC = () => {
       </div>
       )}
 
+      <div className="print-only" style={{ display: 'none', marginBottom: '1.5rem' }}>
+        <h3 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700 }}>Tagihan Siswa</h3>
+      </div>
       <div className="card" style={{ padding: 0, overflowX: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
           <thead style={{ backgroundColor: '#f8fafc' }}>
@@ -394,13 +397,15 @@ const TagihanSiswa: React.FC = () => {
       </div>
 
       {!isMobile && totalItems > 10 && (
-        <Pagination 
-          currentPage={currentPage}
-          totalItems={totalItems}
-          itemsPerPage={itemsPerPage}
-          onPageChange={setCurrentPage}
-          onItemsPerPageChange={setItemsPerPage}
-        />
+        <div className="no-print">
+          <Pagination 
+            currentPage={currentPage}
+            totalItems={totalItems}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+            onItemsPerPageChange={setItemsPerPage}
+          />
+        </div>
       )}
 
       <Modal 
