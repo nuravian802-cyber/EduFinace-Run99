@@ -264,7 +264,7 @@ const TagihanSiswa: React.FC = () => {
       </div>
       )}
 
-      <div className="print-only" style={{ display: 'none', marginBottom: '1.5rem' }}>
+      <div className="print-only" style={{ display: 'none', marginBottom: '1.5rem', textAlign: 'center' }}>
         <h3 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700 }}>Tagihan Siswa</h3>
       </div>
       <div className="card" style={{ padding: 0, overflowX: 'auto' }}>
