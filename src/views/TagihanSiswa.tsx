@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, ChevronDown, ChevronRight, Edit, Trash2 } from 'lucide-react';
+import { Search, ChevronDown, ChevronRight, Edit, Trash2, Printer } from 'lucide-react';
 import { useStore, type Tagihan } from '../store/useStore';
 import Modal from '../components/Modal';
 import Pagination from '../components/Pagination';
@@ -171,8 +171,32 @@ const TagihanSiswa: React.FC = () => {
   };
 
   return (
-    <div className="animate-fade-in">
-      <div className="page-header">
+    <div className="animate-fade-in print-area">
+      <style>
+        {`
+          @media print {
+            @page {
+              size: 215mm 330mm; /* F4 */
+              margin: 15mm;
+            }
+            body, html, .app-layout, .main-content, .card {
+              overflow-x: hidden !important;
+            }
+            .print-only {
+              display: block !important;
+            }
+            .no-print {
+              display: none !important;
+            }
+            ::-webkit-scrollbar {
+              display: none !important;
+              width: 0 !important;
+              height: 0 !important;
+            }
+          }
+        `}
+      </style>
+      <div className="page-header no-print">
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <div style={{ backgroundColor: 'var(--primary)', color: 'white', padding: '0.5rem', borderRadius: 'var(--radius-sm)' }}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
@@ -194,18 +218,22 @@ const TagihanSiswa: React.FC = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <button className="btn btn-outline" style={{ color: 'var(--primary)', borderColor: 'var(--primary)' }} onClick={openGenerateMassalModal}>
+          <button className="btn btn-outline no-print" style={{ color: 'var(--primary)', borderColor: 'var(--primary)' }} onClick={openGenerateMassalModal}>
             Generate Massal
           </button>
-          <button className="btn btn-primary" onClick={openAddIndividuModal}>
+          <button className="btn btn-primary no-print" onClick={openAddIndividuModal}>
             + Tambah Individu
+          </button>
+          <button className="btn btn-outline no-print" style={{ borderColor: 'var(--text-muted)', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.5rem' }} onClick={() => window.print()}>
+            <Printer size={16} />
+            Cetak
           </button>
         </div>
         )}
       </div>
 
       {!isSiswa && (
-      <div className="card" style={{ marginBottom: '1.5rem' }}>
+      <div className="card no-print" style={{ marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'flex-end' }}>
           <div style={{ flex: '1 1 200px' }}>
             <label className="form-label" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, color: 'var(--text-main)' }}>Filter Kelas</label>
@@ -244,7 +272,7 @@ const TagihanSiswa: React.FC = () => {
               <th style={{ padding: '1rem', color: '#1e293b', width: '10%' }}>Kelas</th>
               <th style={{ padding: '1rem', color: '#1e293b', width: '25%' }}>Total Tagihan</th>
               <th style={{ padding: '1rem', color: '#1e293b', width: '25%' }}>Total Kekurangan</th>
-              {!isSiswa && <th style={{ padding: '1rem', color: '#1e293b', textAlign: 'right', width: '15%' }}>Aksi</th>}
+              {!isSiswa && <th className="no-print" style={{ padding: '1rem', color: '#1e293b', textAlign: 'right', width: '15%' }}>Aksi</th>}
             </tr>
           </thead>
           <tbody>
@@ -268,7 +296,7 @@ const TagihanSiswa: React.FC = () => {
                       Rp {formatRp(totalKekurangan)}
                     </td>
                     {!isSiswa && (
-                    <td style={{ padding: '1rem', textAlign: 'right' }}>
+                    <td className="no-print" style={{ padding: '1rem', textAlign: 'right' }}>
                       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
                         <button style={{ background: 'transparent', border: 'none', padding: 0, color: '#25D366', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} title="Kirim WA" onClick={() => handleKirimWA(s, studentTagihan)}>
                           <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 90 90">
@@ -313,7 +341,7 @@ const TagihanSiswa: React.FC = () => {
                                 <th style={{ padding: '0.75rem', color: '#1e293b' }}>Nilai Tagihan</th>
                                 <th style={{ padding: '0.75rem', color: '#1e293b' }}>Telah Dibayar</th>
                                 <th style={{ padding: '0.75rem', color: '#1e293b' }}>Sisa Tagihan</th>
-                                {!isSiswa && <th style={{ padding: '0.75rem', color: '#1e293b', textAlign: 'right' }}>Aksi</th>}
+                                {!isSiswa && <th className="no-print" style={{ padding: '0.75rem', color: '#1e293b', textAlign: 'right' }}>Aksi</th>}
                               </tr>
                             </thead>
                             <tbody>
@@ -330,7 +358,7 @@ const TagihanSiswa: React.FC = () => {
                                       Rp {formatRp(sisa)}
                                     </td>
                                     {!isSiswa && (
-                                    <td style={{ padding: '0.75rem', textAlign: 'right', display: 'flex', justifyContent: 'flex-end', gap: '0.25rem' }}>
+                                    <td className="no-print" style={{ padding: '0.75rem', textAlign: 'right', display: 'flex', justifyContent: 'flex-end', gap: '0.25rem' }}>
                                       <button className="btn btn-primary" style={{ padding: '0.3rem', borderRadius: '4px' }} onClick={() => openEditModal(t)}><Edit size={14} /></button>
                                       <button className="btn btn-danger" style={{ padding: '0.3rem', borderRadius: '4px' }} onClick={() => handleDelete(t.id)}><Trash2 size={14} /></button>
                                     </td>
