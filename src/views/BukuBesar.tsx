@@ -52,7 +52,10 @@ const BukuBesar: React.FC = () => {
               display: block !important;
             }
             .table-responsive-print {
-              overflow-x: visible !important;
+              overflow: visible !important;
+            }
+            .table-responsive-print::-webkit-scrollbar {
+              display: none !important;
             }
           }
         `}
@@ -98,9 +101,6 @@ const BukuBesar: React.FC = () => {
             <div className="print-only" style={{ display: 'none', marginBottom: '1.5rem' }}>
               <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 700 }}>Buku Besar - {selectedAkun?.nama} ({selectedAkun?.kode})</h3>
               <p style={{ margin: '0.5rem 0 0 0', color: 'var(--text-muted)' }}>Periode: {bulan}</p>
-              {kodeTransaksi && (
-                <p style={{ margin: '0.2rem 0 0 0', color: 'var(--text-muted)' }}>Filter Kode: {kodeTransaksi}</p>
-              )}
             </div>
             <div className="table-responsive-print" style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
