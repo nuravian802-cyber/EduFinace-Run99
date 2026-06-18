@@ -194,27 +194,6 @@ const TagihanSiswa: React.FC = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <select 
-            className="form-control" 
-            style={{ width: '130px' }}
-            value={selectedKelasFilter}
-            onChange={(e) => setSelectedKelasFilter(e.target.value)}
-          >
-            <option value="Semua">Semua Kelas</option>
-            {uniqueClasses.map(c => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
-          <select 
-            className="form-control" 
-            style={{ width: '130px' }}
-            value={statusTagihanFilter}
-            onChange={(e) => setStatusTagihanFilter(e.target.value)}
-          >
-            <option value="Semua">Status</option>
-            <option value="Ada Tagihan">Ada Tagihan</option>
-            <option value="Lunas">Lunas</option>
-          </select>
           <button className="btn btn-outline" style={{ color: 'var(--primary)', borderColor: 'var(--primary)' }} onClick={openGenerateMassalModal}>
             Generate Massal
           </button>
@@ -224,6 +203,38 @@ const TagihanSiswa: React.FC = () => {
         </div>
         )}
       </div>
+
+      {!isSiswa && (
+      <div className="card" style={{ marginBottom: '1.5rem' }}>
+        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+          <div style={{ flex: '1 1 200px' }}>
+            <label className="form-label" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, color: 'var(--text-main)' }}>Filter Kelas</label>
+            <select 
+              className="form-control" 
+              value={selectedKelasFilter}
+              onChange={(e) => setSelectedKelasFilter(e.target.value)}
+            >
+              <option value="Semua">Semua Kelas</option>
+              {uniqueClasses.map(c => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          </div>
+          <div style={{ flex: '1 1 200px' }}>
+            <label className="form-label" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, color: 'var(--text-main)' }}>Status Tagihan</label>
+            <select 
+              className="form-control" 
+              value={statusTagihanFilter}
+              onChange={(e) => setStatusTagihanFilter(e.target.value)}
+            >
+              <option value="Semua">Semua Status Tagihan</option>
+              <option value="Ada Tagihan">Ada Tagihan</option>
+              <option value="Lunas">Lunas</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      )}
 
       <div className="card" style={{ padding: 0, overflowX: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
