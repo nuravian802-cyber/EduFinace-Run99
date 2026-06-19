@@ -98,7 +98,8 @@ const Dashboard: React.FC = () => {
                 axisLine={false} 
                 tickLine={false} 
                 tick={{ fill: '#A3AED0' }}
-                tickFormatter={(value) => value >= 1000000 ? `Rp ${value / 1000000}M` : `Rp ${value}`}
+                width={90}
+                tickFormatter={(value) => value >= 1000000 ? `Rp ${value / 1000000} Jt` : `Rp ${value.toLocaleString('id-ID')}`}
               />
               <Tooltip 
                 formatter={(value: any) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(value)}
