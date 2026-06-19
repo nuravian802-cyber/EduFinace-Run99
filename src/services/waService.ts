@@ -1,9 +1,16 @@
+import { generateReceiptPdf } from './pdfService';
+
+export interface PaymentItem {
+  paymentName: string;
+  amount: number;
+}
+
 export const sendPaymentNotification = async (
   waNumber: string,
+  parentName: string,
   studentName: string,
   className: string,
-  paymentName: string,
-  amount: number,
+  payments: PaymentItem[],
   date: string,
   schoolName: string
 ) => {
@@ -13,35 +20,26 @@ export const sendPaymentNotification = async (
     return false;
   }
 
-  // Format currency
-  const formattedAmount = new Intl.NumberFormat('id-ID').format(amount);
-
   // Format message
-  const message = `Halo Bapak/Ibu Wali dari ${studentName},
+  const message = `Halo Bapak/Ibu Wali dari ${parentName}
 
-Terima kasih, pembayaran telah kami terima dengan rincian nota sebagai berikut:
+Terima kasih, pembayaran atas nama ${studentName} telah berhasil kami terima. Berikut kami lampirkan bukti pembayarannya.`;
 
-*Rincian Pembayaran:*
-- Nama Siswa: ${studentName}
-- Kelas: ${className}
-- Pembayaran: ${paymentName}
-- Nominal: Rp ${formattedAmount}
-- Tanggal: ${date}
-- Status: BERHASIL
-
-Salam,
-${schoolName}`;
+  // Generate PDF file
+  const pdfFile = generateReceiptPdf(studentName, className, payments, date, schoolName);
 
   try {
+    const formData = new FormData();
+    formData.append('target', waNumber);
+    formData.append('message', message);
+    formData.append('file', pdfFile);
+
     const response = await fetch('/api/fonnte/send', {
       method: 'POST',
       headers: {
         'Authorization': token,
       },
-      body: new URLSearchParams({
-        target: waNumber,
-        message: message,
-      }),
+      body: formData,
     });
 
     const text = await response.text();
@@ -65,3 +63,4 @@ ${schoolName}`;
     return false;
   }
 };
+

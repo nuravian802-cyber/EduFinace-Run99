@@ -351,10 +351,10 @@ export const useStore = create<AppState>()((set, get) => ({
     if (siswa && siswa.waOrangTua) {
       sendPaymentNotification(
         siswa.waOrangTua,
+        siswa.namaOrangTua,
         siswa.nama,
         siswa.kelas,
-        tagihan.namaTagihan,
-        numNominal,
+        [{ paymentName: tagihan.namaTagihan, amount: numNominal }],
         tanggal,
         state.profilSekolah.nama
       );
@@ -411,21 +411,33 @@ export const useStore = create<AppState>()((set, get) => ({
 
     await Promise.all(updatePromises);
 
+    const groupedPayments: Record<string, { siswa: any, payments: { paymentName: string, amount: number }[] }> = {};
+    
     pembayaran.forEach(p => {
       const tagihan = state.tagihan.find(t => t.id === p.tagihanId);
       if (!tagihan) return;
       const siswa = state.siswa.find(s => s.id === tagihan.siswaId);
-      if (siswa && siswa.waOrangTua) {
-        sendPaymentNotification(
-          siswa.waOrangTua,
-          siswa.nama,
-          siswa.kelas,
-          tagihan.namaTagihan,
-          Number(p.nominal),
-          tanggal,
-          state.profilSekolah.nama
-        );
+      if (!siswa || !siswa.waOrangTua) return;
+      
+      if (!groupedPayments[siswa.id]) {
+        groupedPayments[siswa.id] = { siswa, payments: [] };
       }
+      groupedPayments[siswa.id].payments.push({
+        paymentName: tagihan.namaTagihan,
+        amount: Number(p.nominal)
+      });
+    });
+
+    Object.values(groupedPayments).forEach(({ siswa, payments }) => {
+      sendPaymentNotification(
+        siswa.waOrangTua,
+        siswa.namaOrangTua,
+        siswa.nama,
+        siswa.kelas,
+        payments,
+        tanggal,
+        state.profilSekolah.nama
+      );
     });
 
     set((state) => ({
