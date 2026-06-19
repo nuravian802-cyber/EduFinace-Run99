@@ -32,7 +32,8 @@ Terima kasih, pembayaran atas nama ${studentName} telah berhasil kami terima. Be
     const formData = new FormData();
     formData.append('target', waNumber);
     formData.append('message', message);
-    formData.append('file', pdfFile);
+    // Include the third argument for the filename to ensure it's treated as a file upload correctly
+    formData.append('file', pdfFile, pdfFile.name);
 
     const response = await fetch('/api/fonnte/send', {
       method: 'POST',
@@ -52,15 +53,17 @@ Terima kasih, pembayaran atas nama ${studentName} telah berhasil kami terima. Be
     }
 
     if (result.status) {
-      alert('Pesan WA Berhasil Dikirim ke ' + waNumber);
+      alert('Pesan WA dan Lampiran Bukti Pembayaran Berhasil Dikirim ke ' + waNumber);
       return true;
     } else {
       alert('Gagal mengirim WA. Fonnte: ' + result.reason);
       return false;
     }
+
   } catch (error: any) {
     alert('Gagal memanggil API Fonnte (Mungkin Server Lokal belum direstart): ' + error.message);
     return false;
   }
 };
+
 
