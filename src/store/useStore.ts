@@ -110,7 +110,7 @@ interface AppState {
   catatPendapatanLain: (data: Omit<Transaksi, 'id' | 'tipe' | 'tagihanId'>) => Promise<void>;
   catatPengeluaran: (data: Omit<Transaksi, 'id' | 'tipe' | 'tagihanId'>) => Promise<void>;
   bayarTagihan: (tagihanId: string, akunId: string, nominal: number, tanggal: string) => Promise<void>;
-  bayarMultiTagihan: (pembayaran: { tagihanId: string, nominal: number }[], akunId: string, tanggal: string) => Promise<void>;
+  bayarMultiTagihan: (pembayaran: { tagihanId: string, nominal: number }[], akunId: string, tanggal: string, diskon?: number) => Promise<void>;
   deleteTransaksi: (id: string) => Promise<void>;
   editTransaksi: (id: string, data: Partial<Transaksi>) => Promise<void>;
 
@@ -367,7 +367,7 @@ export const useStore = create<AppState>()((set, get) => ({
     }));
   },
 
-  bayarMultiTagihan: async (pembayaran, akunId, tanggal) => {
+  bayarMultiTagihan: async (pembayaran, akunId, tanggal, diskon = 0) => {
     const state = get();
     let totalNominal = 0;
     const newTransaksi: Transaksi[] = [];
@@ -399,9 +399,22 @@ export const useStore = create<AppState>()((set, get) => ({
       });
     });
 
+    if (diskon > 0) {
+      newTransaksi.push({
+        id: generateId(),
+        tanggal,
+        tipe: 'Pengeluaran',
+        akunId,
+        kategoriId: null,
+        tagihanId: undefined, // no specific tagihan for combined discount
+        nominal: diskon,
+        keterangan: 'Potongan/Diskon Pembayaran'
+      });
+    }
+
     const akun = state.akunKas.find(a => a.id === akunId);
     if (akun) {
-      const newSaldo = akun.saldo + totalNominal;
+      const newSaldo = akun.saldo + totalNominal - diskon;
       updatePromises.push(api.updateAkunKas(akunId, { saldo: newSaldo }));
     }
 

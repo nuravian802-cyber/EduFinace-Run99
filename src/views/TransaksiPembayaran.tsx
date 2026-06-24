@@ -14,6 +14,7 @@ const TransaksiPembayaran: React.FC = () => {
 
   const [metodeBayar, setMetodeBayar] = useState<'tunai' | 'transfer'>('tunai');
   const [uangDiterima, setUangDiterima] = useState<string>('');
+  const [diskon, setDiskon] = useState<string>('');
 
   // Keep track of which tagihan are selected to be paid, and the amount to pay for each
   const [selectedTagihan, setSelectedTagihan] = useState<Record<string, number>>({});
@@ -35,6 +36,7 @@ const TransaksiPembayaran: React.FC = () => {
     setSelectedSiswaId(id);
     setSelectedTagihan({}); // Reset selection when changing student
     setUangDiterima('');
+    setDiskon('');
   };
 
 
@@ -57,25 +59,29 @@ const TransaksiPembayaran: React.FC = () => {
   };
 
   const totalBayar = Object.values(selectedTagihan).reduce((sum, val) => sum + val, 0);
+  const parsedDiskon = Number(diskon.replace(/\D/g, ''));
+  const totalHarusDibayar = Math.max(0, totalBayar - parsedDiskon);
+  
   const parsedUangDiterima = Number(uangDiterima.replace(/\D/g, ''));
-  const uangKembali = metodeBayar === 'tunai' ? parsedUangDiterima - totalBayar : 0;
+  const uangKembali = metodeBayar === 'tunai' ? parsedUangDiterima - totalHarusDibayar : 0;
 
   const handleBayar = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedSiswaId || !bayarForm.akunId || Object.keys(selectedTagihan).length === 0) return;
     
-    if (metodeBayar === 'tunai' && parsedUangDiterima < totalBayar) {
-      alert('Jumlah uang yang diterima kurang dari total pembayaran!');
+    if (metodeBayar === 'tunai' && parsedUangDiterima < totalHarusDibayar) {
+      alert('Jumlah uang yang diterima kurang dari total yang harus dibayar!');
       return;
     }
 
     // Format payload
     const pembayaran = Object.entries(selectedTagihan).map(([tId, nominal]) => ({ tagihanId: tId, nominal }));
     
-    bayarMultiTagihan(pembayaran, bayarForm.akunId, bayarForm.tanggal);
+    bayarMultiTagihan(pembayaran, bayarForm.akunId, bayarForm.tanggal, parsedDiskon);
     alert('Pembayaran berhasil dicatat!');
     setSelectedTagihan({});
     setUangDiterima('');
+    setDiskon('');
     if (pendingTagihanForSiswa.length === pembayaran.length) {
       // If all pending were paid, deselect student
       setSelectedSiswaId(null);
@@ -160,8 +166,20 @@ const TransaksiPembayaran: React.FC = () => {
                   <h4 style={{ margin: '0 0 0.5rem 0' }}>{selectedSiswa?.nama} ({selectedSiswa?.kelas})</h4>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)' }}>Total yang Harus Dibayar:</p>
-                  <h3 style={{ margin: 0, color: 'var(--primary)' }}>Rp {totalBayar.toLocaleString('id-ID')}</h3>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '1rem', marginBottom: '0.25rem' }}>
+                    <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)' }}>Total Tagihan:</p>
+                    <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>Rp {totalBayar.toLocaleString('id-ID')}</span>
+                  </div>
+                  {parsedDiskon > 0 && (
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '1rem', marginBottom: '0.25rem', color: 'var(--danger)' }}>
+                      <p style={{ margin: 0, fontSize: '0.85rem' }}>Diskon/Voucher:</p>
+                      <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>- Rp {parsedDiskon.toLocaleString('id-ID')}</span>
+                    </div>
+                  )}
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '1rem', borderTop: '1px solid var(--border-color)', paddingTop: '0.25rem' }}>
+                    <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)' }}>Total Harus Dibayar:</p>
+                    <h3 style={{ margin: 0, color: 'var(--primary)' }}>Rp {totalHarusDibayar.toLocaleString('id-ID')}</h3>
+                  </div>
                 </div>
               </div>
 
@@ -230,6 +248,23 @@ const TransaksiPembayaran: React.FC = () => {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', backgroundColor: '#f8fafc', padding: '1.5rem', borderRadius: 'var(--radius-md)', marginTop: '1rem' }}>
                 <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label className="form-label">Diskon / Voucher (Rp)</label>
+                  <input 
+                    type="text" 
+                    inputMode="numeric"
+                    className="form-control" 
+                    value={diskon} 
+                    onChange={e => {
+                      const val = e.target.value.replace(/\D/g, '');
+                      setDiskon(val ? Number(val).toLocaleString('id-ID') : '');
+                    }} 
+                    placeholder="Masukkan diskon (opsional)"
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', backgroundColor: '#f8fafc', padding: '1.5rem', borderRadius: 'var(--radius-md)', marginTop: '1rem' }}>
+                <div className="form-group" style={{ marginBottom: 0 }}>
                   <label className="form-label">Metode Pembayaran</label>
                   <select className="form-control" value={metodeBayar} onChange={e => setMetodeBayar(e.target.value as 'tunai' | 'transfer')} required>
                     <option value="tunai">Tunai</option>
@@ -237,7 +272,7 @@ const TransaksiPembayaran: React.FC = () => {
                   </select>
                 </div>
 
-                {metodeBayar === 'tunai' && (
+                {metodeBayar === 'tunai' && totalHarusDibayar > 0 && (
                   <div className="form-group" style={{ marginBottom: 0 }}>
                     <label className="form-label">Uang Diterima (Rp)</label>
                     <input 
@@ -256,7 +291,7 @@ const TransaksiPembayaran: React.FC = () => {
                 )}
               </div>
 
-              {metodeBayar === 'tunai' && uangDiterima && (
+              {metodeBayar === 'tunai' && uangDiterima && totalHarusDibayar > 0 && (
                 <div style={{ backgroundColor: uangKembali < 0 ? '#fee2e2' : '#dcfce7', padding: '1rem', borderRadius: 'var(--radius-md)', marginTop: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: `1px solid ${uangKembali < 0 ? '#fca5a5' : '#86efac'}` }}>
                   <div style={{ fontWeight: 600, color: uangKembali < 0 ? '#991b1b' : '#166534' }}>
                     {uangKembali < 0 ? 'Kekurangan:' : 'Kembali:'}
@@ -338,11 +373,17 @@ const TransaksiPembayaran: React.FC = () => {
                 </tr>
               );
             })}
+            {parsedDiskon > 0 && (
+              <tr>
+                <td style={{ padding: '0.5rem', color: '#dc2626' }}>Diskon/Voucher</td>
+                <td style={{ textAlign: 'right', padding: '0.5rem', color: '#dc2626' }}>- Rp {parsedDiskon.toLocaleString('id-ID')}</td>
+              </tr>
+            )}
           </tbody>
           <tfoot>
             <tr style={{ borderTop: '1px solid black', fontWeight: 'bold' }}>
-              <td style={{ padding: '0.5rem' }}>TOTAL</td>
-              <td style={{ textAlign: 'right', padding: '0.5rem' }}>Rp {totalBayar.toLocaleString('id-ID')}</td>
+              <td style={{ padding: '0.5rem' }}>TOTAL DIBAYAR</td>
+              <td style={{ textAlign: 'right', padding: '0.5rem' }}>Rp {totalHarusDibayar.toLocaleString('id-ID')}</td>
             </tr>
           </tfoot>
         </table>
