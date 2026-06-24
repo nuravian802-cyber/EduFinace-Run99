@@ -455,7 +455,7 @@ export const useStore = create<AppState>()((set, get) => ({
 
     set((state) => ({
       tagihan: updatedTagihanLocal,
-      akunKas: state.akunKas.map(a => a.id === akunId ? { ...a, saldo: a.saldo + totalNominal } : a),
+      akunKas: state.akunKas.map(a => a.id === akunId ? { ...a, saldo: a.saldo + totalNominal - diskon } : a),
       transaksi: [...state.transaksi, ...newTransaksi]
     }));
   },
