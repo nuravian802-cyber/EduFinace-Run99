@@ -12,6 +12,9 @@ const TransaksiPembayaran: React.FC = () => {
     tanggal: new Date().toISOString().split('T')[0]
   });
 
+  const [metodeBayar, setMetodeBayar] = useState<'tunai' | 'transfer'>('tunai');
+  const [uangDiterima, setUangDiterima] = useState<string>('');
+
   // Keep track of which tagihan are selected to be paid, and the amount to pay for each
   const [selectedTagihan, setSelectedTagihan] = useState<Record<string, number>>({});
 
@@ -31,6 +34,7 @@ const TransaksiPembayaran: React.FC = () => {
   const handleSiswaClick = (id: string) => {
     setSelectedSiswaId(id);
     setSelectedTagihan({}); // Reset selection when changing student
+    setUangDiterima('');
   };
 
 
@@ -53,17 +57,25 @@ const TransaksiPembayaran: React.FC = () => {
   };
 
   const totalBayar = Object.values(selectedTagihan).reduce((sum, val) => sum + val, 0);
+  const parsedUangDiterima = Number(uangDiterima.replace(/\D/g, ''));
+  const uangKembali = metodeBayar === 'tunai' ? parsedUangDiterima - totalBayar : 0;
 
   const handleBayar = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedSiswaId || !bayarForm.akunId || Object.keys(selectedTagihan).length === 0) return;
     
+    if (metodeBayar === 'tunai' && parsedUangDiterima < totalBayar) {
+      alert('Jumlah uang yang diterima kurang dari total pembayaran!');
+      return;
+    }
+
     // Format payload
     const pembayaran = Object.entries(selectedTagihan).map(([tId, nominal]) => ({ tagihanId: tId, nominal }));
     
     bayarMultiTagihan(pembayaran, bayarForm.akunId, bayarForm.tanggal);
     alert('Pembayaran berhasil dicatat!');
     setSelectedTagihan({});
+    setUangDiterima('');
     if (pendingTagihanForSiswa.length === pembayaran.length) {
       // If all pending were paid, deselect student
       setSelectedSiswaId(null);
@@ -215,6 +227,45 @@ const TransaksiPembayaran: React.FC = () => {
                   </select>
                 </div>
               </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', backgroundColor: '#f8fafc', padding: '1.5rem', borderRadius: 'var(--radius-md)', marginTop: '1rem' }}>
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label className="form-label">Metode Pembayaran</label>
+                  <select className="form-control" value={metodeBayar} onChange={e => setMetodeBayar(e.target.value as 'tunai' | 'transfer')} required>
+                    <option value="tunai">Tunai</option>
+                    <option value="transfer">Transfer</option>
+                  </select>
+                </div>
+
+                {metodeBayar === 'tunai' && (
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label className="form-label">Uang Diterima (Rp)</label>
+                    <input 
+                      type="text" 
+                      inputMode="numeric"
+                      className="form-control" 
+                      value={uangDiterima} 
+                      onChange={e => {
+                        const val = e.target.value.replace(/\D/g, '');
+                        setUangDiterima(val ? Number(val).toLocaleString('id-ID') : '');
+                      }} 
+                      placeholder="Masukkan nominal uang"
+                      required
+                    />
+                  </div>
+                )}
+              </div>
+
+              {metodeBayar === 'tunai' && uangDiterima && (
+                <div style={{ backgroundColor: uangKembali < 0 ? '#fee2e2' : '#dcfce7', padding: '1rem', borderRadius: 'var(--radius-md)', marginTop: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: `1px solid ${uangKembali < 0 ? '#fca5a5' : '#86efac'}` }}>
+                  <div style={{ fontWeight: 600, color: uangKembali < 0 ? '#991b1b' : '#166534' }}>
+                    {uangKembali < 0 ? 'Kekurangan:' : 'Kembali:'}
+                  </div>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: uangKembali < 0 ? '#991b1b' : '#166534' }}>
+                    Rp {Math.abs(uangKembali).toLocaleString('id-ID')}
+                  </div>
+                </div>
+              )}
 
               <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
                 <button type="button" className="btn btn-outline" style={{ flex: 1, padding: '1rem', fontSize: '1.1rem' }} onClick={() => window.print()} disabled={Object.keys(selectedTagihan).length === 0}>
