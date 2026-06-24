@@ -15,6 +15,7 @@ const TransaksiPembayaran: React.FC = () => {
   const [metodeBayar, setMetodeBayar] = useState<'tunai' | 'transfer'>('tunai');
   const [uangDiterima, setUangDiterima] = useState<string>('');
   const [diskon, setDiskon] = useState<string>('');
+  const [keteranganDiskon, setKeteranganDiskon] = useState<string>('');
 
   // Keep track of which tagihan are selected to be paid, and the amount to pay for each
   const [selectedTagihan, setSelectedTagihan] = useState<Record<string, number>>({});
@@ -37,6 +38,7 @@ const TransaksiPembayaran: React.FC = () => {
     setSelectedTagihan({}); // Reset selection when changing student
     setUangDiterima('');
     setDiskon('');
+    setKeteranganDiskon('');
   };
 
 
@@ -77,11 +79,12 @@ const TransaksiPembayaran: React.FC = () => {
     // Format payload
     const pembayaran = Object.entries(selectedTagihan).map(([tId, nominal]) => ({ tagihanId: tId, nominal }));
     
-    bayarMultiTagihan(pembayaran, bayarForm.akunId, bayarForm.tanggal, parsedDiskon);
+    bayarMultiTagihan(pembayaran, bayarForm.akunId, bayarForm.tanggal, parsedDiskon, keteranganDiskon);
     alert('Pembayaran berhasil dicatat!');
     setSelectedTagihan({});
     setUangDiterima('');
     setDiskon('');
+    setKeteranganDiskon('');
     if (pendingTagihanForSiswa.length === pembayaran.length) {
       // If all pending were paid, deselect student
       setSelectedSiswaId(null);
@@ -261,6 +264,18 @@ const TransaksiPembayaran: React.FC = () => {
                     placeholder="Masukkan diskon (opsional)"
                   />
                 </div>
+
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label className="form-label">Keterangan Diskon</label>
+                  <input 
+                    type="text" 
+                    className="form-control" 
+                    value={keteranganDiskon} 
+                    onChange={e => setKeteranganDiskon(e.target.value)} 
+                    placeholder="Misal: Beasiswa Prestasi, Gratis Buku, dll"
+                    disabled={parsedDiskon <= 0}
+                  />
+                </div>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', backgroundColor: '#f8fafc', padding: '1.5rem', borderRadius: 'var(--radius-md)', marginTop: '1rem' }}>
@@ -375,7 +390,9 @@ const TransaksiPembayaran: React.FC = () => {
             })}
             {parsedDiskon > 0 && (
               <tr>
-                <td style={{ padding: '0.5rem', color: '#dc2626' }}>Diskon/Voucher</td>
+                <td style={{ padding: '0.5rem', color: '#dc2626' }}>
+                  Diskon/Voucher {keteranganDiskon && <span style={{ fontSize: '0.75rem', fontStyle: 'italic', display: 'block' }}>({keteranganDiskon})</span>}
+                </td>
                 <td style={{ textAlign: 'right', padding: '0.5rem', color: '#dc2626' }}>- Rp {parsedDiskon.toLocaleString('id-ID')}</td>
               </tr>
             )}
