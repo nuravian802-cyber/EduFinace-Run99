@@ -142,6 +142,28 @@ export const deletePosKategori = async (id: string) => {
 };
 
 // ==========================================
+// pos_tagihan
+// ==========================================
+export const getPosTagihan = async () => {
+  return await fetchAllRows('pos_tagihan');
+};
+
+export const addPosTagihan = async (insertData: any) => {
+  const { data, error } = await supabase.from('pos_tagihan').insert([insertData]).select();
+  return handleResponse(data, error, 'addPosTagihan');
+};
+
+export const updatePosTagihan = async (id: string, updateData: any) => {
+  const { data, error } = await supabase.from('pos_tagihan').update(updateData).eq('id', id).select();
+  return handleResponse(data, error, 'updatePosTagihan');
+};
+
+export const deletePosTagihan = async (id: string) => {
+  const { data, error } = await supabase.from('pos_tagihan').delete().eq('id', id).select();
+  return handleResponse(data, error, 'deletePosTagihan');
+};
+
+// ==========================================
 // riwayat_transaksi
 // ==========================================
 export const getRiwayatTransaksi = async () => {

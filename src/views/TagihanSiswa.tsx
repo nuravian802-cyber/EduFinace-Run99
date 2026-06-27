@@ -5,7 +5,7 @@ import Modal from '../components/Modal';
 import Pagination from '../components/Pagination';
 
 const TagihanSiswa: React.FC = () => {
-  const { siswa, tagihan, addTagihan, addTagihanMassal, editTagihan, deleteTagihan, currentUser } = useStore();
+  const { siswa, tagihan, posTagihan, addTagihanMulti, addTagihanMassal, editTagihan, deleteTagihan, currentUser } = useStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedKelasFilter, setSelectedKelasFilter] = useState('Semua');
   const [statusTagihanFilter, setStatusTagihanFilter] = useState('Semua');
@@ -44,6 +44,8 @@ const TagihanSiswa: React.FC = () => {
     jatuhTempo: new Date().toISOString().split('T')[0],
     kelas: 'Semua'
   });
+
+  const [selectedPos, setSelectedPos] = useState<string[]>([]);
 
   const [modalSearchSiswa, setModalSearchSiswa] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -92,6 +94,7 @@ const TagihanSiswa: React.FC = () => {
 
   const openGenerateMassalModal = () => {
     setModalMode('add_massal');
+    setSelectedPos([]);
     setFormData({ 
       namaTagihan: '', 
       nominal: 0, 
@@ -104,6 +107,7 @@ const TagihanSiswa: React.FC = () => {
   const openAddIndividuModal = () => {
     setModalMode('add_individu');
     setModalSearchSiswa('');
+    setSelectedPos([]);
     setFormData({ 
       siswaId: '', 
       namaTagihan: '', 
@@ -122,20 +126,29 @@ const TagihanSiswa: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (modalMode === 'add_individu') {
-      if (!formData.siswaId) return alert('Pilih siswa terlebih dahulu');
-      addTagihan(formData as Omit<Tagihan, 'id' | 'terbayar'>);
-    } else if (modalMode === 'add_massal') {
-      addTagihanMassal({
-        namaTagihan: formData.namaTagihan as string,
-        nominal: formData.nominal as number,
-        jatuhTempo: formData.jatuhTempo as string,
-        kelas: formData.kelas
-      });
+    if (modalMode === 'add_individu' || modalMode === 'add_massal') {
+      if (modalMode === 'add_individu' && !formData.siswaId) return alert('Pilih siswa terlebih dahulu');
+      if (selectedPos.length === 0) return alert('Pilih minimal satu Pos Tagihan');
+
+      const items = selectedPos.map(pid => {
+        const pt = posTagihan.find(p => p.id === pid);
+        return {
+          namaTagihan: pt?.namaTagihan || '',
+          nominal: pt?.nominal || 0,
+          jatuhTempo: formData.jatuhTempo as string
+        };
+      }).filter(item => item.namaTagihan !== '');
+
+      if (modalMode === 'add_individu') {
+        addTagihanMulti(formData.siswaId, items);
+      } else {
+        addTagihanMassal({ items, kelas: formData.kelas });
+      }
+      setIsModalOpen(false);
     } else if (modalMode === 'edit' && editId) {
       editTagihan(editId, formData);
+      setIsModalOpen(false);
     }
-    setIsModalOpen(false);
   };
 
   const handleDelete = (tId: string) => {
@@ -476,14 +489,51 @@ const TagihanSiswa: React.FC = () => {
               )}
             </div>
           )}
-          <div className="form-group">
-            <label className="form-label">Nama Tagihan</label>
-            <input type="text" className="form-control" placeholder="Contoh: SPP Agustus" value={formData.namaTagihan} onChange={(e) => setFormData({...formData, namaTagihan: e.target.value})} required />
-          </div>
-          <div className="form-group">
-            <label className="form-label">Nominal (Rp)</label>
-            <input type="text" inputMode="numeric" className="form-control" placeholder="0" value={formData.nominal ? Number(formData.nominal).toLocaleString('id-ID') : ''} onChange={(e) => { const val = e.target.value.replace(/\D/g, ''); setFormData({...formData, nominal: val ? Number(val) : 0}) }} required />
-          </div>
+
+          {(modalMode === 'add_individu' || modalMode === 'add_massal') ? (
+            <>
+              <div className="form-group">
+                <label className="form-label">Pilih Pos Tagihan</label>
+                <div style={{ maxHeight: '200px', overflowY: 'auto', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', padding: '0.75rem' }}>
+                  {posTagihan.length === 0 ? (
+                    <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)', textAlign: 'center' }}>Belum ada data pos tagihan. Silakan tambahkan di Master Data &gt; Pos Tagihan.</div>
+                  ) : posTagihan.map(pt => (
+                    <label key={pt.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem', cursor: 'pointer', borderBottom: '1px solid #f1f5f9' }}>
+                      <input 
+                        type="checkbox" 
+                        checked={selectedPos.includes(pt.id)}
+                        onChange={(e) => {
+                          if (e.target.checked) setSelectedPos(prev => [...prev, pt.id]);
+                          else setSelectedPos(prev => prev.filter(id => id !== pt.id));
+                        }}
+                      />
+                      <span style={{ flex: 1, fontSize: '0.9rem', fontWeight: 500 }}>{pt.namaTagihan}</span>
+                      <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Rp {formatRp(pt.nominal)}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div className="form-group">
+                <label className="form-label">Jatuh Tempo</label>
+                <input type="date" className="form-control" value={formData.jatuhTempo} onChange={(e) => setFormData({...formData, jatuhTempo: e.target.value})} required />
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="form-group">
+                <label className="form-label">Nama Tagihan</label>
+                <input type="text" className="form-control" placeholder="Contoh: SPP Agustus" value={formData.namaTagihan} onChange={(e) => setFormData({...formData, namaTagihan: e.target.value})} required />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Nominal (Rp)</label>
+                <input type="text" inputMode="numeric" className="form-control" placeholder="0" value={formData.nominal ? Number(formData.nominal).toLocaleString('id-ID') : ''} onChange={(e) => { const val = e.target.value.replace(/\D/g, ''); setFormData({...formData, nominal: val ? Number(val) : 0}) }} required />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Jatuh Tempo</label>
+                <input type="date" className="form-control" value={formData.jatuhTempo} onChange={(e) => setFormData({...formData, jatuhTempo: e.target.value})} required />
+              </div>
+            </>
+          )}
           
           <div className="modal-footer">
             <button type="button" className="btn btn-outline" onClick={() => setIsModalOpen(false)}>Batal</button>

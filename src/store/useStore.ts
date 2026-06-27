@@ -43,6 +43,12 @@ export interface Kategori {
   nama: string;
 }
 
+export interface PosTagihan {
+  id: string;
+  namaTagihan: string;
+  nominal: number;
+}
+
 export interface Tagihan {
   id: string;
   siswaId: string;
@@ -76,6 +82,7 @@ interface AppState {
   siswa: Siswa[];
   akunKas: AkunKas[];
   kategori: Kategori[];
+  posTagihan: PosTagihan[];
   tagihan: Tagihan[];
   transaksi: Transaksi[];
   admin: Admin[];
@@ -101,8 +108,13 @@ interface AppState {
   editKategori: (id: string, data: Partial<Omit<Kategori, 'id'>>) => Promise<void>;
   deleteKategori: (id: string) => Promise<void>;
   
+  addPosTagihan: (data: Omit<PosTagihan, 'id'>) => Promise<void>;
+  editPosTagihan: (id: string, data: Partial<Omit<PosTagihan, 'id'>>) => Promise<void>;
+  deletePosTagihan: (id: string) => Promise<void>;
+  
   addTagihan: (data: Omit<Tagihan, 'id' | 'terbayar'>) => Promise<void>;
-  addTagihanMassal: (data: Omit<Tagihan, 'id' | 'terbayar' | 'siswaId'> & { kelas?: string }) => Promise<void>;
+  addTagihanMulti: (siswaId: string, items: { namaTagihan: string, nominal: number, jatuhTempo: string }[]) => Promise<void>;
+  addTagihanMassal: (data: { items: { namaTagihan: string, nominal: number, jatuhTempo: string }[], kelas?: string }) => Promise<void>;
   editTagihan: (id: string, data: Partial<Omit<Tagihan, 'id' | 'terbayar'>>) => Promise<void>;
   deleteTagihan: (id: string) => Promise<void>;
   
@@ -131,6 +143,7 @@ export const useStore = create<AppState>()((set, get) => ({
   siswa: [],
   akunKas: [],
   kategori: [],
+  posTagihan: [],
   tagihan: [],
   transaksi: [],
   admin: [],
@@ -141,12 +154,13 @@ export const useStore = create<AppState>()((set, get) => ({
     if (get().isInitialized) return;
     
     try {
-      const [profil, kas, siswa, admin, kategori, tagihan, transaksi] = await Promise.all([
+      const [profil, kas, siswa, admin, kategori, pos_tagihan, tagihan, transaksi] = await Promise.all([
         api.getProfilSekolah(),
         api.getAkunKas(),
         api.getDataSiswaLengkap(),
         api.getPenggunaStafAdmin(),
         api.getPosKategori(),
+        api.getPosTagihan(),
         api.getTagihanSiswa(),
         api.getRiwayatTransaksi()
       ]);
@@ -157,6 +171,7 @@ export const useStore = create<AppState>()((set, get) => ({
         siswa: siswa || [],
         admin: admin || [],
         kategori: kategori || [],
+        posTagihan: pos_tagihan || [],
         tagihan: tagihan || [],
         transaksi: transaksi || [],
         isInitialized: true
@@ -243,27 +258,60 @@ export const useStore = create<AppState>()((set, get) => ({
     if (res) set((state) => ({ kategori: state.kategori.filter(k => k.id !== id) }));
   },
   
+  addPosTagihan: async (data) => {
+    const insertData = { ...data, id: generateId() };
+    const res = await api.addPosTagihan(insertData);
+    if (res) set((state) => ({ posTagihan: [...state.posTagihan, insertData as PosTagihan] }));
+  },
+  editPosTagihan: async (id, data) => {
+    const res = await api.updatePosTagihan(id, data);
+    if (res) set((state) => ({ posTagihan: state.posTagihan.map(k => k.id === id ? { ...k, ...data } : k) }));
+  },
+  deletePosTagihan: async (id) => {
+    const res = await api.deletePosTagihan(id);
+    if (res) set((state) => ({ posTagihan: state.posTagihan.filter(k => k.id !== id) }));
+  },
+  
   addTagihan: async (data) => {
     const insertData = { ...data, id: generateId(), terbayar: 0 };
     const res = await api.addTagihanSiswa(insertData);
     if (res) set((state) => ({ tagihan: [...state.tagihan, insertData as Tagihan] }));
   },
+  addTagihanMulti: async (siswaId, items) => {
+    if (!siswaId || items.length === 0) return;
+    const newTagihans = items.map(item => ({
+      ...item,
+      siswaId,
+      id: generateId(),
+      terbayar: 0
+    }));
+    const res = await api.addTagihanSiswaMassal(newTagihans);
+    if (res) {
+      set((state) => ({ tagihan: [...state.tagihan, ...newTagihans as Tagihan[]] }));
+    }
+  },
   addTagihanMassal: async (data) => {
-    const { kelas, ...tagihanData } = data;
+    const { kelas, items } = data;
     const state = get();
     let targetSiswa = state.siswa.filter(s => s.status !== 'Non-aktif');
     if (kelas && kelas !== 'Semua') {
       targetSiswa = targetSiswa.filter(s => s.kelas === kelas);
     }
     
-    const newTagihans = targetSiswa.map(s => ({
-      ...tagihanData,
-      siswaId: s.id,
-      id: generateId(),
-      terbayar: 0
-    }));
+    if (targetSiswa.length === 0 || items.length === 0) return;
 
-    if (newTagihans.length === 0) return;
+    const newTagihans: any[] = [];
+    
+    targetSiswa.forEach(s => {
+      items.forEach(item => {
+        newTagihans.push({
+          ...item,
+          siswaId: s.id,
+          id: generateId(),
+          terbayar: 0
+        });
+      });
+    });
 
     const res = await api.addTagihanSiswaMassal(newTagihans);
     if (res) {

@@ -78,6 +78,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
             <Database size={20} />
             <span>Pos Kategori</span>
           </NavLink>
+          <NavLink to="/master/pos-tagihan" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
+            <FileText size={20} />
+            <span>Pos Tagihan</span>
+          </NavLink>
         </div>
         )}
 

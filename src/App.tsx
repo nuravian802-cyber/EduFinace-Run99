@@ -6,6 +6,7 @@ import DataSiswa from './views/DataSiswa';
 import TagihanSiswa from './views/TagihanSiswa';
 import AkunKas from './views/AkunKas';
 import PosKategori from './views/PosKategori';
+import PosTagihan from './views/PosTagihan';
 import TransaksiPembayaran from './views/TransaksiPembayaran';
 import PendapatanLain from './views/PendapatanLain';
 import Pengeluaran from './views/Pengeluaran';
@@ -51,6 +52,7 @@ const App: React.FC = () => {
           <Route path="master/siswa" element={<DataSiswa />} />
           <Route path="master/tagihan" element={<TagihanSiswa />} />
           <Route path="master/kategori" element={<PosKategori />} />
+          <Route path="master/pos-tagihan" element={<PosTagihan />} />
           
           {/* Transaksi */}
           <Route path="transaksi/pembayaran" element={<TransaksiPembayaran />} />
