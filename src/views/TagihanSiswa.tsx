@@ -513,10 +513,6 @@ const TagihanSiswa: React.FC = () => {
                   ))}
                 </div>
               </div>
-              <div className="form-group">
-                <label className="form-label">Jatuh Tempo</label>
-                <input type="date" className="form-control" value={formData.jatuhTempo} onChange={(e) => setFormData({...formData, jatuhTempo: e.target.value})} required />
-              </div>
             </>
           ) : (
             <>
