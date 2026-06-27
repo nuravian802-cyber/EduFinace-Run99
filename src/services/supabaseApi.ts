@@ -145,16 +145,27 @@ export const deletePosKategori = async (id: string) => {
 // pos_tagihan
 // ==========================================
 export const getPosTagihan = async () => {
-  return await fetchAllRows('pos_tagihan');
+  const rows = await fetchAllRows('pos_tagihan');
+  if (!rows) return null;
+  return rows.map(r => ({
+    id: r.id,
+    namaTagihan: r.nama_tagihan,
+    nominal: r.nominal
+  }));
 };
 
 export const addPosTagihan = async (insertData: any) => {
-  const { data, error } = await supabase.from('pos_tagihan').insert([insertData]).select();
+  const dbData = { id: insertData.id, nama_tagihan: insertData.namaTagihan, nominal: insertData.nominal };
+  const { data, error } = await supabase.from('pos_tagihan').insert([dbData]).select();
   return handleResponse(data, error, 'addPosTagihan');
 };
 
 export const updatePosTagihan = async (id: string, updateData: any) => {
-  const { data, error } = await supabase.from('pos_tagihan').update(updateData).eq('id', id).select();
+  const dbData: any = {};
+  if (updateData.namaTagihan !== undefined) dbData.nama_tagihan = updateData.namaTagihan;
+  if (updateData.nominal !== undefined) dbData.nominal = updateData.nominal;
+  
+  const { data, error } = await supabase.from('pos_tagihan').update(dbData).eq('id', id).select();
   return handleResponse(data, error, 'updatePosTagihan');
 };
 
