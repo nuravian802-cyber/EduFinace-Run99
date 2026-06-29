@@ -75,6 +75,13 @@ const DataSiswa: React.FC = () => {
       }
       addSiswa(formData as Omit<Siswa, 'id'>);
     } else if (modalMode === 'edit' && editId) {
+      const originalSiswa = siswa.find(s => s.id === editId);
+      const isNamaChanged = originalSiswa?.nama.toLowerCase() !== formData.nama?.toLowerCase();
+      
+      if (isNamaChanged && siswa.some(s => s.nama.toLowerCase() === formData.nama?.toLowerCase())) {
+        alert('Data siswa dengan nama ini sudah ada!');
+        return;
+      }
       editSiswa(editId, formData);
     }
     setIsModalOpen(false);
@@ -111,27 +118,39 @@ const DataSiswa: React.FC = () => {
           }
         }
 
-        const nama = normalizedRow['nama'] || normalizedRow['namasiswa'] || normalizedRow['namalengkap'];
+        const nama = (normalizedRow['nama'] || normalizedRow['namasiswa'] || normalizedRow['namalengkap'])?.toString();
         const nisStr = (normalizedRow['nis'] || normalizedRow['nomorinduksiswa'] || '')?.toString();
         const kelasStr = (normalizedRow['kelas'] || '')?.toString();
+        const nisnStr = (normalizedRow['nisn'] || normalizedRow['nomorinduksiswanasional'] || '')?.toString();
+        const tanggalLahirStr = (normalizedRow['tanggallahir'] || normalizedRow['tgllahir'] || normalizedRow['lahir'] || '')?.toString();
+        const namaOrangTuaStr = (normalizedRow['namaortu'] || normalizedRow['namawali'] || normalizedRow['namaorangtua'] || normalizedRow['ortu'] || '')?.toString();
+        const waOrangTuaStr = (normalizedRow['nowaortu'] || normalizedRow['waortu'] || normalizedRow['nowa'] || normalizedRow['wa'] || normalizedRow['nohportu'] || normalizedRow['nohp'] || normalizedRow['hp'] || normalizedRow['telepon'] || normalizedRow['notelp'] || '')?.toString();
 
         if (nama || nisStr) {
-          const existingSiswa = siswa.find(s => s.nis.toString() === nisStr);
+          const existingSiswa = siswa.find(s => s.nama.toLowerCase() === nama?.toLowerCase());
           if (existingSiswa) {
-            // Update kelas jika masih kosong
-            if (!existingSiswa.kelas && kelasStr) {
-              editSiswa(existingSiswa.id, { kelas: kelasStr });
+            // Update data apa pun yang masih kosong jika di excel ada datanya
+            const updateData: Partial<Siswa> = {};
+            if (!existingSiswa.kelas && kelasStr) updateData.kelas = kelasStr;
+            if (!existingSiswa.nis && nisStr) updateData.nis = nisStr;
+            if (!existingSiswa.nisn && nisnStr) updateData.nisn = nisnStr;
+            if (!existingSiswa.tanggalLahir && tanggalLahirStr) updateData.tanggalLahir = tanggalLahirStr;
+            if (!existingSiswa.namaOrangTua && namaOrangTuaStr) updateData.namaOrangTua = namaOrangTuaStr;
+            if (!existingSiswa.waOrangTua && waOrangTuaStr) updateData.waOrangTua = waOrangTuaStr;
+            
+            if (Object.keys(updateData).length > 0) {
+              editSiswa(existingSiswa.id, updateData);
               countUpdated++;
             }
           } else {
             addSiswa({
               nis: nisStr,
-              nisn: (normalizedRow['nisn'] || normalizedRow['nomorinduksiswanasional'] || '')?.toString(),
-              nama: nama?.toString(),
+              nisn: nisnStr,
+              nama: nama,
               kelas: kelasStr,
-              tanggalLahir: (normalizedRow['tanggallahir'] || normalizedRow['tgllahir'] || normalizedRow['lahir'] || '')?.toString(),
-              namaOrangTua: (normalizedRow['namaortu'] || normalizedRow['namawali'] || normalizedRow['namaorangtua'] || normalizedRow['ortu'] || '')?.toString(),
-              waOrangTua: (normalizedRow['nowaortu'] || normalizedRow['waortu'] || normalizedRow['nowa'] || normalizedRow['wa'] || normalizedRow['nohportu'] || normalizedRow['nohp'] || normalizedRow['hp'] || normalizedRow['telepon'] || normalizedRow['notelp'] || '')?.toString(),
+              tanggalLahir: tanggalLahirStr,
+              namaOrangTua: namaOrangTuaStr,
+              waOrangTua: waOrangTuaStr,
               password: ''
             });
             count++;
