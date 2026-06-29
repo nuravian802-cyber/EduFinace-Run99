@@ -69,16 +69,12 @@ const DataSiswa: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (modalMode === 'add') {
-      if (siswa.some(s => s.nis.toString() === formData.nis?.toString())) {
-        alert('Data siswa dengan NIS ini sudah ada!');
+      if (siswa.some(s => s.nama.toLowerCase() === formData.nama?.toLowerCase())) {
+        alert('Data siswa dengan nama ini sudah ada!');
         return;
       }
       addSiswa(formData as Omit<Siswa, 'id'>);
     } else if (modalMode === 'edit' && editId) {
-      if (siswa.some(s => s.nis.toString() === formData.nis?.toString() && s.id !== editId)) {
-        alert('Data siswa dengan NIS ini sudah ada!');
-        return;
-      }
       editSiswa(editId, formData);
     }
     setIsModalOpen(false);
