@@ -398,7 +398,7 @@ const TransaksiPembayaran: React.FC = () => {
             height: '100%',
             opacity: 0.15
           }}>
-            <img src="/lunas.png" alt="LUNAS" style={{ width: '12.1cm', height: '8.5cm', objectFit: 'contain' }} />
+            <img src="/lunas.png" alt="LUNAS" style={{ width: '9.89cm', height: '7cm', objectFit: 'contain' }} />
           </div>
         )}
 
