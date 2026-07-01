@@ -67,6 +67,12 @@ const TransaksiPembayaran: React.FC = () => {
   const parsedUangDiterima = Number(uangDiterima.replace(/\D/g, ''));
   const uangKembali = metodeBayar === 'tunai' ? parsedUangDiterima - totalHarusDibayar : 0;
 
+  const isLunas = pendingTagihanForSiswa.length > 0 && pendingTagihanForSiswa.every(t => {
+    const sisa = t.nominal - t.terbayar;
+    const dibayar = selectedTagihan[t.id] || 0;
+    return sisa - dibayar <= 0;
+  });
+
   const handleBayar = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedSiswaId || !bayarForm.akunId || Object.keys(selectedTagihan).length === 0) return;
@@ -354,10 +360,31 @@ const TransaksiPembayaran: React.FC = () => {
           }
         `}
       </style>
-      <div className="print-area print-receipt" style={{ padding: '1rem', backgroundColor: 'white', color: 'black' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid black', paddingBottom: '1rem', marginBottom: '1.5rem' }}>
-          <div>
-            <h2 style={{ margin: 0, textTransform: 'uppercase', color: 'black' }}>{profilSekolah.nama}</h2>
+      <div className="print-area print-receipt" style={{ padding: '1rem', backgroundColor: 'white', color: 'black', position: 'relative' }}>
+        {/* Watermark Lunas */}
+        {isLunas && (
+          <div style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            pointerEvents: 'none',
+            zIndex: 0,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            width: '100%',
+            height: '100%',
+            opacity: 0.15
+          }}>
+            <img src="/lunas.png" alt="LUNAS" style={{ maxWidth: '80%', maxHeight: '60vh', objectFit: 'contain' }} />
+          </div>
+        )}
+
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid black', paddingBottom: '1rem', marginBottom: '1.5rem' }}>
+            <div>
+              <h2 style={{ margin: 0, textTransform: 'uppercase', color: 'black' }}>{profilSekolah.nama}</h2>
             <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.85rem' }}>{profilSekolah.alamat}</p>
           </div>
           <div style={{ textAlign: 'right' }}>
@@ -415,6 +442,7 @@ const TransaksiPembayaran: React.FC = () => {
 
         <div style={{ marginTop: '2rem', fontStyle: 'italic', fontSize: '0.85rem', color: 'black' }}>
           * Bukti Pembayaran ini jangan sampai hilang
+        </div>
         </div>
       </div>
     </>
