@@ -365,7 +365,7 @@ const TransaksiPembayaran: React.FC = () => {
         {isLunas && (
           <div style={{
             position: 'absolute',
-            top: '50%',
+            top: '10cm',
             left: '50%',
             transform: 'translate(-50%, -50%)',
             pointerEvents: 'none',
@@ -423,13 +423,11 @@ const TransaksiPembayaran: React.FC = () => {
                 <td style={{ textAlign: 'right', padding: '0.5rem', color: '#dc2626' }}>- Rp {parsedDiskon.toLocaleString('id-ID')}</td>
               </tr>
             )}
-          </tbody>
-          <tfoot>
             <tr style={{ borderTop: '1px solid black', fontWeight: 'bold' }}>
               <td style={{ padding: '0.5rem' }}>TOTAL DIBAYAR</td>
               <td style={{ textAlign: 'right', padding: '0.5rem' }}>Rp {totalHarusDibayar.toLocaleString('id-ID')}</td>
             </tr>
-          </tfoot>
+          </tbody>
         </table>
 
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4rem', color: 'black' }}>
