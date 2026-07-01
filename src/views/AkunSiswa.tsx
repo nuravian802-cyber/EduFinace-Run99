@@ -24,7 +24,7 @@ const AkunSiswa: React.FC = () => {
 
   const openResetModal = (s: Siswa) => {
     setEditSiswaData(s);
-    setNewPassword('');
+    setNewPassword(s.tanggalLahir || '');
     setShowPassword(false);
     setIsModalOpen(true);
   };
@@ -233,7 +233,7 @@ const AkunSiswa: React.FC = () => {
               </button>
             </div>
             <small style={{ color: 'var(--text-muted)', display: 'block', marginTop: '0.5rem' }}>
-              Beri tahu siswa mengenai password barunya setelah direset.
+              Secara default, kolom ini otomatis terisi dengan Tanggal Lahir siswa (jika datanya tersedia). Beri tahu siswa setelah password direset.
             </small>
           </div>
           
