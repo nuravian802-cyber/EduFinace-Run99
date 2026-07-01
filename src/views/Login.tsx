@@ -18,22 +18,33 @@ const Login: React.FC = () => {
     setError('');
     setLoading(true);
 
-    const isNumeric = /^\d+$/.test(username);
-    const email = isNumeric ? `${username}@siswa.edufinance.com` : `${username}@admin.edufinance.com`;
+    let userSession = null;
 
-    const { data, error: authError } = await supabase.auth.signInWithPassword({
-      email: email,
+    // Try Admin Login first
+    let { data, error: authError } = await supabase.auth.signInWithPassword({
+      email: `${username}@admin.edufinance.com`,
       password: password,
     });
 
     if (authError || !data.user) {
-      setError('Username/NIS atau Password salah.');
-      setLoading(false);
-      return;
+      // Fallback: Try Siswa Login
+      const { data: dataSiswa, error: authErrorSiswa } = await supabase.auth.signInWithPassword({
+        email: `${username}@siswa.edufinance.com`,
+        password: password,
+      });
+
+      if (authErrorSiswa || !dataSiswa?.user) {
+        setError('Username/NIS atau Password salah.');
+        setLoading(false);
+        return;
+      }
+      userSession = dataSiswa.user;
+    } else {
+      userSession = data.user;
     }
 
-    const role = data.user.user_metadata?.role;
-    const customId = data.user.user_metadata?.custom_id;
+    const role = userSession.user_metadata?.role;
+    const customId = userSession.user_metadata?.custom_id;
 
     let nama = username;
     if (role === 'Siswa') {
@@ -45,7 +56,7 @@ const Login: React.FC = () => {
     }
 
     login({
-      id: customId || data.user.id,
+      id: customId || userSession.id,
       username: username,
       nama: nama,
       role: role as any || 'Siswa'
