@@ -196,7 +196,25 @@ const TransaksiPembayaran: React.FC = () => {
                 <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
                   <thead>
                     <tr style={{ borderBottom: '2px solid var(--border-color)' }}>
-                      <th style={{ padding: '0.75rem 0.5rem', width: '40px' }}></th>
+                      <th style={{ padding: '0.75rem 0.5rem', width: '40px' }}>
+                        <input 
+                          type="checkbox" 
+                          title="Pilih Semua Tagihan"
+                          style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                          checked={pendingTagihanForSiswa.length > 0 && Object.keys(selectedTagihan).length === pendingTagihanForSiswa.length}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              const allSelected: Record<string, number> = {};
+                              pendingTagihanForSiswa.forEach(t => {
+                                allSelected[t.id] = t.nominal - t.terbayar;
+                              });
+                              setSelectedTagihan(allSelected);
+                            } else {
+                              setSelectedTagihan({});
+                            }
+                          }}
+                        />
+                      </th>
                       <th style={{ padding: '0.75rem 0.5rem' }}>Nama Tagihan</th>
                       <th style={{ padding: '0.75rem 0.5rem' }}>Sisa Kekurangan</th>
                       <th style={{ padding: '0.75rem 0.5rem', width: '150px' }}>Bayar (Rp)</th>
@@ -368,7 +386,7 @@ const TransaksiPembayaran: React.FC = () => {
         {isLunas && (
           <div style={{
             position: 'absolute',
-            top: '14cm',
+            top: '10cm',
             left: '50%',
             transform: 'translate(-50%, -50%)',
             pointerEvents: 'none',
