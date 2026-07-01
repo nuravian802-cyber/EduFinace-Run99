@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store/useStore';
 import { KeyRound, User, Lock, School } from 'lucide-react';
+import { supabase } from '../utils/supabaseClient';
 
 const Login: React.FC = () => {
   const { admin, siswa, login, profilSekolah } = useStore();
@@ -10,47 +11,56 @@ const Login: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
 
-    // Cek di tabel Admin
-    const adminUser = admin.find(a => a.username === username);
-    if (adminUser) {
-      if (adminUser.password === password) {
-        login({
-          id: adminUser.id,
-          username: adminUser.username,
-          nama: adminUser.nama,
-          role: adminUser.role
-        });
-        navigate('/');
-        return;
-      }
+    const isNumeric = /^\d+$/.test(username);
+    const email = isNumeric ? `${username}@siswa.edufinance.com` : `${username}@admin.edufinance.com`;
+
+    const { data, error: authError } = await supabase.auth.signInWithPassword({
+      email: email,
+      password: password,
+    });
+
+    if (authError || !data.user) {
+      setError('Username/NIS atau Password salah.');
+      setLoading(false);
+      return;
     }
 
-    // Cek di tabel Siswa (NIS sebagai username)
-    const siswaUser = siswa.find(s => s.nis === username);
-    if (siswaUser) {
-      // Siswa harus sudah diset passwordnya oleh Admin
-      if (siswaUser.password && siswaUser.password === password) {
-        login({
-          id: siswaUser.id,
-          username: siswaUser.nis,
-          nama: siswaUser.nama,
-          role: 'Siswa'
-        });
-        navigate('/master/tagihan');
-        return;
-      } else if (!siswaUser.password) {
-        setError('Akun Anda belum aktif. Hubungi Admin Sekolah untuk meminta password.');
-        return;
-      }
+    const role = data.user.user_metadata?.role;
+    const customId = data.user.user_metadata?.custom_id;
+
+    let nama = username;
+    if (role === 'Siswa') {
+      const siswaUser = siswa.find(s => s.id === customId);
+      if (siswaUser) nama = siswaUser.nama;
+    } else {
+      const adminUser = admin.find(a => a.id === customId);
+      if (adminUser) nama = adminUser.nama;
     }
 
-    setError('Username/NIS atau Password salah.');
+    login({
+      id: customId || data.user.id,
+      username: username,
+      nama: nama,
+      role: role as any || 'Siswa'
+    });
+
+    setLoading(false);
+    
+    if (role === 'Siswa') {
+      navigate('/master/tagihan');
+    } else {
+      navigate('/');
+    }
   };
+
+
 
   return (
     <div style={{ 
@@ -117,8 +127,8 @@ const Login: React.FC = () => {
             />
           </div>
 
-          <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '0.6rem', fontSize: '0.95rem' }}>
-            <KeyRound size={16} /> Masuk ke Sistem
+          <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '0.6rem', fontSize: '0.95rem' }} disabled={loading}>
+            <KeyRound size={16} /> {loading ? 'Memeriksa...' : 'Masuk ke Sistem'}
           </button>
         </form>
         

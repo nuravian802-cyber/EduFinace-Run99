@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import * as api from '../services/supabaseApi';
+import { supabase } from '../utils/supabaseClient';
 import { sendPaymentNotification } from '../services/waService';
 
 export interface Siswa {
@@ -193,7 +194,8 @@ export const useStore = create<AppState>()((set, get) => ({
     localStorage.setItem('currentUser', JSON.stringify(session));
     set({ currentUser: session });
   },
-  logout: () => {
+  logout: async () => {
+    await supabase.auth.signOut();
     localStorage.removeItem('currentUser');
     set({ currentUser: null });
   },
