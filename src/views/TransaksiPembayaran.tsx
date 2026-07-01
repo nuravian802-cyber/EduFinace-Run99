@@ -340,9 +340,12 @@ const TransaksiPembayaran: React.FC = () => {
       {/* Printable Receipt */}
       <style>
         {`
+          .print-receipt {
+            font-family: 'F25 Bank Printer', monospace !important;
+          }
           @media print {
             @page {
-              size: 16.5cm 21cm;
+              size: 21.5cm 33cm; /* F4 size */
               margin: 0.5cm;
             }
             .print-receipt {
@@ -365,7 +368,7 @@ const TransaksiPembayaran: React.FC = () => {
         {isLunas && (
           <div style={{
             position: 'absolute',
-            top: '10cm',
+            top: '14cm',
             left: '50%',
             transform: 'translate(-50%, -50%)',
             pointerEvents: 'none',
@@ -434,7 +437,6 @@ const TransaksiPembayaran: React.FC = () => {
           <div style={{ textAlign: 'center' }}>
             <p style={{ color: 'black' }}>Penerima / Admin</p>
             <br /><br /><br />
-            <p style={{ color: 'black' }}>( ........................ )</p>
           </div>
         </div>
 
