@@ -59,9 +59,9 @@ const TransaksiPembayaran: React.FC = () => {
   };
 
   const totalBayar = Object.values(selectedTagihan).reduce((sum, val) => sum + val, 0);
-  const parsedDiskon = discounts.reduce((sum, d) => sum + Number(d.amount.replace(/\D/g, '')), 0);
-  const keteranganDiskonCombined = discounts.filter(d => Number(d.amount.replace(/\D/g, '')) > 0 && d.description.trim() !== '')
-    .map(d => `${d.description} (Rp ${Number(d.amount.replace(/\D/g, '')).toLocaleString('id-ID')})`).join(', ');
+  const parsedDiskon = discounts.reduce((sum, d) => sum + Number((d.amount || '').replace(/\D/g, '')), 0);
+  const keteranganDiskonCombined = discounts.filter(d => Number((d.amount || '').replace(/\D/g, '')) > 0 && (d.description || '').trim() !== '')
+    .map(d => `${d.description} (Rp ${Number((d.amount || '').replace(/\D/g, '')).toLocaleString('id-ID')})`).join(', ');
   const totalHarusDibayar = Math.max(0, totalBayar - parsedDiskon);
   
   const parsedUangDiterima = Number(uangDiterima.replace(/\D/g, ''));
@@ -294,7 +294,7 @@ const TransaksiPembayaran: React.FC = () => {
                           const val = e.target.value.replace(/\D/g, '');
                           const newAmount = val ? Number(val).toLocaleString('id-ID') : '';
                           const newDiscounts = [...discounts];
-                          newDiscounts[idx].amount = newAmount;
+                          newDiscounts[idx] = { ...newDiscounts[idx], amount: newAmount };
                           setDiscounts(newDiscounts);
                         }} 
                         placeholder="Nominal (Rp)"
@@ -307,7 +307,7 @@ const TransaksiPembayaran: React.FC = () => {
                         value={d.description} 
                         onChange={e => {
                           const newDiscounts = [...discounts];
-                          newDiscounts[idx].description = e.target.value;
+                          newDiscounts[idx] = { ...newDiscounts[idx], description: e.target.value };
                           setDiscounts(newDiscounts);
                         }} 
                         placeholder="Keterangan (misal: Beasiswa)"
