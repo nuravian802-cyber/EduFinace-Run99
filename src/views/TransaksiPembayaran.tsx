@@ -14,8 +14,7 @@ const TransaksiPembayaran: React.FC = () => {
 
   const [metodeBayar, setMetodeBayar] = useState<'tunai' | 'transfer'>('tunai');
   const [uangDiterima, setUangDiterima] = useState<string>('');
-  const [diskon, setDiskon] = useState<string>('');
-  const [keteranganDiskon, setKeteranganDiskon] = useState<string>('');
+  const [discounts, setDiscounts] = useState<{ amount: string; description: string }[]>([]);
 
   // Keep track of which tagihan are selected to be paid, and the amount to pay for each
   const [selectedTagihan, setSelectedTagihan] = useState<Record<string, number>>({});
@@ -37,8 +36,7 @@ const TransaksiPembayaran: React.FC = () => {
     setSelectedSiswaId(id);
     setSelectedTagihan({}); // Reset selection when changing student
     setUangDiterima('');
-    setDiskon('');
-    setKeteranganDiskon('');
+    setDiscounts([]);
   };
 
 
@@ -61,7 +59,9 @@ const TransaksiPembayaran: React.FC = () => {
   };
 
   const totalBayar = Object.values(selectedTagihan).reduce((sum, val) => sum + val, 0);
-  const parsedDiskon = Number(diskon.replace(/\D/g, ''));
+  const parsedDiskon = discounts.reduce((sum, d) => sum + Number(d.amount.replace(/\D/g, '')), 0);
+  const keteranganDiskonCombined = discounts.filter(d => Number(d.amount.replace(/\D/g, '')) > 0 && d.description.trim() !== '')
+    .map(d => `${d.description} (Rp ${Number(d.amount.replace(/\D/g, '')).toLocaleString('id-ID')})`).join(', ');
   const totalHarusDibayar = Math.max(0, totalBayar - parsedDiskon);
   
   const parsedUangDiterima = Number(uangDiterima.replace(/\D/g, ''));
@@ -85,12 +85,11 @@ const TransaksiPembayaran: React.FC = () => {
     // Format payload
     const pembayaran = Object.entries(selectedTagihan).map(([tId, nominal]) => ({ tagihanId: tId, nominal }));
     
-    bayarMultiTagihan(pembayaran, bayarForm.akunId, bayarForm.tanggal, parsedDiskon, keteranganDiskon);
+    bayarMultiTagihan(pembayaran, bayarForm.akunId, bayarForm.tanggal, parsedDiskon, keteranganDiskonCombined);
     alert('Pembayaran berhasil dicatat!');
     setSelectedTagihan({});
     setUangDiterima('');
-    setDiskon('');
-    setKeteranganDiskon('');
+    setDiscounts([]);
     if (pendingTagihanForSiswa.length === pembayaran.length) {
       // If all pending were paid, deselect student
       setSelectedSiswaId(null);
@@ -273,33 +272,54 @@ const TransaksiPembayaran: React.FC = () => {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', backgroundColor: '#f8fafc', padding: '1.5rem', borderRadius: 'var(--radius-md)', marginTop: '1rem' }}>
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label">Diskon / Voucher (Rp)</label>
-                  <input 
-                    type="text" 
-                    inputMode="numeric"
-                    className="form-control" 
-                    value={diskon} 
-                    onChange={e => {
-                      const val = e.target.value.replace(/\D/g, '');
-                      setDiskon(val ? Number(val).toLocaleString('id-ID') : '');
-                    }} 
-                    placeholder="Masukkan diskon (opsional)"
-                  />
+              <div style={{ backgroundColor: '#f8fafc', padding: '1.5rem', borderRadius: 'var(--radius-md)', marginTop: '1rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                  <label className="form-label" style={{ margin: 0 }}>Diskon / Voucher (Opsional)</label>
+                  <button type="button" className="btn btn-secondary" style={{ padding: '0.25rem 0.75rem', fontSize: '0.85rem' }} onClick={() => setDiscounts([...discounts, { amount: '', description: '' }])}>+ Tambah Diskon</button>
                 </div>
-
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label">Keterangan Diskon</label>
-                  <input 
-                    type="text" 
-                    className="form-control" 
-                    value={keteranganDiskon} 
-                    onChange={e => setKeteranganDiskon(e.target.value)} 
-                    placeholder="Misal: Beasiswa Prestasi, Gratis Buku, dll"
-                    disabled={parsedDiskon <= 0}
-                  />
-                </div>
+                
+                {discounts.length === 0 && (
+                  <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontStyle: 'italic', margin: 0 }}>Tidak ada diskon yang ditambahkan.</p>
+                )}
+                
+                {discounts.map((d, idx) => (
+                  <div key={idx} style={{ display: 'flex', gap: '1rem', marginBottom: idx === discounts.length - 1 ? 0 : '1rem', alignItems: 'flex-start' }}>
+                    <div className="form-group" style={{ marginBottom: 0, flex: 1 }}>
+                      <input 
+                        type="text" 
+                        inputMode="numeric"
+                        className="form-control" 
+                        value={d.amount} 
+                        onChange={e => {
+                          const val = e.target.value.replace(/\D/g, '');
+                          const newAmount = val ? Number(val).toLocaleString('id-ID') : '';
+                          const newDiscounts = [...discounts];
+                          newDiscounts[idx].amount = newAmount;
+                          setDiscounts(newDiscounts);
+                        }} 
+                        placeholder="Nominal (Rp)"
+                      />
+                    </div>
+                    <div className="form-group" style={{ marginBottom: 0, flex: 2 }}>
+                      <input 
+                        type="text" 
+                        className="form-control" 
+                        value={d.description} 
+                        onChange={e => {
+                          const newDiscounts = [...discounts];
+                          newDiscounts[idx].description = e.target.value;
+                          setDiscounts(newDiscounts);
+                        }} 
+                        placeholder="Keterangan (misal: Beasiswa)"
+                      />
+                    </div>
+                    <button type="button" className="btn btn-danger" style={{ padding: '0.55rem 0.75rem' }} onClick={() => {
+                      const newDiscounts = [...discounts];
+                      newDiscounts.splice(idx, 1);
+                      setDiscounts(newDiscounts);
+                    }}>✕</button>
+                  </div>
+                ))}
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', backgroundColor: '#f8fafc', padding: '1.5rem', borderRadius: 'var(--radius-md)', marginTop: '1rem' }}>
