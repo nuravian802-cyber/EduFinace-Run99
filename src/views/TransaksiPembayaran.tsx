@@ -459,7 +459,7 @@ const TransaksiPembayaran: React.FC = () => {
             {parsedDiskon > 0 && (
               <tr>
                 <td style={{ padding: '0.5rem', color: '#dc2626' }}>
-                  Diskon/Voucher {keteranganDiskon && <span style={{ fontSize: '0.75rem', fontStyle: 'italic', display: 'block' }}>({keteranganDiskon})</span>}
+                  Diskon/Voucher {keteranganDiskonCombined && <span style={{ fontSize: '0.75rem', fontStyle: 'italic', display: 'block' }}>({keteranganDiskonCombined})</span>}
                 </td>
                 <td style={{ textAlign: 'right', padding: '0.5rem', color: '#dc2626' }}>- Rp {parsedDiskon.toLocaleString('id-ID')}</td>
               </tr>
