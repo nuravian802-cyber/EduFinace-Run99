@@ -2,6 +2,17 @@ import React, { useState, useMemo } from 'react';
 import { Printer, ArrowRightLeft } from 'lucide-react';
 import { useStore } from '../store/useStore';
 
+const formatKeterangan = (ket: string) => {
+  if (!ket) return ket;
+  if (ket.startsWith('Pembayaran ') || ket.startsWith('Diskon: ') || ket.startsWith('Potongan/Diskon ')) {
+    const parts = ket.split(' - ');
+    if (parts.length > 1) {
+      return parts.slice(0, -1).join(' - ');
+    }
+  }
+  return ket;
+};
+
 const ArusKas: React.FC = () => {
   const { transaksi, kategori, currentUser, profilSekolah, akunKas } = useStore();
   const isKepsek = currentUser?.role === 'Kepala Sekolah';
@@ -101,7 +112,7 @@ const ArusKas: React.FC = () => {
                 {validTransaksi.map(t => (
                   <tr key={t.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
                     <td style={{ padding: '1rem' }}>{t.tanggal}</td>
-                    <td style={{ padding: '1rem', fontWeight: 600 }}>{t.keterangan || (t.kategoriId ? kategori.find(k => k.id?.toString() === t.kategoriId?.toString())?.nama : 'Lainnya')}</td>
+                    <td style={{ padding: '1rem', fontWeight: 600 }}>{formatKeterangan(t.keterangan) || (t.kategoriId ? kategori.find(k => k.id?.toString() === t.kategoriId?.toString())?.nama : 'Lainnya')}</td>
                     <td style={{ padding: '1rem', textAlign: 'center', color: t.tipe === 'Pemasukan' ? 'var(--success)' : 'inherit', fontWeight: t.tipe === 'Pemasukan' ? 600 : 'normal' }}>
                       {t.tipe === 'Pemasukan' ? `Rp ${t.nominal.toLocaleString('id-ID')}` : '-'}
                     </td>

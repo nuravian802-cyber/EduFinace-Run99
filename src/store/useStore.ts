@@ -379,6 +379,8 @@ export const useStore = create<AppState>()((set, get) => ({
     const newTerbayar = tagihan.terbayar + numNominal;
     const newSaldo = akun.saldo + numNominal;
     
+    const siswaData = state.siswa.find(s => s.id === tagihan.siswaId);
+    const namaSiswa = siswaData ? siswaData.nama : '';
     const trId = generateId();
     const newTransaksi = { 
       id: trId, 
@@ -388,7 +390,7 @@ export const useStore = create<AppState>()((set, get) => ({
       kategoriId: null, 
       tagihanId, 
       nominal: numNominal, 
-      keterangan: `Pembayaran ${tagihan.namaTagihan}` 
+      keterangan: `Pembayaran ${tagihan.namaTagihan}${namaSiswa ? ` - ${namaSiswa}` : ''}` 
     };
 
     await Promise.all([
@@ -437,6 +439,9 @@ export const useStore = create<AppState>()((set, get) => ({
       const idx = updatedTagihanLocal.findIndex(t => t.id === p.tagihanId);
       if (idx !== -1) updatedTagihanLocal[idx] = { ...updatedTagihanLocal[idx], terbayar: newTerbayar };
 
+      const siswaData = state.siswa.find(s => s.id === tagihan.siswaId);
+      const namaSiswa = siswaData ? siswaData.nama : '';
+
       newTransaksi.push({
         id: generateId(), 
         tanggal, 
@@ -445,11 +450,19 @@ export const useStore = create<AppState>()((set, get) => ({
         kategoriId: null, 
         tagihanId: p.tagihanId, 
         nominal: numNominal, 
-        keterangan: `Pembayaran (Masal) ${tagihan.namaTagihan}` 
+        keterangan: `Pembayaran ${tagihan.namaTagihan}${namaSiswa ? ` - ${namaSiswa}` : ''}` 
       });
     });
 
     if (diskon > 0) {
+      let diskonNamaSiswa = '';
+      if (pembayaran.length > 0) {
+        const firstTagihan = state.tagihan.find(t => t.id === pembayaran[0].tagihanId);
+        if (firstTagihan) {
+          const sData = state.siswa.find(s => s.id === firstTagihan.siswaId);
+          if (sData) diskonNamaSiswa = ` - ${sData.nama}`;
+        }
+      }
       newTransaksi.push({
         id: generateId(),
         tanggal,
@@ -458,7 +471,7 @@ export const useStore = create<AppState>()((set, get) => ({
         kategoriId: null,
         tagihanId: undefined, // no specific tagihan for combined discount
         nominal: diskon,
-        keterangan: keteranganDiskon ? `Diskon: ${keteranganDiskon}` : 'Potongan/Diskon Pembayaran'
+        keterangan: keteranganDiskon ? `Diskon: ${keteranganDiskon}${diskonNamaSiswa}` : `Potongan/Diskon Pembayaran${diskonNamaSiswa}`
       });
     }
 

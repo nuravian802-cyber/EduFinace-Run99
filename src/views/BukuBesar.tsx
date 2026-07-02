@@ -2,6 +2,17 @@ import React, { useState, useMemo } from 'react';
 import { Filter, Printer } from 'lucide-react';
 import { useStore } from '../store/useStore';
 
+const formatKeterangan = (ket: string) => {
+  if (!ket) return ket;
+  if (ket.startsWith('Pembayaran ') || ket.startsWith('Diskon: ') || ket.startsWith('Potongan/Diskon ')) {
+    const parts = ket.split(' - ');
+    if (parts.length > 1) {
+      return parts.slice(0, -1).join(' - ');
+    }
+  }
+  return ket;
+};
+
 const BukuBesar: React.FC = () => {
   const { akunKas, transaksi, kategori } = useStore();
   const [akunId, setAkunId] = useState('');
@@ -127,7 +138,7 @@ const BukuBesar: React.FC = () => {
                     return (
                       <tr key={t.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
                         <td style={{ padding: '1rem 0.5rem' }}>{t.tanggal}</td>
-                        <td style={{ padding: '1rem 0.5rem' }}>{t.keterangan}</td>
+                        <td style={{ padding: '1rem 0.5rem' }}>{formatKeterangan(t.keterangan)}</td>
                         <td style={{ padding: '1rem 0.5rem' }}>{t.kategoriId ? kategori.find(k => k.id?.toString() === t.kategoriId?.toString())?.nama || '-' : '-'}</td>
                         <td style={{ padding: '1rem 0.5rem', textAlign: 'right', color: t.tipe === 'Pemasukan' ? 'var(--success)' : 'inherit', fontWeight: t.tipe === 'Pemasukan' ? 600 : 'normal' }}>
                           {t.tipe === 'Pemasukan' ? t.nominal.toLocaleString('id-ID') : '-'}
