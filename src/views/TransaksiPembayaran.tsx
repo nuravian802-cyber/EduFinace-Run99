@@ -73,6 +73,25 @@ const TransaksiPembayaran: React.FC = () => {
     return sisa - dibayar <= 0;
   });
 
+  const handleAlokasikanKembalian = () => {
+    let remainingKembalian = uangKembali;
+    if (remainingKembalian <= 0) return;
+
+    const newSelected = { ...selectedTagihan };
+    for (const t of pendingTagihanForSiswa) {
+      if (remainingKembalian <= 0) break;
+      const sisa = t.nominal - t.terbayar;
+      const curr = newSelected[t.id] || 0;
+      const unallocated = sisa - curr;
+      if (unallocated > 0) {
+        const toAdd = Math.min(remainingKembalian, unallocated);
+        newSelected[t.id] = curr + toAdd;
+        remainingKembalian -= toAdd;
+      }
+    }
+    setSelectedTagihan(newSelected);
+  };
+
   const handleBayar = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedSiswaId || !bayarForm.akunId || Object.keys(selectedTagihan).length === 0) return;
@@ -355,8 +374,20 @@ const TransaksiPembayaran: React.FC = () => {
                   <div style={{ fontWeight: 600, color: uangKembali < 0 ? '#991b1b' : '#166534' }}>
                     {uangKembali < 0 ? 'Kekurangan:' : 'Kembali:'}
                   </div>
-                  <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: uangKembali < 0 ? '#991b1b' : '#166534' }}>
-                    Rp {Math.abs(uangKembali).toLocaleString('id-ID')}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: uangKembali < 0 ? '#991b1b' : '#166534' }}>
+                      Rp {Math.abs(uangKembali).toLocaleString('id-ID')}
+                    </div>
+                    {uangKembali > 0 && pendingTagihanForSiswa.some(t => (t.nominal - t.terbayar) - (selectedTagihan[t.id] || 0) > 0) && (
+                      <button 
+                        type="button" 
+                        className="btn btn-sm" 
+                        style={{ padding: '0.25rem 0.75rem', fontSize: '0.85rem', backgroundColor: '#166534', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                        onClick={handleAlokasikanKembalian}
+                      >
+                        Potong ke Tagihan Lain
+                      </button>
+                    )}
                   </div>
                 </div>
               )}
