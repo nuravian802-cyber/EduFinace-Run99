@@ -504,6 +504,19 @@ export const useStore = create<AppState>()((set, get) => ({
       });
     });
 
+    if (diskon > 0 && pembayaran.length > 0) {
+      const firstTagihan = state.tagihan.find(t => t.id === pembayaran[0].tagihanId);
+      if (firstTagihan) {
+        const siswaId = firstTagihan.siswaId;
+        if (groupedPayments[siswaId]) {
+          groupedPayments[siswaId].payments.push({
+            paymentName: keteranganDiskon ? `Diskon/Voucher (${keteranganDiskon})` : 'Potongan Diskon/Voucher',
+            amount: -diskon
+          });
+        }
+      }
+    }
+
     Object.values(groupedPayments).forEach(({ siswa, payments }) => {
       sendPaymentNotification(
         siswa.waOrangTua,

@@ -21,7 +21,12 @@ export const sendPaymentNotification = async (
   let totalAmount = 0;
   const paymentDetails = payments.map((p) => {
     totalAmount += p.amount;
-    const formattedAmount = new Intl.NumberFormat('id-ID').format(p.amount);
+    const isDiscount = p.amount < 0;
+    const absAmount = Math.abs(p.amount);
+    const formattedAmount = new Intl.NumberFormat('id-ID').format(absAmount);
+    if (isDiscount) {
+      return `- ${p.paymentName}: -Rp ${formattedAmount}`;
+    }
     return `- ${p.paymentName}: Rp ${formattedAmount}`;
   }).join('\n');
 
