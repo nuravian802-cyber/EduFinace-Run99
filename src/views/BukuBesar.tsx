@@ -16,12 +16,13 @@ const formatKeterangan = (ket: string) => {
 const BukuBesar: React.FC = () => {
   const { akunKas, transaksi, kategori } = useStore();
   const [akunId, setAkunId] = useState('');
-  const [bulan, setBulan] = useState(new Date().toISOString().substring(0, 7)); // YYYY-MM
+  const [periodeMulai, setPeriodeMulai] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0]);
+  const [periodeAkhir, setPeriodeAkhir] = useState(new Date().toISOString().split('T')[0]);
   const [kodeTransaksi, setKodeTransaksi] = useState(''); // '' untuk semua, 'YS' atau 'SA'
 
   const filteredTransaksi = useMemo(() => {
     if (!akunId) return [];
-    let filtered = transaksi.filter(t => t.akunId === akunId && t.tanggal.startsWith(bulan));
+    let filtered = transaksi.filter(t => t.akunId === akunId && t.tanggal >= periodeMulai && t.tanggal <= periodeAkhir);
     
     if (kodeTransaksi === 'YS') {
       filtered = filtered.filter(t => t.keterangan.includes('YS'));
@@ -30,13 +31,13 @@ const BukuBesar: React.FC = () => {
     }
 
     return filtered.sort((a, b) => new Date(a.tanggal).getTime() - new Date(b.tanggal).getTime());
-  }, [transaksi, akunId, bulan, kodeTransaksi]);
+  }, [transaksi, akunId, periodeMulai, periodeAkhir, kodeTransaksi]);
 
   const selectedAkun = akunKas.find(a => a.id === akunId);
   
   const saldoAwal = useMemo(() => {
     if (!akunId) return 0;
-    let pastTransactions = transaksi.filter(t => t.akunId === akunId && t.tanggal < bulan + '-01');
+    let pastTransactions = transaksi.filter(t => t.akunId === akunId && t.tanggal < periodeMulai);
     
     if (kodeTransaksi === 'YS') {
       pastTransactions = pastTransactions.filter(t => t.keterangan.includes('YS'));
@@ -44,9 +45,10 @@ const BukuBesar: React.FC = () => {
       pastTransactions = pastTransactions.filter(t => t.keterangan.includes('SA'));
     }
 
-    const netChange = pastTransactions.reduce((sum, t) => t.tipe === 'Pemasukan' ? sum + t.nominal : sum - t.nominal, 0);
-    return netChange;
-  }, [transaksi, akunId, bulan, kodeTransaksi]);
+    return pastTransactions.reduce((sum, t) => {
+      return t.tipe === 'Pemasukan' ? sum + t.nominal : sum - t.nominal;
+    }, 0);
+  }, [transaksi, akunId, periodeMulai, kodeTransaksi]);
 
   let currentRunningSaldo = saldoAwal;
 
@@ -98,9 +100,15 @@ const BukuBesar: React.FC = () => {
               ))}
             </select>
           </div>
-          <div style={{ flex: '1 1 200px' }}>
-            <label className="form-label">Bulan</label>
-            <input type="month" className="form-control" value={bulan} onChange={(e) => setBulan(e.target.value)} />
+          <div style={{ flex: '1 1 200px', display: 'flex', gap: '0.5rem' }}>
+            <div style={{ flex: 1 }}>
+              <label className="form-label">Mulai Tanggal</label>
+              <input type="date" className="form-control" value={periodeMulai} onChange={(e) => setPeriodeMulai(e.target.value)} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <label className="form-label">Sampai Tanggal</label>
+              <input type="date" className="form-control" value={periodeAkhir} onChange={(e) => setPeriodeAkhir(e.target.value)} />
+            </div>
           </div>
           <div style={{ flex: '1 1 200px' }}>
             <label className="form-label">Kode Transaksi</label>
