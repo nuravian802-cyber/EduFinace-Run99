@@ -123,8 +123,13 @@ const BukuBesar: React.FC = () => {
         {akunId ? (
           <div>
             <div className="print-only" style={{ display: 'none', marginBottom: '1.5rem' }}>
-              <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 700 }}>Buku Besar - {selectedAkun?.nama} ({selectedAkun?.kode})</h3>
-              <p style={{ margin: '0.5rem 0 0 0', color: 'var(--text-muted)' }}>Periode: {bulan}</p>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid var(--border-color)', paddingBottom: '1rem', marginBottom: '2rem' }}>
+                <div>
+                  <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.5rem', fontWeight: 700 }}>Laporan Buku Besar</h3>
+                  <h4 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--primary)' }}>Akun: {selectedAkun?.kode} - {selectedAkun?.nama}</h4>
+                  <p style={{ margin: '0.5rem 0 0 0', color: 'var(--text-muted)' }}>Periode: {periodeMulai} s/d {periodeAkhir}</p>
+                </div>
+              </div>
             </div>
             <div className="table-responsive-print" style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
@@ -161,7 +166,7 @@ const BukuBesar: React.FC = () => {
                   {filteredTransaksi.length === 0 && (
                     <tr>
                       <td colSpan={6} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-                        Tidak ada transaksi pada bulan ini untuk akun tersebut.
+                        Tidak ada transaksi pada periode ini untuk akun tersebut.
                       </td>
                     </tr>
                   )}
