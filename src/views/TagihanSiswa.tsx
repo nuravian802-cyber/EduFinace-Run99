@@ -284,18 +284,20 @@ const TagihanSiswa: React.FC = () => {
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
           <thead style={{ backgroundColor: '#f8fafc' }}>
             <tr style={{ borderBottom: '2px solid var(--border-color)' }}>
-              <th style={{ padding: '1rem', color: '#1e293b', width: '25%' }}>Nama Siswa</th>
+              <th style={{ padding: '1rem', color: '#1e293b', width: '20%' }}>Nama Siswa</th>
               <th style={{ padding: '1rem', color: '#1e293b', width: '10%' }}>Kelas</th>
-              <th style={{ padding: '1rem', color: '#1e293b', width: '25%' }}>Total Tagihan</th>
-              <th style={{ padding: '1rem', color: '#1e293b', width: '25%' }}>Total Kekurangan</th>
-              {!isSiswa && <th className="no-print" style={{ padding: '1rem', color: '#1e293b', textAlign: 'right', width: '15%' }}>Aksi</th>}
+              <th style={{ padding: '1rem', color: '#1e293b', width: '20%' }}>Total Tagihan</th>
+              <th style={{ padding: '1rem', color: '#1e293b', width: '20%' }}>Telah Dibayar</th>
+              <th style={{ padding: '1rem', color: '#1e293b', width: '20%' }}>Total Kekurangan</th>
+              {!isSiswa && <th className="no-print" style={{ padding: '1rem', color: '#1e293b', textAlign: 'right', width: '10%' }}>Aksi</th>}
             </tr>
           </thead>
           <tbody>
             {displayedSiswa.map((s) => {
               const studentTagihan = tagihan.filter(t => t.siswaId === s.id);
               const totalTagihan = studentTagihan.reduce((sum, t) => sum + t.nominal, 0);
-              const totalKekurangan = studentTagihan.reduce((sum, t) => sum + (t.nominal - t.terbayar), 0);
+              const totalTerbayar = studentTagihan.reduce((sum, t) => sum + t.terbayar, 0);
+              const totalKekurangan = totalTagihan - totalTerbayar;
               const isExpanded = expandedSiswa.includes(s.id);
 
               return (
@@ -308,6 +310,7 @@ const TagihanSiswa: React.FC = () => {
                     </td>
                     <td style={{ padding: '1rem' }}>{s.kelas}</td>
                     <td style={{ padding: '1rem' }}>Rp {formatRp(totalTagihan)}</td>
+                    <td style={{ padding: '1rem', color: 'var(--success)', fontWeight: 600 }}>Rp {formatRp(totalTerbayar)}</td>
                     <td style={{ padding: '1rem', color: totalKekurangan > 0 ? 'var(--danger)' : 'var(--success)', fontWeight: 600 }}>
                       Rp {formatRp(totalKekurangan)}
                     </td>
@@ -348,7 +351,7 @@ const TagihanSiswa: React.FC = () => {
                   {/* Expanded Nested Table */}
                   {isExpanded && (
                     <tr style={{ backgroundColor: '#fafafa' }}>
-                      <td colSpan={isSiswa ? 4 : 5} style={{ padding: '1rem', borderBottom: '1px solid var(--border-color)' }}>
+                      <td colSpan={isSiswa ? 5 : 6} style={{ padding: '1rem', borderBottom: '1px solid var(--border-color)' }}>
                         <div style={{ paddingLeft: '2rem', borderLeft: '3px solid var(--warning)' }}>
                           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
                             <thead>
