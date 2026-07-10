@@ -6,8 +6,7 @@ import Modal from '../components/Modal';
 const RiwayatTransaksi: React.FC = () => {
   const { transaksi, akunKas, kategori, deleteTransaksi, editTransaksi, profilSekolah } = useStore();
   const [searchTerm, setSearchTerm] = useState('');
-  const [periodeMulai, setPeriodeMulai] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0]);
-  const [periodeAkhir, setPeriodeAkhir] = useState(new Date().toISOString().split('T')[0]);
+  const [tanggal, setTanggal] = useState(new Date().toISOString().split('T')[0]);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -18,9 +17,9 @@ const RiwayatTransaksi: React.FC = () => {
 
   const filteredTransaksi = useMemo(() => {
     return transaksi
-      .filter(t => t.tanggal >= periodeMulai && t.tanggal <= periodeAkhir && (t.keterangan.toLowerCase().includes(searchTerm.toLowerCase())))
+      .filter(t => t.tanggal === tanggal && (t.keterangan.toLowerCase().includes(searchTerm.toLowerCase())))
       .sort((a, b) => new Date(b.tanggal).getTime() - new Date(a.tanggal).getTime());
-  }, [transaksi, periodeMulai, periodeAkhir, searchTerm]);
+  }, [transaksi, tanggal, searchTerm]);
 
   const openEditModal = (t: Transaksi) => {
     setEditId(t.id);
@@ -99,9 +98,8 @@ const RiwayatTransaksi: React.FC = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <div style={{ width: '300px', display: 'flex', gap: '0.5rem' }}>
-            <input type="date" className="form-control" value={periodeMulai} onChange={(e) => setPeriodeMulai(e.target.value)} title="Tanggal Mulai" />
-            <input type="date" className="form-control" value={periodeAkhir} onChange={(e) => setPeriodeAkhir(e.target.value)} title="Tanggal Akhir" />
+          <div style={{ width: '200px' }}>
+            <input type="date" className="form-control" value={tanggal} onChange={(e) => setTanggal(e.target.value)} title="Pilih Tanggal" />
           </div>
         </div>
 

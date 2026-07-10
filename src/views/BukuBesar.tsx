@@ -16,13 +16,12 @@ const formatKeterangan = (ket: string) => {
 const BukuBesar: React.FC = () => {
   const { akunKas, transaksi, kategori } = useStore();
   const [akunId, setAkunId] = useState('');
-  const [periodeMulai, setPeriodeMulai] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0]);
-  const [periodeAkhir, setPeriodeAkhir] = useState(new Date().toISOString().split('T')[0]);
+  const [tanggal, setTanggal] = useState(new Date().toISOString().split('T')[0]);
   const [kodeTransaksi, setKodeTransaksi] = useState(''); // '' untuk semua, 'YS' atau 'SA'
 
   const filteredTransaksi = useMemo(() => {
     if (!akunId) return [];
-    let filtered = transaksi.filter(t => t.akunId === akunId && t.tanggal >= periodeMulai && t.tanggal <= periodeAkhir);
+    let filtered = transaksi.filter(t => t.akunId === akunId && t.tanggal === tanggal);
     
     if (kodeTransaksi === 'YS') {
       filtered = filtered.filter(t => t.keterangan.includes('YS'));
@@ -31,13 +30,13 @@ const BukuBesar: React.FC = () => {
     }
 
     return filtered.sort((a, b) => new Date(a.tanggal).getTime() - new Date(b.tanggal).getTime());
-  }, [transaksi, akunId, periodeMulai, periodeAkhir, kodeTransaksi]);
+  }, [transaksi, akunId, tanggal, kodeTransaksi]);
 
   const selectedAkun = akunKas.find(a => a.id === akunId);
   
   const saldoAwal = useMemo(() => {
     if (!akunId) return 0;
-    let pastTransactions = transaksi.filter(t => t.akunId === akunId && t.tanggal < periodeMulai);
+    let pastTransactions = transaksi.filter(t => t.akunId === akunId && t.tanggal < tanggal);
     
     if (kodeTransaksi === 'YS') {
       pastTransactions = pastTransactions.filter(t => t.keterangan.includes('YS'));
@@ -48,7 +47,7 @@ const BukuBesar: React.FC = () => {
     return pastTransactions.reduce((sum, t) => {
       return t.tipe === 'Pemasukan' ? sum + t.nominal : sum - t.nominal;
     }, 0);
-  }, [transaksi, akunId, periodeMulai, kodeTransaksi]);
+  }, [transaksi, akunId, tanggal, kodeTransaksi]);
 
   let currentRunningSaldo = saldoAwal;
 
@@ -100,15 +99,9 @@ const BukuBesar: React.FC = () => {
               ))}
             </select>
           </div>
-          <div style={{ flex: '1 1 200px', display: 'flex', gap: '0.5rem' }}>
-            <div style={{ flex: 1 }}>
-              <label className="form-label">Mulai Tanggal</label>
-              <input type="date" className="form-control" value={periodeMulai} onChange={(e) => setPeriodeMulai(e.target.value)} />
-            </div>
-            <div style={{ flex: 1 }}>
-              <label className="form-label">Sampai Tanggal</label>
-              <input type="date" className="form-control" value={periodeAkhir} onChange={(e) => setPeriodeAkhir(e.target.value)} />
-            </div>
+          <div style={{ flex: '1 1 200px' }}>
+            <label className="form-label">Tanggal</label>
+            <input type="date" className="form-control" value={tanggal} onChange={(e) => setTanggal(e.target.value)} />
           </div>
           <div style={{ flex: '1 1 200px' }}>
             <label className="form-label">Kode Transaksi</label>
@@ -127,7 +120,7 @@ const BukuBesar: React.FC = () => {
                 <div>
                   <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.5rem', fontWeight: 700 }}>Laporan Buku Besar</h3>
                   <h4 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--primary)' }}>Akun: {selectedAkun?.kode} - {selectedAkun?.nama}</h4>
-                  <p style={{ margin: '0.5rem 0 0 0', color: 'var(--text-muted)' }}>Periode: {periodeMulai} s/d {periodeAkhir}</p>
+                  <p style={{ margin: '0.5rem 0 0 0', color: 'var(--text-muted)' }}>Tanggal: {tanggal}</p>
                 </div>
               </div>
             </div>
