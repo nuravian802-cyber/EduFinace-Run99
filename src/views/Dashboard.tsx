@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useStore } from '../store/useStore';
 
@@ -7,6 +7,24 @@ const Dashboard: React.FC = () => {
 
   const dbData = { kas: akunKas, siswa: siswa };
   const isLoadingDb = false;
+
+  const [tanggalRekap, setTanggalRekap] = useState(new Date().toISOString().split('T')[0]);
+
+  const rekapHarian = useMemo(() => {
+    const rekap: Record<string, { masuk: number, keluar: number }> = {};
+    akunKas.forEach(a => {
+      rekap[a.id] = { masuk: 0, keluar: 0 };
+    });
+
+    const transaksiHariIni = transaksi.filter(t => t.tanggal === tanggalRekap);
+    transaksiHariIni.forEach(t => {
+      if (rekap[t.akunId]) {
+        if (t.tipe === 'Pemasukan') rekap[t.akunId].masuk += t.nominal;
+        else rekap[t.akunId].keluar += t.nominal;
+      }
+    });
+    return rekap;
+  }, [transaksi, akunKas, tanggalRekap]);
 
   const totalMasuk = useMemo(() => 
     transaksi.filter(t => t.tipe === 'Pemasukan').reduce((sum, t) => sum + t.nominal, 0)
@@ -66,6 +84,43 @@ const Dashboard: React.FC = () => {
         <div className="card">
           <p className="form-label" style={{ marginBottom: '0.25rem' }}>Saldo Kas Bersih</p>
           <h3 style={{ color: 'var(--primary)' }}>Rp {saldoAkhir.toLocaleString('id-ID')}</h3>
+        </div>
+      </div>
+
+      {/* Rekap Harian */}
+      <div className="card" style={{ marginBottom: '2rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+          <h3 style={{ margin: 0 }}>Rekap Kas Harian</h3>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <label className="form-label" style={{ margin: 0 }}>Pilih Tanggal:</label>
+            <input type="date" className="form-control" style={{ width: 'auto' }} value={tanggalRekap} onChange={(e) => setTanggalRekap(e.target.value)} />
+          </div>
+        </div>
+        
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem' }}>
+          {akunKas.map(akun => {
+            const data = rekapHarian[akun.id] || { masuk: 0, keluar: 0 };
+            const bersih = data.masuk - data.keluar;
+            return (
+              <div key={akun.id} style={{ border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', padding: '1rem', backgroundColor: '#f8fafc' }}>
+                <h4 style={{ margin: '0 0 1rem 0', color: 'var(--primary)', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem' }}>{akun.nama}</h4>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                  <span style={{ color: 'var(--text-muted)' }}>Masuk:</span>
+                  <span style={{ fontWeight: 600, color: 'var(--success)' }}>Rp {data.masuk.toLocaleString('id-ID')}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                  <span style={{ color: 'var(--text-muted)' }}>Keluar:</span>
+                  <span style={{ fontWeight: 600, color: 'var(--danger)' }}>Rp {data.keluar.toLocaleString('id-ID')}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem', paddingTop: '0.5rem', borderTop: '1px dashed #cbd5e1' }}>
+                  <span style={{ fontWeight: 600 }}>Bersih:</span>
+                  <span style={{ fontWeight: 700, color: bersih >= 0 ? 'var(--success)' : 'var(--danger)' }}>
+                    {bersih >= 0 ? '+' : '-'} Rp {Math.abs(bersih).toLocaleString('id-ID')}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
