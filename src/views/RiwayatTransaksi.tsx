@@ -6,6 +6,7 @@ import Modal from '../components/Modal';
 const RiwayatTransaksi: React.FC = () => {
   const { transaksi, akunKas, kategori, deleteTransaksi, editTransaksi, profilSekolah } = useStore();
   const [searchTerm, setSearchTerm] = useState('');
+  const [akunIdFilter, setAkunIdFilter] = useState('');
   const [tanggal, setTanggal] = useState(new Date().toISOString().split('T')[0]);
 
   // Modal State
@@ -18,8 +19,9 @@ const RiwayatTransaksi: React.FC = () => {
   const filteredTransaksi = useMemo(() => {
     return transaksi
       .filter(t => t.tanggal === tanggal && (t.keterangan.toLowerCase().includes(searchTerm.toLowerCase())))
+      .filter(t => akunIdFilter === '' || t.akunId === akunIdFilter)
       .sort((a, b) => new Date(b.tanggal).getTime() - new Date(a.tanggal).getTime());
-  }, [transaksi, tanggal, searchTerm]);
+  }, [transaksi, tanggal, searchTerm, akunIdFilter]);
 
   const openEditModal = (t: Transaksi) => {
     setEditId(t.id);
@@ -86,8 +88,8 @@ const RiwayatTransaksi: React.FC = () => {
       </div>
 
       <div className="card">
-        <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
-          <div style={{ flex: 1, position: 'relative' }}>
+        <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+          <div style={{ flex: '1 1 200px', position: 'relative' }}>
             <Search size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
             <input 
               type="text" 
@@ -98,7 +100,15 @@ const RiwayatTransaksi: React.FC = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <div style={{ width: '200px' }}>
+          <div style={{ flex: '0 0 200px' }}>
+            <select className="form-control" value={akunIdFilter} onChange={(e) => setAkunIdFilter(e.target.value)} title="Pilih Akun Kas">
+              <option value="">Semua Akun Kas</option>
+              {akunKas.map(a => (
+                <option key={a.id} value={a.id}>{a.kode} - {a.nama}</option>
+              ))}
+            </select>
+          </div>
+          <div style={{ flex: '0 0 200px' }}>
             <input type="date" className="form-control" value={tanggal} onChange={(e) => setTanggal(e.target.value)} title="Pilih Tanggal" />
           </div>
         </div>
