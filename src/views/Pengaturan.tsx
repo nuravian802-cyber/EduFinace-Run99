@@ -5,7 +5,7 @@ import { useStore } from '../store/useStore';
 
 const Pengaturan: React.FC = () => {
   const navigate = useNavigate();
-  const { profilSekolah, updateProfil } = useStore();
+  const { profilSekolah, updateProfil, riwayatLogin } = useStore();
   
   const [formData, setFormData] = useState({
     nama: profilSekolah.nama,
@@ -55,30 +55,57 @@ const Pengaturan: React.FC = () => {
         </div>
 
         <div className="card">
-          <h3 style={{ marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>Manajemen Pengguna (Roles)</h3>
+          <h3 style={{ marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>Riwayat User Login</h3>
           
           <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-            Daftar peran yang tersedia dalam sistem EduFinance:
+            Daftar riwayat aktivitas login pengguna terbaru:
           </p>
 
-          <div style={{ marginBottom: '1rem', padding: '1rem', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)' }}>
-            <div style={{ fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.5rem' }}>Admin</div>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Akses penuh (Read/Write/Delete) ke seluruh modul termasuk Pengaturan Sistem, Master Data, Transaksi, dan Reporting.</p>
+          <div className="table-responsive">
+            <table className="table" style={{ width: '100%', fontSize: '0.9rem' }}>
+              <thead>
+                <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>
+                  <th style={{ padding: '0.75rem 0' }}>Waktu</th>
+                  <th style={{ padding: '0.75rem 0' }}>Pengguna</th>
+                  <th style={{ padding: '0.75rem 0' }}>Role</th>
+                  <th style={{ padding: '0.75rem 0' }}>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {riwayatLogin.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} style={{ padding: '1rem 0', textAlign: 'center', color: 'var(--text-muted)' }}>Belum ada riwayat login.</td>
+                  </tr>
+                ) : (
+                  riwayatLogin.map((riwayat, index) => (
+                    <tr key={riwayat.id || index} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                      <td style={{ padding: '0.75rem 0' }}>
+                        {riwayat.created_at ? (
+                          <>
+                            {new Date(riwayat.created_at).toLocaleDateString('id-ID')} {new Date(riwayat.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                          </>
+                        ) : '-'}
+                      </td>
+                      <td style={{ padding: '0.75rem 0', fontWeight: 500 }}>{riwayat.pengguna}</td>
+                      <td style={{ padding: '0.75rem 0', color: 'var(--text-muted)' }}>{riwayat.role}</td>
+                      <td style={{ padding: '0.75rem 0' }}>
+                        <span style={{ 
+                          backgroundColor: riwayat.status === 'Berhasil' ? '#dcfce7' : '#fee2e2', 
+                          color: riwayat.status === 'Berhasil' ? '#166534' : '#991b1b', 
+                          padding: '0.25rem 0.5rem', 
+                          borderRadius: '9999px', 
+                          fontSize: '0.75rem', 
+                          fontWeight: 600 
+                        }}>
+                          {riwayat.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
-
-          <div style={{ marginBottom: '1rem', padding: '1rem', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)' }}>
-            <div style={{ fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.5rem' }}>Kepala Sekolah (Principal)</div>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Akses level eksekutif. Hanya dapat melihat (Read-Only) modul Dashboard dan Reporting.</p>
-          </div>
-
-          <div style={{ marginBottom: '1rem', padding: '1rem', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)' }}>
-            <div style={{ fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.5rem' }}>Siswa</div>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Akses khusus untuk siswa agar bisa login dan hanya melihat tagihan/pembayaran mereka sendiri.</p>
-          </div>
-
-          <button className="btn btn-outline" style={{ width: '100%' }} onClick={() => navigate('/sistem/staf-admin')}>
-            Kelola Akun Pengguna
-          </button>
         </div>
       </div>
     </div>

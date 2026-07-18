@@ -245,3 +245,20 @@ export const addRiwayatTransaksiMassal = async (insertDataArray: any[]) => {
   const { data, error } = await supabase.from('riwayat_transaksi').insert(insertDataArray).select();
   return handleResponse(data, error, 'addRiwayatTransaksiMassal');
 };
+
+// ==========================================
+// riwayat_login
+// ==========================================
+export const getRiwayatLogin = async () => {
+  const { data, error } = await supabase
+    .from('riwayat_login')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(50);
+  return handleResponse(data, error, 'getRiwayatLogin');
+};
+
+export const addRiwayatLogin = async (insertData: any) => {
+  const { data, error } = await supabase.from('riwayat_login').insert([insertData]).select();
+  return handleResponse(data, error, 'addRiwayatLogin');
+};

@@ -24,6 +24,14 @@ export interface Admin {
   role: 'Super Admin' | 'Kepala Sekolah' | 'Bendahara';
 }
 
+export interface RiwayatLogin {
+  id?: string;
+  created_at?: string;
+  pengguna: string;
+  role: string;
+  status: 'Berhasil' | 'Gagal';
+}
+
 export interface UserSession {
   id: string;
   username: string;
@@ -87,6 +95,7 @@ interface AppState {
   tagihan: Tagihan[];
   transaksi: Transaksi[];
   admin: Admin[];
+  riwayatLogin: RiwayatLogin[];
   currentUser: UserSession | null;
   
   // Actions
@@ -130,6 +139,8 @@ interface AppState {
   addAdmin: (data: Omit<Admin, 'id'>) => Promise<void>;
   editAdmin: (id: string, data: Partial<Omit<Admin, 'id'>>) => Promise<void>;
   deleteAdmin: (id: string) => Promise<void>;
+
+  catatRiwayatLogin: (data: RiwayatLogin) => Promise<void>;
 }
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
@@ -148,6 +159,7 @@ export const useStore = create<AppState>()((set, get) => ({
   tagihan: [],
   transaksi: [],
   admin: [],
+  riwayatLogin: [],
   currentUser: null,
 
   fetchDataAwal: async () => {
@@ -155,7 +167,7 @@ export const useStore = create<AppState>()((set, get) => ({
     if (get().isInitialized) return;
     
     try {
-      const [profil, kas, siswa, admin, kategori, pos_tagihan, tagihan, transaksi] = await Promise.all([
+      const [profil, kas, siswa, admin, kategori, pos_tagihan, tagihan, transaksi, loginHistory] = await Promise.all([
         api.getProfilSekolah(),
         api.getAkunKas(),
         api.getDataSiswaLengkap(),
@@ -163,7 +175,8 @@ export const useStore = create<AppState>()((set, get) => ({
         api.getPosKategori(),
         api.getPosTagihan(),
         api.getTagihanSiswa(),
-        api.getRiwayatTransaksi()
+        api.getRiwayatTransaksi(),
+        api.getRiwayatLogin()
       ]);
 
       set({
@@ -175,6 +188,7 @@ export const useStore = create<AppState>()((set, get) => ({
         posTagihan: pos_tagihan || [],
         tagihan: tagihan || [],
         transaksi: transaksi || [],
+        riwayatLogin: loginHistory || [],
         isInitialized: true
       });
     } catch (err) {
@@ -659,5 +673,20 @@ export const useStore = create<AppState>()((set, get) => ({
   deleteAdmin: async (id) => {
     const res = await api.deletePenggunaStafAdmin(id);
     if (res) set((state) => ({ admin: state.admin.filter(a => a.id !== id) }));
+  },
+
+  catatRiwayatLogin: async (data) => {
+    const insertData = { 
+      ...data, 
+      created_at: new Date().toISOString()
+    };
+    const res = await api.addRiwayatLogin(insertData);
+    if (res) {
+      set((state) => {
+        const newRiwayat = [insertData as RiwayatLogin, ...state.riwayatLogin];
+        if (newRiwayat.length > 50) newRiwayat.pop();
+        return { riwayatLogin: newRiwayat };
+      });
+    }
   },
 }));

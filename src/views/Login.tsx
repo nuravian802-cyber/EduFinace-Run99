@@ -36,6 +36,12 @@ const Login: React.FC = () => {
       if (authErrorSiswa || !dataSiswa?.user) {
         setError('Username/NIS atau Password salah.');
         setLoading(false);
+        // Record failed login
+        useStore.getState().catatRiwayatLogin({
+          pengguna: username,
+          role: 'Tidak Diketahui',
+          status: 'Gagal'
+        });
         return;
       }
       userSession = dataSiswa.user;
@@ -60,6 +66,13 @@ const Login: React.FC = () => {
       username: username,
       nama: nama,
       role: role as any || 'Siswa'
+    });
+    
+    // Record successful login
+    useStore.getState().catatRiwayatLogin({
+      pengguna: nama,
+      role: role as any || 'Siswa',
+      status: 'Berhasil'
     });
 
     setLoading(false);
