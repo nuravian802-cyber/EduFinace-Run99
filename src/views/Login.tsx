@@ -27,24 +27,45 @@ const Login: React.FC = () => {
     });
 
     if (authError || !data.user) {
-      // Fallback: Try Siswa Login
-      const { data: dataSiswa, error: authErrorSiswa } = await supabase.auth.signInWithPassword({
-        email: `${username}@siswa.edufinance.com`,
-        password: password,
-      });
-
-      if (authErrorSiswa || !dataSiswa?.user) {
-        setError('Username/NIS atau Password salah.');
-        setLoading(false);
-        // Record failed login
-        useStore.getState().catatRiwayatLogin({
-          pengguna: username,
-          role: 'Tidak Diketahui',
-          status: 'Gagal'
+      // Fallback 1: Check against local 'admin' store (for users added via UI)
+      const localAdmin = admin.find(a => a.username === username && a.password === password);
+      
+      if (localAdmin) {
+        userSession = {
+          id: localAdmin.id,
+          user_metadata: { role: localAdmin.role, custom_id: localAdmin.id }
+        };
+      } else {
+        // Fallback 2: Try Siswa Login via Supabase Auth
+        const { data: dataSiswa, error: authErrorSiswa } = await supabase.auth.signInWithPassword({
+          email: `${username}@siswa.edufinance.com`,
+          password: password,
         });
-        return;
+
+        if (authErrorSiswa || !dataSiswa?.user) {
+          // Fallback 3: Check against local 'siswa' store
+          const localSiswa = siswa.find(s => s.nis === username && s.password === password);
+          
+          if (localSiswa) {
+            userSession = {
+              id: localSiswa.id,
+              user_metadata: { role: 'Siswa', custom_id: localSiswa.id }
+            };
+          } else {
+            setError('Username/NIS atau Password salah.');
+            setLoading(false);
+            // Record failed login
+            useStore.getState().catatRiwayatLogin({
+              pengguna: username,
+              role: 'Tidak Diketahui',
+              status: 'Gagal'
+            });
+            return;
+          }
+        } else {
+          userSession = dataSiswa.user;
+        }
       }
-      userSession = dataSiswa.user;
     } else {
       userSession = data.user;
     }
